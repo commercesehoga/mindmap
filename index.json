@@ -1,0 +1,17 @@
+[
+  {
+    "title": "SSC CGL Full Syllabus",
+    "description": "All four sections at a glance — Quant, Reasoning, English, General Awareness.",
+    "file": "ssc-cgl-full-syllabus.json"
+  },
+  {
+    "title": "CUET General Test",
+    "description": "General Test domains — Quant, Reasoning, GK & Current Affairs.",
+    "file": "cuet-general-test.json"
+  },
+  {
+    "title": "Banking Awareness",
+    "description": "RBI, monetary policy, banking terms and schemes for IBPS/SBI exams.",
+    "file": "banking-awareness.json"
+  }
+]

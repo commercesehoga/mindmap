@@ -1,0 +1,34 @@
+{
+  "title": "CUET General Test",
+  "branches": [
+    {
+      "label": "Quantitative Reasoning",
+      "children": [
+        { "label": "Number System", "children": [{ "label": "HCF & LCM" }, { "label": "Simplification" }] },
+        { "label": "Arithmetic", "children": [{ "label": "Ratio & Proportion" }, { "label": "Average" }] },
+        { "label": "Data Interpretation", "children": [{ "label": "Tables" }, { "label": "Graphs" }] }
+      ]
+    },
+    {
+      "label": "Logical Reasoning",
+      "children": [
+        { "label": "Analytical", "children": [{ "label": "Statement & Conclusion" }, { "label": "Assumptions" }] },
+        { "label": "Visual", "children": [{ "label": "Pattern Series" }, { "label": "Odd One Out" }] }
+      ]
+    },
+    {
+      "label": "General Knowledge",
+      "children": [
+        { "label": "Static GK", "children": [{ "label": "Books & Authors" }, { "label": "Important Days" }] },
+        { "label": "Current Affairs", "children": [{ "label": "National" }, { "label": "International" }, { "label": "Sports" }] },
+        { "label": "Static India", "children": [{ "label": "States & Capitals" }, { "label": "National Parks" }] }
+      ]
+    },
+    {
+      "label": "Reading Comprehension",
+      "children": [
+        { "label": "Passage Based", "children": [{ "label": "Inference" }, { "label": "Vocabulary in Context" }] }
+      ]
+    }
+  ]
+}

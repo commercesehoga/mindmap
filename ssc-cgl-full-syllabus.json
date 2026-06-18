@@ -1,0 +1,41 @@
+{
+  "title": "SSC CGL Syllabus",
+  "branches": [
+    {
+      "label": "Quantitative Aptitude",
+      "children": [
+        { "label": "Arithmetic", "children": [{ "label": "Percentage" }, { "label": "Profit & Loss" }, { "label": "Time & Work" }, { "label": "SI & CI" }] },
+        { "label": "Algebra", "children": [{ "label": "Linear Equations" }, { "label": "Quadratic Equations" }] },
+        { "label": "Geometry", "children": [{ "label": "Triangles" }, { "label": "Circles" }, { "label": "Mensuration" }] },
+        { "label": "Trigonometry", "children": [{ "label": "Identities" }, { "label": "Heights & Distances" }] },
+        { "label": "Data Interpretation", "children": [{ "label": "Bar Graphs" }, { "label": "Pie Charts" }] }
+      ]
+    },
+    {
+      "label": "Reasoning",
+      "children": [
+        { "label": "Verbal", "children": [{ "label": "Analogy" }, { "label": "Classification" }, { "label": "Series" }] },
+        { "label": "Non-Verbal", "children": [{ "label": "Mirror Images" }, { "label": "Paper Folding" }] },
+        { "label": "Logical", "children": [{ "label": "Syllogism" }, { "label": "Blood Relations" }, { "label": "Coding-Decoding" }] }
+      ]
+    },
+    {
+      "label": "English",
+      "children": [
+        { "label": "Grammar", "children": [{ "label": "Tenses" }, { "label": "Articles" }, { "label": "Voice Change" }] },
+        { "label": "Vocabulary", "children": [{ "label": "Synonyms" }, { "label": "Antonyms" }, { "label": "Idioms" }] },
+        { "label": "Comprehension", "children": [{ "label": "Reading Passage" }, { "label": "Cloze Test" }] }
+      ]
+    },
+    {
+      "label": "General Awareness",
+      "children": [
+        { "label": "History", "children": [{ "label": "Ancient India" }, { "label": "Freedom Struggle" }] },
+        { "label": "Polity", "children": [{ "label": "Constitution" }, { "label": "Fundamental Rights" }] },
+        { "label": "Geography", "children": [{ "label": "Physical Geography" }, { "label": "Indian Rivers" }] },
+        { "label": "Science", "children": [{ "label": "Physics Basics" }, { "label": "Biology Basics" }] },
+        { "label": "Current Affairs", "children": [{ "label": "Govt Schemes" }, { "label": "Awards" }] }
+      ]
+    }
+  ]
+}

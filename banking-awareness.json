@@ -1,0 +1,41 @@
+{
+  "title": "Banking Awareness",
+  "branches": [
+    {
+      "label": "RBI & Monetary Policy",
+      "children": [
+        { "label": "RBI Functions", "children": [{ "label": "Note Issue" }, { "label": "Banker's Bank" }] },
+        { "label": "Policy Tools", "children": [{ "label": "Repo Rate" }, { "label": "Reverse Repo" }, { "label": "CRR & SLR" }] }
+      ]
+    },
+    {
+      "label": "Types of Banks",
+      "children": [
+        { "label": "Commercial Banks", "children": [{ "label": "Public Sector" }, { "label": "Private Sector" }] },
+        { "label": "Cooperative Banks", "children": [{ "label": "Urban" }, { "label": "Rural" }] },
+        { "label": "Payment Banks", "children": [{ "label": "Examples" }] }
+      ]
+    },
+    {
+      "label": "Govt Schemes",
+      "children": [
+        { "label": "Financial Inclusion", "children": [{ "label": "Jan Dhan Yojana" }, { "label": "Atal Pension Yojana" }] },
+        { "label": "Insurance", "children": [{ "label": "PMJJBY" }, { "label": "PMSBY" }] }
+      ]
+    },
+    {
+      "label": "Banking Terms",
+      "children": [
+        { "label": "NPA", "children": [{ "label": "Gross NPA" }, { "label": "Net NPA" }] },
+        { "label": "Digital Banking", "children": [{ "label": "NEFT" }, { "label": "RTGS" }, { "label": "UPI" }] }
+      ]
+    },
+    {
+      "label": "International Bodies",
+      "children": [
+        { "label": "IMF", "children": [{ "label": "Role" }] },
+        { "label": "World Bank", "children": [{ "label": "Role" }] }
+      ]
+    }
+  ]
+}
