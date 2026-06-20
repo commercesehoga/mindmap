@@ -646,55 +646,101 @@ footer{background:var(--canvas-parchment); padding:48px 16px 24px; margin-top:40
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
-<!-- Fix 5: YouTube transcript — intercept /api/youtube-transcript and resolve client-side
-     Uses youtubetranscript.com public API (CORS-open, no key required).
-     Falls back gracefully if unavailable. -->
+<!-- YouTube transcript client-side guard.
+     The real work happens in /api/youtube-transcript.js (server-side).
+     This intercept only fires when that route 404s (e.g. local dev without
+     the api/ folder) and tries youtube-transcript.ai directly as a fallback.
+     In production on Vercel the fetch hits the serverless route first. -->
 <script>
 (function(){
   var _nativeFetch = window.fetch.bind(window);
-  window.fetch = function(url, opts){
-    if(typeof url === 'string' && url.startsWith('/api/youtube-transcript')){
-      var params = new URL(url, location.origin);
-      var videoId = params.searchParams.get('id') || '';
-      if(!videoId) return Promise.resolve(new Response(JSON.stringify({error:'No video ID'}),{status:400,headers:{'Content-Type':'application/json'}}));
-      // Primary: Invidious instances (open-source YouTube proxy, CORS-friendly)
-      var invidious = 'https://invidious.privacyredirect.com/api/v1/captions/' + encodeURIComponent(videoId) + '?label=English';
-      return _nativeFetch(invidious)
-        .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
-        .then(function(data){
-          // Invidious returns {captions:[{url,...}]} — fetch the VTT
-          var caps = (data.captions||[]).find(function(c){ return c.label && c.label.toLowerCase().includes('english'); }) || data.captions[0];
-          if(!caps) throw new Error('no captions');
-          return _nativeFetch('https://invidious.privacyredirect.com' + caps.url);
-        })
-        .then(function(r){ return r.ok ? r.text() : Promise.reject('vtt fetch failed'); })
-        .then(function(vtt){
-          // Strip VTT markup, deduplicate lines
-          var lines = vtt.split('\n');
-          var text = [];
-          var seen = Object.create(null);
-          lines.forEach(function(l){
-            l = l.replace(/<[^>]*>/g,'').replace(/^\d{2}:\d{2}:\d{2}.*-->.*/,'').trim();
-            if(l && !/^WEBVTT|^NOTE/.test(l) && !seen[l]){ seen[l]=1; text.push(l); }
-          });
-          var transcript = text.join(' ').replace(/\s{2,}/g,' ').trim();
-          return new Response(JSON.stringify({transcript:transcript}),{status:200,headers:{'Content-Type':'application/json'}});
-        })
-        .catch(function(){
-          // Fallback: try YouTubeTranscript.com API
-          return _nativeFetch('https://yt-transcript-api.deno.dev/transcript?id=' + encodeURIComponent(videoId))
-            .then(function(r){ return r.ok ? r.json() : Promise.reject('fallback failed'); })
-            .then(function(d){
-              var arr = Array.isArray(d) ? d : (d.transcript||[]);
-              var text = arr.map(function(s){ return (s.text||s.snippet||s).replace(/<[^>]*>/g,''); }).join(' ').trim();
-              return new Response(JSON.stringify({transcript:text||''}),{status:200,headers:{'Content-Type':'application/json'}});
-            })
-            .catch(function(){
-              return new Response(JSON.stringify({error:'no transcript'}),{status:502,headers:{'Content-Type':'application/json'}});
-            });
-        });
+
+  // Helper: strip YAML front-matter and [m:ss] timestamps from markdown text
+  function cleanMarkdown(raw) {
+    return raw
+      .replace(/^---[\s\S]*?---\s*/m, '')   // remove front-matter block
+      .replace(/\[\d+:\d+\]/g, '')           // remove [0:00] timestamps
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+  }
+
+  window.fetch = function(url, opts) {
+    if (typeof url !== 'string' || !url.startsWith('/api/youtube-transcript')) {
+      return _nativeFetch(url, opts);
     }
-    return _nativeFetch(url, opts);
+
+    var params = new URL(url, location.origin);
+    var videoId = params.searchParams.get('id') || '';
+    if (!videoId) {
+      return Promise.resolve(new Response(
+        JSON.stringify({ error: 'No video ID' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      ));
+    }
+
+    // Step 1: try the real serverless route
+    return _nativeFetch(url, opts)
+      .then(function(r) {
+        // If the serverless function returned a proper 200, use it
+        if (r.ok) return r;
+        // If it 404'd (route not deployed) fall through to client fallback
+        if (r.status === 404) throw new Error('route_missing');
+        // Any other error from our own API — surface it
+        return r;
+      })
+      .catch(function(err) {
+        // Only run client-side fallback when the route itself is missing
+        if (err.message !== 'route_missing') {
+          return new Response(
+            JSON.stringify({ error: 'no transcript' }),
+            { status: 502, headers: { 'Content-Type': 'application/json' } }
+          );
+        }
+
+        // Client-side fallback: youtube-transcript.ai (CORS-open, free, no key)
+        // Returns clean Markdown — strip front-matter & timestamps
+        return _nativeFetch(
+          'https://youtube-transcript.ai/transcript/' + encodeURIComponent(videoId) + '.txt',
+          { headers: { 'Accept': 'text/plain, text/markdown, */*' } }
+        )
+        .then(function(r) {
+          if (!r.ok) throw new Error('ytai_fail');
+          return r.text();
+        })
+        .then(function(raw) {
+          var text = cleanMarkdown(raw);
+          if (text.length < 50) throw new Error('ytai_empty');
+          return new Response(
+            JSON.stringify({ transcript: text }),
+            { status: 200, headers: { 'Content-Type': 'application/json' } }
+          );
+        })
+        .catch(function() {
+          // Last resort: jaypaun007 hosted API (POST, free, no key)
+          return _nativeFetch(
+            'https://youtube-transcript-api-tau-one.vercel.app/transcript',
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ video_url: 'https://www.youtube.com/watch?v=' + videoId })
+            }
+          )
+          .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+          .then(function(d) {
+            var text = (d.transcript || '').trim();
+            return new Response(
+              JSON.stringify(text.length > 50 ? { transcript: text } : { error: 'no transcript' }),
+              { status: text.length > 50 ? 200 : 502, headers: { 'Content-Type': 'application/json' } }
+            );
+          })
+          .catch(function() {
+            return new Response(
+              JSON.stringify({ error: 'no transcript' }),
+              { status: 502, headers: { 'Content-Type': 'application/json' } }
+            );
+          });
+        });
+      });
   };
 })();
 </script>
