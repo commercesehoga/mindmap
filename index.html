@@ -269,6 +269,131 @@ footer{background:var(--canvas-parchment); padding:48px 16px 24px; margin-top:40
   .panel-actions{gap:6px;}
   .panel-action-btn{font-size:13px; padding:0 14px;}
 }
+
+/* ============================= */
+/* HERO SECTION — full first screen */
+/* ============================= */
+html{scroll-behavior:smooth;}
+
+.hero{
+  position:relative;
+  min-height:calc(100vh - 64px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  background:linear-gradient(180deg, var(--canvas) 0%, var(--tint-1) 52%, var(--canvas) 100%);
+  padding:48px 20px 56px;
+}
+[data-theme="dark"] .hero{background:linear-gradient(180deg, var(--canvas) 0%, var(--tint-1) 52%, var(--canvas) 100%);}
+
+.hero::before{
+  content:"";
+  position:absolute; inset:0;
+  background-image:radial-gradient(var(--hairline-strong) 1.4px, transparent 1.4px);
+  background-size:26px 26px;
+  -webkit-mask-image:radial-gradient(ellipse 62% 58% at 50% 42%, #000 0%, transparent 72%);
+  mask-image:radial-gradient(ellipse 62% 58% at 50% 42%, #000 0%, transparent 72%);
+  opacity:.55;
+  pointer-events:none;
+}
+
+.hero-rays{position:absolute; inset:0; width:100%; height:100%; pointer-events:none;}
+.hero-rays line{stroke:var(--hairline-strong); stroke-width:1.4; stroke-dasharray:2 7; stroke-linecap:round; opacity:.7;}
+
+.hero-inner{position:relative; z-index:2; max-width:640px; margin:0 auto; text-align:center; padding:0 8px;}
+
+.hero-badge{
+  width:60px; height:60px; border-radius:var(--radius-lg); margin:0 auto 28px;
+  background:var(--primary); display:flex; align-items:center; justify-content:center;
+  box-shadow:0 3px 5px 30px rgba(0,0,0,.22), 0 10px 30px -8px rgba(87,58,252,.55);
+}
+.hero-badge svg{width:30px; height:30px; stroke:none; fill:#fff;}
+
+.hero h1{
+  font-size:52px; line-height:1.08; letter-spacing:-.4px; font-weight:700; color:var(--ink); margin:0 0 18px;
+}
+.hero h1 .accent{color:var(--primary); display:block;}
+
+.hero-sub{font-size:18px; line-height:1.55; color:var(--muted); max-width:520px; margin:0 auto 28px; font-weight:400;}
+
+.hero-tags{display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; margin-bottom:30px;}
+.hero-tag{
+  display:inline-flex; align-items:center; gap:6px; background:var(--canvas); border:1px solid var(--hairline-strong);
+  color:var(--ink); font-size:12px; font-weight:700; letter-spacing:.3px; padding:7px 13px 7px 9px; border-radius:var(--radius-pill);
+}
+.hero-tag svg{width:13px; height:13px; stroke:var(--primary); flex-shrink:0;}
+.hero-tag.check{color:var(--muted); font-weight:600; border-style:dashed;}
+
+.hero-cta-row{display:flex; flex-direction:column; align-items:center; gap:12px; margin-bottom:36px;}
+.hero-cta{
+  display:inline-flex; align-items:center; gap:9px; height:54px; padding:0 30px; border-radius:var(--radius-pill);
+  background:var(--primary); color:#fff; font-size:16px; font-weight:600; border:none; box-shadow:0 10px 28px -10px rgba(87,58,252,.55);
+  transition:transform .15s ease, background .15s ease;
+}
+.hero-cta:active{transform:scale(.96); background:var(--primary-active);}
+.hero-cta svg{width:18px; height:18px;}
+.hero-fineprint{font-size:13px; color:var(--muted-soft);}
+
+.hero-modes{display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap;}
+.hero-mode-icon{
+  width:44px; height:44px; border-radius:var(--radius-pill); background:var(--canvas); border:1px solid var(--hairline-strong);
+  display:flex; align-items:center; justify-content:center;
+}
+.hero-mode-icon svg{width:19px; height:19px; stroke:var(--ink);}
+.hero-mode-icon.fill svg{fill:var(--ink); stroke:none;}
+
+/* floating cards */
+.hero-float{
+  position:absolute; z-index:1; background:var(--canvas); border:1px solid var(--hairline);
+  border-radius:var(--radius-lg); padding:14px; box-shadow:rgba(0,0,0,.16) 3px 5px 30px;
+}
+.hero-float .ft-label{font-size:10px; font-weight:700; letter-spacing:.8px; text-transform:uppercase; color:var(--muted-soft); margin-bottom:8px;}
+.hero-float .ft-row{display:flex; align-items:center; gap:8px;}
+.hero-float .ft-dot{width:28px; height:28px; border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+.hero-float .ft-dot svg{width:14px; height:14px;}
+.hero-float .ft-title{font-size:12.5px; font-weight:700; color:var(--ink);}
+.hero-float .ft-sub{font-size:11px; color:var(--muted-soft); margin-top:1px;}
+
+.ft-topics{top:9%; left:5%;}
+.ft-export{top:11%; right:5%;}
+.ft-depth{top:42%; left:1%; transform:rotate(-6deg);}
+.ft-youtube{top:44%; right:1%; transform:rotate(6deg);}
+.ft-preview{bottom:9%; left:7%; transform:rotate(-7deg); width:172px;}
+.ft-maps{bottom:10%; right:6%; transform:rotate(7deg); width:178px;}
+
+.ft-export .ft-icons{display:flex; gap:6px;}
+.ft-export .ft-icons span{width:24px; height:24px; border-radius:7px; background:var(--surface-strong); display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:700; color:var(--muted);}
+
+.ft-depth .chip-mini{display:flex; gap:6px;}
+.ft-depth .chip-mini span{font-size:11px; font-weight:700; padding:6px 10px; border-radius:var(--radius-pill); border:1.5px solid var(--hairline-strong); color:var(--muted);}
+.ft-depth .chip-mini span.on{border-color:var(--primary-focus); color:var(--primary);}
+
+.ft-youtube .yt-thumb{width:100%; height:54px; border-radius:8px; background:var(--surface-strong); display:flex; align-items:center; justify-content:center; margin-bottom:8px;}
+.ft-youtube .yt-thumb svg{width:18px; height:18px; fill:#fff;}
+
+.ft-preview svg{width:100%; height:64px; display:block;}
+
+.ft-maps .map-row{display:flex; align-items:center; gap:8px; padding:5px 0;}
+.ft-maps .map-row .dot{width:8px; height:8px; border-radius:50%; flex-shrink:0;}
+.ft-maps .map-row span{font-size:11px; font-weight:600; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+
+@media (max-width:1140px){
+  .hero-float{display:none;}
+}
+@media (max-width:640px){
+  .hero{padding:40px 16px 44px;}
+  .hero h1{font-size:34px;}
+  .hero-sub{font-size:15.5px;}
+  .hero-badge{width:50px; height:50px; margin-bottom:20px;}
+  .hero-badge svg{width:25px; height:25px;}
+  .hero-cta{height:50px; padding:0 24px; font-size:15px;}
+  .hero-mode-icon{width:40px; height:40px;}
+}
+@media (max-width:419px){
+  .hero h1{font-size:28px;}
+  .hero-tags{gap:6px;}
+}
 </style>
 </head>
 <body>
@@ -294,7 +419,120 @@ footer{background:var(--canvas-parchment); padding:48px 16px 24px; margin-top:40
   </div>
 </header>
 
-<main>
+<!-- ===== HERO ===== -->
+<section class="hero" aria-label="Introduction">
+  <svg class="hero-rays" viewBox="0 0 1200 800" preserveAspectRatio="none" aria-hidden="true">
+    <line x1="600" y1="280" x2="140" y2="90"/>
+    <line x1="600" y1="280" x2="1060" y2="90"/>
+    <line x1="600" y1="280" x2="40" y2="380"/>
+    <line x1="600" y1="280" x2="1160" y2="380"/>
+    <line x1="600" y1="280" x2="190" y2="650"/>
+    <line x1="600" y1="280" x2="1010" y2="650"/>
+  </svg>
+
+  <!-- floating card: AI topics -->
+  <div class="hero-float ft-topics" aria-hidden="true">
+    <div class="ft-row">
+      <div class="ft-dot" style="background:var(--tint-1);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M12 2v6m0 8v6M2 12h6m8 0h6"/></svg>
+      </div>
+      <div>
+        <div class="ft-title">AI Topics</div>
+        <div class="ft-sub">500+ exam-ready</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- floating card: export formats -->
+  <div class="hero-float ft-export" aria-hidden="true">
+    <div class="ft-label">Export</div>
+    <div class="ft-icons">
+      <span>PDF</span><span>PNG</span><span>SVG</span>
+    </div>
+  </div>
+
+  <!-- floating card: depth selector -->
+  <div class="hero-float ft-depth" aria-hidden="true">
+    <div class="ft-label">Depth</div>
+    <div class="chip-mini"><span>Quick</span><span class="on">Deep</span></div>
+  </div>
+
+  <!-- floating card: youtube import -->
+  <div class="hero-float ft-youtube" style="width:150px;" aria-hidden="true">
+    <div class="yt-thumb">
+      <svg viewBox="0 0 24 24"><polygon points="9.75 6.98 17.5 12 9.75 17.02 9.75 6.98"/></svg>
+    </div>
+    <div class="ft-title">YouTube Import</div>
+  </div>
+
+  <!-- floating card: mind map preview -->
+  <div class="hero-float ft-preview" aria-hidden="true">
+    <div class="ft-label">Live Preview</div>
+    <svg viewBox="0 0 160 64" fill="none">
+      <rect x="4" y="24" width="34" height="16" rx="5" fill="var(--primary)"/>
+      <rect x="60" y="4" width="38" height="14" rx="5" fill="var(--tint-1)" stroke="var(--hairline-strong)"/>
+      <rect x="60" y="25" width="38" height="14" rx="5" fill="var(--tint-1)" stroke="var(--hairline-strong)"/>
+      <rect x="60" y="46" width="38" height="14" rx="5" fill="var(--tint-1)" stroke="var(--hairline-strong)"/>
+      <path d="M38 32H50M50 32V11H60M50 32V32H60M50 32V53H60" stroke="var(--hairline-strong)" stroke-width="1.5" fill="none"/>
+    </svg>
+  </div>
+
+  <!-- floating card: my maps -->
+  <div class="hero-float ft-maps" aria-hidden="true">
+    <div class="ft-label">My Maps</div>
+    <div class="map-row"><span class="dot" style="background:var(--primary);"></span><span>Fundamental Rights</span></div>
+    <div class="map-row"><span class="dot" style="background:var(--warning);"></span><span>Cell Structure</span></div>
+    <div class="map-row"><span class="dot" style="background:var(--success);"></span><span>Banking System</span></div>
+  </div>
+
+  <div class="hero-inner">
+    <div class="hero-badge" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg>
+    </div>
+
+    <h1>
+      Turn Any Topic Into a
+      <span class="accent">Clear Mind Map</span>
+    </h1>
+
+    <p class="hero-sub">AI that turns topics, notes, PDFs, photos and YouTube videos into exam-ready mind maps in seconds — built for CUET, SSC and Banking aspirants.</p>
+
+    <div class="hero-tags">
+      <span class="hero-tag"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>CUET</span>
+      <span class="hero-tag"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>SSC</span>
+      <span class="hero-tag"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Banking</span>
+      <span class="hero-tag"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>JEE / NEET</span>
+    </div>
+
+    <div class="hero-cta-row">
+      <a class="hero-cta" href="#appSection">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg>
+        Generate Your First Map
+      </a>
+      <span class="hero-fineprint">No credit card needed · 3 free maps every day</span>
+    </div>
+
+    <div class="hero-modes" role="group" aria-label="Supported input modes">
+      <div class="hero-mode-icon" title="Topic">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6m0 8v6M2 12h6m8 0h6"/></svg>
+      </div>
+      <div class="hero-mode-icon" title="Paste Text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+      </div>
+      <div class="hero-mode-icon" title="Upload PDF">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+      </div>
+      <div class="hero-mode-icon" title="Photo / OCR">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
+      </div>
+      <div class="hero-mode-icon" title="YouTube">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22.54 6.42A2.78 2.78 0 0 0 20.6 4.5C18.88 4 12 4 12 4s-6.88 0-8.6.5A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.4 19.5C5.12 20 12 20 12 20s6.88 0 8.6-.5a2.78 2.78 0 0 0 1.94-1.92A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<main id="appSection">
   <div class="tab-bar" role="tablist">
     <button class="tab-btn active" data-tab="create" role="tab">Create</button>
     <button class="tab-btn" data-tab="presets" role="tab">Presets</button>
