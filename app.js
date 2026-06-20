@@ -1158,6 +1158,28 @@ async function ensureJsPDF() {
   return window.jspdf.jsPDF;
 }
 
+/* ---------- shared PDF footer helper ----------
+   Draws on the CURRENT page. Call after all content is placed on that page.
+   Left  → @wondermayank
+   Right → Created by ThunderStudy                                          */
+function addPdfFooter(pdf, pageW, pageH) {
+  const footerY = pageH - 18;
+  const footerSize = 8.5;
+  pdf.setFontSize(footerSize);
+  pdf.setTextColor(160);
+  // left: @wondermayank
+  pdf.text('@wondermayank', 36, footerY, { align: 'left' });
+  // right: Created by ThunderStudy
+  pdf.text('Created by ThunderStudy', pageW - 36, footerY, { align: 'right' });
+  // thin separator line above footer
+  pdf.setDrawColor(220);
+  pdf.setLineWidth(0.4);
+  pdf.line(36, footerY - 8, pageW - 36, footerY - 8);
+  // reset colours
+  pdf.setTextColor(0);
+  pdf.setDrawColor(0);
+}
+
 async function exportDiagramPdf() {
   toast('Building PDF...');
   const jsPDF = await ensureJsPDF();
@@ -1168,14 +1190,22 @@ async function exportDiagramPdf() {
   const pdf = new jsPDF({ orientation: isLandscape ? 'landscape' : 'portrait', unit: 'pt', format: 'a4' });
   const pageW = pdf.internal.pageSize.getWidth();
   const pageH = pdf.internal.pageSize.getHeight();
-  const margin = 30;
+  const margin = 36;
+  // Reserve 32 pt at bottom for footer
+  const footerH = 32;
   const availW = pageW - margin * 2;
-  const availH = pageH - margin * 2 - 30;
+  const availH = pageH - margin * 2 - footerH;
   const ratio = Math.min(availW / canvas.width, availH / canvas.height);
   const w = canvas.width * ratio, h = canvas.height * ratio;
+  // Title
   pdf.setFontSize(16);
+  pdf.setFont(undefined, 'bold');
   pdf.text(currentMapData.title || 'Mind Map', pageW / 2, margin, { align: 'center' });
-  pdf.addImage(imgData, 'PNG', (pageW - w) / 2, margin + 20, w, h);
+  pdf.setFont(undefined, 'normal');
+  // Mind map image
+  pdf.addImage(imgData, 'PNG', (pageW - w) / 2, margin + 22, w, h);
+  // Footer on this single page
+  addPdfFooter(pdf, pageW, pageH);
   pdf.save((currentMapData.title || 'mindmap').replace(/[^a-z0-9]+/gi, '-').toLowerCase() + '-diagram.pdf');
   toast('Diagram PDF downloaded.');
 }
@@ -1188,33 +1218,105 @@ async function exportBookletPdf() {
   const pageH = pdf.internal.pageSize.getHeight();
   const margin = 50;
   const maxW = pageW - margin * 2;
+  // Footer reserves 32 pt at the very bottom of every page
+  const footerH = 32;
+  // Content area bottom boundary (don't print below this)
+  const contentBottom = pageH - footerH - 10;
 
-  pdf.setFontSize(24);
-  pdf.text(currentMapData.title || 'Mind Map', pageW / 2, pageH / 2 - 20, { align: 'center', maxWidth: maxW });
-  pdf.setFontSize(11);
+  /* ── PAGE 1: Title cover ─────────────────────────────────────────── */
+  pdf.setFontSize(28);
+  pdf.setFont(undefined, 'bold');
+  const coverTitleLines = pdf.splitTextToSize(currentMapData.title || 'Mind Map', maxW);
+  // Centre vertically in the content area
+  const coverTitleH = coverTitleLines.length * 36;
+  let coverY = (contentBottom - coverTitleH) / 2;
+  pdf.text(coverTitleLines, pageW / 2, coverY, { align: 'center' });
+  pdf.setFont(undefined, 'normal');
+  // Sub-line
+  pdf.setFontSize(12);
   pdf.setTextColor(120);
-  pdf.text('Study booklet \u00b7 one topic per page \u00b7 generated with Thunder Mind Map', pageW / 2, pageH / 2 + 14, { align: 'center' });
-  pdf.text('mindmap.thunderstudy.indevs.in', pageW / 2, pageH - 40, { align: 'center' });
+  pdf.text('Study Booklet \u00b7 generated with Thunder Mind Map', pageW / 2, coverY + coverTitleH + 22, { align: 'center' });
+  pdf.text('mindmap.thunderstudy.indevs.in', pageW / 2, coverY + coverTitleH + 40, { align: 'center' });
   pdf.setTextColor(0);
+  addPdfFooter(pdf, pageW, pageH);
 
+  /* ── PAGE 2: Full mind map diagram ───────────────────────────────── */
+  pdf.addPage('a4', 'landscape');
+  const p2W = pdf.internal.pageSize.getWidth();
+  const p2H = pdf.internal.pageSize.getHeight();
+  const p2Margin = 36;
+  const p2FooterH = 32;
+  // Render map (reuse the live SVG; bwExportMode respected)
+  const svg = $('#map-svg');
+  const mapCanvas = await renderSvgToCanvas(svg, 2, bwExportMode);
+  const mapImg = mapCanvas.toDataURL('image/png');
+  const p2AvailW = p2W - p2Margin * 2;
+  const p2AvailH = p2H - p2Margin * 2 - p2FooterH - 26; // 26 for title row
+  const mapRatio = Math.min(p2AvailW / mapCanvas.width, p2AvailH / mapCanvas.height);
+  const mW = mapCanvas.width * mapRatio, mH = mapCanvas.height * mapRatio;
+  // Page title
+  pdf.setFontSize(13);
+  pdf.setFont(undefined, 'bold');
+  pdf.text(currentMapData.title || 'Mind Map', p2W / 2, p2Margin, { align: 'center' });
+  pdf.setFont(undefined, 'normal');
+  pdf.addImage(mapImg, 'PNG', (p2W - mW) / 2, p2Margin + 18, mW, mH);
+  addPdfFooter(pdf, p2W, p2H);
+
+  /* ── PAGES 3+: Detail notes, one topic per page ──────────────────── */
   function addTopicPage(label, detail, breadcrumb, level) {
-    pdf.addPage();
+    pdf.addPage('a4', 'portrait');
+    const pW = pdf.internal.pageSize.getWidth();
+    const pH = pdf.internal.pageSize.getHeight();
     let y = margin;
+
+    // Breadcrumb
     if (breadcrumb) {
-      pdf.setFontSize(10);
-      pdf.setTextColor(140);
-      pdf.text(breadcrumb, margin, y);
+      pdf.setFontSize(9);
+      pdf.setTextColor(150);
+      const bcLines = pdf.splitTextToSize(breadcrumb, maxW);
+      pdf.text(bcLines, margin, y);
       pdf.setTextColor(0);
-      y += 22;
+      y += bcLines.length * 13 + 6;
+      // thin rule under breadcrumb
+      pdf.setDrawColor(220);
+      pdf.setLineWidth(0.5);
+      pdf.line(margin, y, pW - margin, y);
+      pdf.setDrawColor(0);
+      y += 14;
     }
-    pdf.setFontSize(level === 1 ? 20 : level === 2 ? 17 : 15);
+
+    // Topic heading
+    const headingSize = level === 1 ? 22 : level === 2 ? 18 : 15;
+    const lineH = level === 1 ? 29 : level === 2 ? 24 : 21;
+    pdf.setFontSize(headingSize);
+    pdf.setFont(undefined, 'bold');
     const titleLines = pdf.splitTextToSize(label, maxW);
     pdf.text(titleLines, margin, y);
-    y += titleLines.length * (level === 1 ? 26 : 22) + 14;
+    pdf.setFont(undefined, 'normal');
+    y += titleLines.length * lineH + 16;
+
+    // Level badge (Branch / Sub-topic / Key Point)
+    const badge = level === 1 ? 'Branch' : level === 2 ? 'Sub-topic' : 'Key Point';
+    pdf.setFontSize(8);
+    pdf.setTextColor(100);
+    pdf.text(badge.toUpperCase(), margin, y);
+    pdf.setTextColor(0);
+    y += 18;
+
+    // Detail body text
     pdf.setFontSize(12);
-    const detailText = detail && detail.trim() ? detail : 'No additional detail was generated for this topic.';
+    const detailText = (detail && detail.trim()) ? detail : 'No additional detail was generated for this topic.';
     const bodyLines = pdf.splitTextToSize(detailText, maxW);
-    pdf.text(bodyLines, margin, y);
+    // Only draw lines that fit above the footer
+    const lineSpacing = 17;
+    bodyLines.forEach(line => {
+      if (y + lineSpacing < contentBottom) {
+        pdf.text(line, margin, y);
+        y += lineSpacing;
+      }
+    });
+
+    addPdfFooter(pdf, pW, pH);
   }
 
   (currentMapData.branches || []).forEach(branch => {
