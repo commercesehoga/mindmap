@@ -251,7 +251,7 @@ textarea.text-input{min-height:140px; resize:vertical;}
 .empty-state{text-align:center; padding:50px 16px; color:var(--muted-soft);}
 .empty-state svg{width:46px; height:46px; stroke:var(--muted-soft); margin-bottom:12px;}
 
-.toast{position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#1d1d1f; color:#ffffff; padding:12px 20px; border-radius:var(--radius-pill); font-size:13px; z-index:300; opacity:0; transition:opacity .25s ease; white-space:nowrap; max-width:calc(100vw - 32px); text-align:center;}
+.toast{position:fixed; bottom:calc(108px + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%); background:#1d1d1f; color:#ffffff; padding:12px 20px; border-radius:var(--radius-pill); font-size:13px; z-index:300; opacity:0; transition:opacity .25s ease; white-space:nowrap; max-width:calc(100vw - 32px); text-align:center;}
 .toast.show{opacity:1;}
 [data-theme="dark"] .toast{background:#f5f5f7; color:#1d1d1f;}
 
@@ -394,6 +394,61 @@ html{scroll-behavior:smooth;}
   .hero h1{font-size:28px;}
   .hero-tags{gap:6px;}
 }
+
+/* hero elements now act as real controls */
+.hero-mode-icon,.hero-float,.hero-badge{cursor:pointer; font:inherit; text-align:left; -webkit-tap-highlight-color:transparent; -webkit-appearance:none; appearance:none; padding:0;}
+.hero-float{padding:14px;}
+.hero-mode-icon{transition:transform .15s ease, border-color .15s ease;}
+.hero-mode-icon:hover{border-color:var(--primary-focus);}
+.hero-mode-icon:active{transform:scale(.92);}
+.hero-mode-icon:focus-visible,.hero-float:focus-visible,.hero-badge:focus-visible{outline:2px solid var(--primary-focus); outline-offset:3px;}
+.hero-float{transition:transform .18s ease, box-shadow .18s ease;}
+.ft-depth:hover{transform:rotate(-6deg) translateY(-3px);}
+.ft-youtube:hover{transform:rotate(6deg) translateY(-3px);}
+.ft-preview:hover{transform:rotate(-7deg) translateY(-3px);}
+.ft-maps:hover{transform:rotate(7deg) translateY(-3px);}
+.ft-topics:hover,.ft-export:hover{transform:translateY(-3px);}
+.hero-float:active{transform:scale(.96);}
+.hero-badge{border:none; transition:transform .15s ease;}
+.hero-badge:active{transform:scale(.92);}
+
+/* ============================= */
+/* MOBILE DOCK — replaces the old tab-bar */
+/* ============================= */
+main{padding-bottom:122px;}
+
+.tab-bar{
+  position:fixed; left:50%; bottom:calc(16px + env(safe-area-inset-bottom)); transform:translateX(-50%);
+  z-index:60; width:268px; height:74px; margin:0; border:none; padding:0 18px 12px;
+  display:flex; align-items:flex-end; justify-content:space-between; gap:0; overflow:visible;
+}
+.dock-shape{position:absolute; inset:0; width:100%; height:100%; z-index:-1;
+  filter:drop-shadow(0 8px 26px rgba(0,0,0,.16));}
+.dock-shape path{fill:var(--canvas);}
+[data-theme="dark"] .dock-shape path{fill:var(--surface-card);}
+
+.dock-btn{background:none; border:none; margin:0; padding:0 6px 0; display:flex; flex-direction:column;
+  align-items:center; justify-content:flex-end; gap:4px; color:var(--muted-soft); text-transform:none;
+  letter-spacing:0; font-size:10px; font-weight:700; border-bottom:none; height:42px; min-width:44px;
+  transition:color .15s ease, transform .15s ease;}
+.dock-btn svg{width:21px; height:21px; stroke:currentColor; fill:none;}
+.dock-btn:active{transform:scale(.9);}
+.dock-btn.active{color:var(--primary);}
+
+.dock-center{
+  position:relative; width:60px; height:60px; border-radius:50%; flex-shrink:0;
+  background:radial-gradient(circle at 33% 28%, var(--primary-focus) 0%, var(--primary) 55%, var(--primary-active) 100%);
+  display:flex; align-items:center; justify-content:center; margin-bottom:20px;
+  box-shadow:0 0 0 6px var(--canvas), 0 12px 24px -8px rgba(87,58,252,.65), 0 0 26px rgba(87,58,252,.4);
+}
+[data-theme="dark"] .dock-center{box-shadow:0 0 0 6px var(--surface-card), 0 12px 24px -8px rgba(154,122,251,.6), 0 0 26px rgba(154,122,251,.4);}
+.dock-center svg{width:25px; height:25px; stroke:none; fill:#fff;}
+.dock-center:active{transform:scale(.93);}
+
+@media (max-width:419px){
+  .tab-bar{width:240px; height:68px;}
+  .dock-center{width:54px; height:54px; margin-bottom:18px;}
+}
 </style>
 </head>
 <body>
@@ -431,7 +486,7 @@ html{scroll-behavior:smooth;}
   </svg>
 
   <!-- floating card: AI topics -->
-  <div class="hero-float ft-topics" aria-hidden="true">
+  <button type="button" class="hero-float ft-topics" data-hero-action="mode" data-mode="topic" aria-label="Jump to Topic mode">
     <div class="ft-row">
       <div class="ft-dot" style="background:var(--tint-1);">
         <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M12 2v6m0 8v6M2 12h6m8 0h6"/></svg>
@@ -441,32 +496,32 @@ html{scroll-behavior:smooth;}
         <div class="ft-sub">500+ exam-ready</div>
       </div>
     </div>
-  </div>
+  </button>
 
   <!-- floating card: export formats -->
-  <div class="hero-float ft-export" aria-hidden="true">
+  <button type="button" class="hero-float ft-export" data-hero-action="tab" data-tab="create" aria-label="Go to Create and export">
     <div class="ft-label">Export</div>
     <div class="ft-icons">
       <span>PDF</span><span>PNG</span><span>SVG</span>
     </div>
-  </div>
+  </button>
 
   <!-- floating card: depth selector -->
-  <div class="hero-float ft-depth" aria-hidden="true">
+  <button type="button" class="hero-float ft-depth" data-hero-action="depth" data-depth="deep" aria-label="Generate a deep mind map">
     <div class="ft-label">Depth</div>
     <div class="chip-mini"><span>Quick</span><span class="on">Deep</span></div>
-  </div>
+  </button>
 
   <!-- floating card: youtube import -->
-  <div class="hero-float ft-youtube" style="width:150px;" aria-hidden="true">
+  <button type="button" class="hero-float ft-youtube" style="width:150px;" data-hero-action="mode" data-mode="youtube" aria-label="Jump to YouTube mode">
     <div class="yt-thumb">
       <svg viewBox="0 0 24 24"><polygon points="9.75 6.98 17.5 12 9.75 17.02 9.75 6.98"/></svg>
     </div>
     <div class="ft-title">YouTube Import</div>
-  </div>
+  </button>
 
   <!-- floating card: mind map preview -->
-  <div class="hero-float ft-preview" aria-hidden="true">
+  <button type="button" class="hero-float ft-preview" data-hero-action="tab" data-tab="create" aria-label="Go to Create a mind map">
     <div class="ft-label">Live Preview</div>
     <svg viewBox="0 0 160 64" fill="none">
       <rect x="4" y="24" width="34" height="16" rx="5" fill="var(--primary)"/>
@@ -475,20 +530,20 @@ html{scroll-behavior:smooth;}
       <rect x="60" y="46" width="38" height="14" rx="5" fill="var(--tint-1)" stroke="var(--hairline-strong)"/>
       <path d="M38 32H50M50 32V11H60M50 32V32H60M50 32V53H60" stroke="var(--hairline-strong)" stroke-width="1.5" fill="none"/>
     </svg>
-  </div>
+  </button>
 
   <!-- floating card: my maps -->
-  <div class="hero-float ft-maps" aria-hidden="true">
+  <button type="button" class="hero-float ft-maps" data-hero-action="tab" data-tab="mymaps" aria-label="Go to My Maps">
     <div class="ft-label">My Maps</div>
     <div class="map-row"><span class="dot" style="background:var(--primary);"></span><span>Fundamental Rights</span></div>
     <div class="map-row"><span class="dot" style="background:var(--warning);"></span><span>Cell Structure</span></div>
     <div class="map-row"><span class="dot" style="background:var(--success);"></span><span>Banking System</span></div>
-  </div>
+  </button>
 
   <div class="hero-inner">
-    <div class="hero-badge" aria-hidden="true">
+    <button type="button" class="hero-badge" data-hero-action="top" aria-label="Scroll to top">
       <svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg>
-    </div>
+    </button>
 
     <h1>
       Turn Any Topic Into a
@@ -505,7 +560,7 @@ html{scroll-behavior:smooth;}
     </div>
 
     <div class="hero-cta-row">
-      <a class="hero-cta" href="#appSection">
+      <a class="hero-cta" href="#appSection" data-hero-action="tab" data-tab="create">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg>
         Generate Your First Map
       </a>
@@ -513,30 +568,41 @@ html{scroll-behavior:smooth;}
     </div>
 
     <div class="hero-modes" role="group" aria-label="Supported input modes">
-      <div class="hero-mode-icon" title="Topic">
+      <button type="button" class="hero-mode-icon" data-hero-action="mode" data-mode="topic" title="Topic" aria-label="Jump to Topic mode">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6m0 8v6M2 12h6m8 0h6"/></svg>
-      </div>
-      <div class="hero-mode-icon" title="Paste Text">
+      </button>
+      <button type="button" class="hero-mode-icon" data-hero-action="mode" data-mode="text" title="Paste Text" aria-label="Jump to Paste Text mode">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
-      </div>
-      <div class="hero-mode-icon" title="Upload PDF">
+      </button>
+      <button type="button" class="hero-mode-icon" data-hero-action="mode" data-mode="pdf" title="Upload PDF" aria-label="Jump to Upload PDF mode">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
-      </div>
-      <div class="hero-mode-icon" title="Photo / OCR">
+      </button>
+      <button type="button" class="hero-mode-icon" data-hero-action="mode" data-mode="image" title="Photo / OCR" aria-label="Jump to Photo / OCR mode">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
-      </div>
-      <div class="hero-mode-icon" title="YouTube">
+      </button>
+      <button type="button" class="hero-mode-icon" data-hero-action="mode" data-mode="youtube" title="YouTube" aria-label="Jump to YouTube mode">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22.54 6.42A2.78 2.78 0 0 0 20.6 4.5C18.88 4 12 4 12 4s-6.88 0-8.6.5A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.4 19.5C5.12 20 12 20 12 20s6.88 0 8.6-.5a2.78 2.78 0 0 0 1.94-1.92A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg>
-      </div>
+      </button>
     </div>
   </div>
 </section>
 
 <main id="appSection">
-  <div class="tab-bar" role="tablist">
-    <button class="tab-btn active" data-tab="create" role="tab">Create</button>
-    <button class="tab-btn" data-tab="presets" role="tab">Presets</button>
-    <button class="tab-btn" data-tab="mymaps" role="tab">My Maps</button>
+  <div class="tab-bar" role="tablist" aria-label="Main navigation">
+    <svg class="dock-shape" viewBox="0 0 268 74" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M22,0 H100 C112,0 114,26 134,26 C154,26 156,0 168,0 H246 C258.15,0 268,9.85 268,22 V52 C268,64.15 258.15,74 246,74 H22 C9.85,74 0,64.15 0,52 V22 C0,9.85 9.85,0 22,0 Z"/>
+    </svg>
+    <button class="tab-btn dock-btn dock-side" data-tab="presets" role="tab" aria-pressed="false" title="Presets">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
+      <span>Presets</span>
+    </button>
+    <button class="tab-btn dock-btn dock-center active" data-tab="create" role="tab" aria-pressed="true" aria-label="Create a new mind map" title="Create">
+      <svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg>
+    </button>
+    <button class="tab-btn dock-btn dock-side" data-tab="mymaps" role="tab" aria-pressed="false" title="My Maps">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>
+      <span>My Maps</span>
+    </button>
   </div>
 
   <!-- ===== CREATE TAB ===== -->
@@ -1059,6 +1125,62 @@ document.addEventListener('DOMContentLoaded', function(){
     chip.addEventListener('click', function(){
       document.querySelectorAll('.depth-chip').forEach(function(c){ c.setAttribute('aria-pressed','false'); });
       chip.setAttribute('aria-pressed','true');
+    });
+  });
+  // dock aria-pressed + active sync
+  document.querySelectorAll('.tab-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); b.setAttribute('aria-pressed','false'); });
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed','true');
+    });
+  });
+});
+</script>
+
+<!-- Hero section interactivity: floating cards, mode icons, badge and CTA all act as real shortcuts into the app -->
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+
+  function activateTab(tabKey){
+    var btn = document.querySelector('.tab-btn[data-tab="' + tabKey + '"]');
+    if(btn) btn.click();
+  }
+  function activateMode(modeKey){
+    activateTab('create');
+    var chip = document.querySelector('.mode-chip[data-mode="' + modeKey + '"]');
+    if(chip) chip.click();
+  }
+  function activateDepth(depthKey){
+    activateTab('create');
+    var chip = document.querySelector('.depth-chip[data-depth="' + depthKey + '"]');
+    if(chip) chip.click();
+  }
+  function scrollToApp(){
+    var target = document.getElementById('appSection');
+    if(target) target.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+
+  document.querySelectorAll('[data-hero-action]').forEach(function(el){
+    el.addEventListener('click', function(e){
+      var action = el.getAttribute('data-hero-action');
+      if(action === 'top'){
+        window.scrollTo({ top:0, behavior:'smooth' });
+        return;
+      }
+      if(action === 'mode'){
+        activateMode(el.getAttribute('data-mode'));
+      } else if(action === 'tab'){
+        activateTab(el.getAttribute('data-tab'));
+      } else if(action === 'depth'){
+        activateDepth(el.getAttribute('data-depth'));
+      }
+      // hero-cta is a real <a href="#appSection">; let the native anchor jump
+      // handle scrolling (smooth, via the global scroll-behavior). Everything
+      // else needs an explicit scroll.
+      if(el.tagName !== 'A'){
+        scrollToApp();
+      }
     });
   });
 });
