@@ -3,38 +3,75 @@
   "branches": [
     {
       "label": "RBI & Monetary Policy",
+      "detail": "Covers the Reserve Bank of India's role as India's central bank and the tools it uses to control money supply and inflation — a near-guaranteed source of questions in every banking exam.",
       "children": [
-        { "label": "RBI Functions", "children": [{ "label": "Note Issue" }, { "label": "Banker's Bank" }] },
-        { "label": "Policy Tools", "children": [{ "label": "Repo Rate" }, { "label": "Reverse Repo" }, { "label": "CRR & SLR" }] }
+        { "label": "RBI Functions", "detail": "The core responsibilities assigned to RBI under the RBI Act, 1934.", "children": [
+          { "label": "Note Issue", "detail": "RBI's sole authority to issue currency notes in India (except the ₹1 note, issued by the Finance Ministry)." },
+          { "label": "Banker's Bank", "detail": "RBI's role in regulating and lending to commercial banks, and managing their reserves." }
+        ] },
+        { "label": "Policy Tools", "detail": "The instruments RBI uses to control liquidity and inflation in the economy.", "children": [
+          { "label": "Repo Rate", "detail": "The rate at which RBI lends short-term funds to commercial banks — the primary tool for controlling inflation." },
+          { "label": "Reverse Repo", "detail": "The rate at which RBI borrows funds from commercial banks, used to absorb excess liquidity." },
+          { "label": "CRR & SLR", "detail": "Cash Reserve Ratio and Statutory Liquidity Ratio — the minimum reserves banks must maintain with RBI and in liquid assets respectively." }
+        ] }
       ]
     },
     {
       "label": "Types of Banks",
+      "detail": "The structure of India's banking system across ownership and purpose — a frequent source of classification-style questions.",
       "children": [
-        { "label": "Commercial Banks", "children": [{ "label": "Public Sector" }, { "label": "Private Sector" }] },
-        { "label": "Cooperative Banks", "children": [{ "label": "Urban" }, { "label": "Rural" }] },
-        { "label": "Payment Banks", "children": [{ "label": "Examples" }] }
+        { "label": "Commercial Banks", "detail": "Banks that accept deposits and lend for profit, the largest segment of India's banking system.", "children": [
+          { "label": "Public Sector", "detail": "Banks where the government holds majority ownership, e.g. SBI, PNB, Bank of Baroda." },
+          { "label": "Private Sector", "detail": "Banks owned primarily by private shareholders, e.g. HDFC, ICICI, Axis Bank." }
+        ] },
+        { "label": "Cooperative Banks", "detail": "Member-owned banks regulated jointly by RBI and state governments.", "children": [
+          { "label": "Urban", "detail": "Cooperative banks serving urban and semi-urban customers." },
+          { "label": "Rural", "detail": "Cooperative banks, including PACS, serving agricultural and rural credit needs." }
+        ] },
+        { "label": "Payment Banks", "detail": "A restricted banking license allowing deposits and payments but not lending.", "children": [
+          { "label": "Examples", "detail": "Airtel Payments Bank, India Post Payments Bank, and Fino Payments Bank are common examples asked in exams." }
+        ] }
       ]
     },
     {
       "label": "Govt Schemes",
+      "detail": "Central government financial inclusion and social security schemes implemented through the banking system — frequently tested with launch year and objective.",
       "children": [
-        { "label": "Financial Inclusion", "children": [{ "label": "Jan Dhan Yojana" }, { "label": "Atal Pension Yojana" }] },
-        { "label": "Insurance", "children": [{ "label": "PMJJBY" }, { "label": "PMSBY" }] }
+        { "label": "Financial Inclusion", "detail": "Schemes aimed at bringing unbanked populations into the formal banking system.", "children": [
+          { "label": "Jan Dhan Yojana", "detail": "A scheme providing zero-balance bank accounts to promote universal banking access, launched in 2014." },
+          { "label": "Atal Pension Yojana", "detail": "A pension scheme for unorganized-sector workers guaranteeing a fixed monthly pension after age 60." }
+        ] },
+        { "label": "Insurance", "detail": "Low-premium government-backed insurance schemes distributed via banks.", "children": [
+          { "label": "PMJJBY", "detail": "Pradhan Mantri Jeevan Jyoti Bima Yojana — a low-premium life insurance scheme for ages 18-50." },
+          { "label": "PMSBY", "detail": "Pradhan Mantri Suraksha Bima Yojana — a low-premium accidental death and disability insurance scheme." }
+        ] }
       ]
     },
     {
       "label": "Banking Terms",
+      "detail": "Common terminology and acronyms tested directly or used within case-based banking exam questions.",
       "children": [
-        { "label": "NPA", "children": [{ "label": "Gross NPA" }, { "label": "Net NPA" }] },
-        { "label": "Digital Banking", "children": [{ "label": "NEFT" }, { "label": "RTGS" }, { "label": "UPI" }] }
+        { "label": "NPA", "detail": "Non-Performing Asset — a loan where the borrower has stopped repaying principal or interest for over 90 days.", "children": [
+          { "label": "Gross NPA", "detail": "The total value of all non-performing loans on a bank's books before any provisioning." },
+          { "label": "Net NPA", "detail": "Gross NPA minus the provisions a bank has already set aside for expected losses." }
+        ] },
+        { "label": "Digital Banking", "detail": "Electronic methods of transferring money, increasingly central to banking exam current affairs.", "children": [
+          { "label": "NEFT", "detail": "National Electronic Funds Transfer — a batch-processed electronic transfer system with no minimum/maximum limit." },
+          { "label": "RTGS", "detail": "Real Time Gross Settlement — used for high-value transfers (minimum ₹2 lakh), processed individually and instantly." },
+          { "label": "UPI", "detail": "Unified Payments Interface — a real-time mobile payment system enabling instant bank-to-bank transfers." }
+        ] }
       ]
     },
     {
       "label": "International Bodies",
+      "detail": "Global financial institutions whose roles and India-related facts are commonly tested in static GK sections of banking exams.",
       "children": [
-        { "label": "IMF", "children": [{ "label": "Role" }] },
-        { "label": "World Bank", "children": [{ "label": "Role" }] }
+        { "label": "IMF", "detail": "International Monetary Fund — promotes global monetary cooperation and financial stability.", "children": [
+          { "label": "Role", "detail": "Provides financial assistance and policy advice to member countries facing balance-of-payment problems." }
+        ] },
+        { "label": "World Bank", "detail": "An international institution providing loans and grants to developing countries for development projects.", "children": [
+          { "label": "Role", "detail": "Funds infrastructure, education, and poverty-reduction projects, distinct from the IMF's monetary-stability focus." }
+        ] }
       ]
     }
   ]
