@@ -9,12 +9,12 @@
 <meta property="og:description" content="Generate exam-ready mind maps from a topic, text or PDF. Free CUET, SSC and Banking presets included.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://mindmap.thunderstudy.indevs.in">
-<meta property="og:image" content="/og-image.png">
+<meta property="og:image" content="https://thunderstudy.github.io/og-cover.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Thunder Mind Map — AI Mind Map Maker for Students">
 <meta name="twitter:description" content="Generate exam-ready mind maps from a topic, text or PDF. Free CUET, SSC and Banking presets included.">
-<meta name="twitter:image" content="/og-image.png">
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="twitter:image" content="https://thunderstudy.github.io/og-cover.png">
+<link rel="icon" type="image/svg+xml" href="https://thunderstudy.github.io/favicon.svg">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -169,7 +169,7 @@ textarea.text-input{min-height:140px; resize:vertical;}
 #map-svg:active{cursor:grabbing;}
 .node-rect{fill:var(--canvas); stroke-width:1.5px;}
 .node-text{font-family:Inter,sans-serif; font-weight:700; fill:var(--ink);}
-.node-text.root{fill:#fff;}
+.node-text.root{fill:#ffffff !important;}
 .edge-path{fill:none; stroke-width:2px; opacity:.55;}
 
 /* viewer action toolbar */
@@ -251,8 +251,9 @@ textarea.text-input{min-height:140px; resize:vertical;}
 .empty-state{text-align:center; padding:50px 16px; color:var(--muted-soft);}
 .empty-state svg{width:46px; height:46px; stroke:var(--muted-soft); margin-bottom:12px;}
 
-.toast{position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; padding:12px 20px; border-radius:var(--radius-pill); font-size:13px; z-index:300; opacity:0; transition:opacity .25s ease; white-space:nowrap;}
+.toast{position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#1d1d1f; color:#ffffff; padding:12px 20px; border-radius:var(--radius-pill); font-size:13px; z-index:300; opacity:0; transition:opacity .25s ease; white-space:nowrap; max-width:calc(100vw - 32px); text-align:center;}
 .toast.show{opacity:1;}
+[data-theme="dark"] .toast{background:#f5f5f7; color:#1d1d1f;}
 
 /* footer */
 footer{background:var(--canvas-parchment); padding:48px 16px 24px; margin-top:40px;}
@@ -278,7 +279,8 @@ footer{background:var(--canvas-parchment); padding:48px 16px 24px; margin-top:40
 
 <header class="top-nav">
   <div class="brand">
-    <svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z" fill="currentColor" stroke="none" style="color:var(--primary)"/></svg>
+    <img src="https://thunderstudy.github.io/favicon.svg" width="26" height="26" alt="Thunder" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+    <svg viewBox="0 0 24 24" fill="none" style="display:none;"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z" fill="currentColor" stroke="none" style="color:var(--primary)"/></svg>
     <span>Thunder Mind Map</span>
   </div>
   <div class="nav-right">
@@ -643,6 +645,60 @@ footer{background:var(--canvas-parchment); padding:48px 16px 24px; margin-top:40
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+<!-- Fix 5: YouTube transcript — intercept /api/youtube-transcript and resolve client-side
+     Uses youtubetranscript.com public API (CORS-open, no key required).
+     Falls back gracefully if unavailable. -->
+<script>
+(function(){
+  var _nativeFetch = window.fetch.bind(window);
+  window.fetch = function(url, opts){
+    if(typeof url === 'string' && url.startsWith('/api/youtube-transcript')){
+      var params = new URL(url, location.origin);
+      var videoId = params.searchParams.get('id') || '';
+      if(!videoId) return Promise.resolve(new Response(JSON.stringify({error:'No video ID'}),{status:400,headers:{'Content-Type':'application/json'}}));
+      // Primary: Invidious instances (open-source YouTube proxy, CORS-friendly)
+      var invidious = 'https://invidious.privacyredirect.com/api/v1/captions/' + encodeURIComponent(videoId) + '?label=English';
+      return _nativeFetch(invidious)
+        .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
+        .then(function(data){
+          // Invidious returns {captions:[{url,...}]} — fetch the VTT
+          var caps = (data.captions||[]).find(function(c){ return c.label && c.label.toLowerCase().includes('english'); }) || data.captions[0];
+          if(!caps) throw new Error('no captions');
+          return _nativeFetch('https://invidious.privacyredirect.com' + caps.url);
+        })
+        .then(function(r){ return r.ok ? r.text() : Promise.reject('vtt fetch failed'); })
+        .then(function(vtt){
+          // Strip VTT markup, deduplicate lines
+          var lines = vtt.split('\n');
+          var text = [];
+          var seen = Object.create(null);
+          lines.forEach(function(l){
+            l = l.replace(/<[^>]*>/g,'').replace(/^\d{2}:\d{2}:\d{2}.*-->.*/,'').trim();
+            if(l && !/^WEBVTT|^NOTE/.test(l) && !seen[l]){ seen[l]=1; text.push(l); }
+          });
+          var transcript = text.join(' ').replace(/\s{2,}/g,' ').trim();
+          return new Response(JSON.stringify({transcript:transcript}),{status:200,headers:{'Content-Type':'application/json'}});
+        })
+        .catch(function(){
+          // Fallback: try YouTubeTranscript.com API
+          return _nativeFetch('https://yt-transcript-api.deno.dev/transcript?id=' + encodeURIComponent(videoId))
+            .then(function(r){ return r.ok ? r.json() : Promise.reject('fallback failed'); })
+            .then(function(d){
+              var arr = Array.isArray(d) ? d : (d.transcript||[]);
+              var text = arr.map(function(s){ return (s.text||s.snippet||s).replace(/<[^>]*>/g,''); }).join(' ').trim();
+              return new Response(JSON.stringify({transcript:text||''}),{status:200,headers:{'Content-Type':'application/json'}});
+            })
+            .catch(function(){
+              return new Response(JSON.stringify({error:'no transcript'}),{status:502,headers:{'Content-Type':'application/json'}});
+            });
+        });
+    }
+    return _nativeFetch(url, opts);
+  };
+})();
+</script>
+
 <script src="/app.js"></script>
 
 <!-- Study badge sync — show badge when study mode is active -->
