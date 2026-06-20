@@ -36,6 +36,9 @@
   --success:#22c55e; --warning:#f59e0b; --error:#dc2626;
   --tint-1:#E7E0FB; --tint-2:#CCC3FB; --tint-3:#BCAEFB;
   --radius-sm:8px; --radius-md:11px; --radius-lg:18px; --radius-pill:9999px;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.08);
+  --shadow-md:0 4px 16px rgba(0,0,0,.12);
+  --shadow-lg:0 12px 40px rgba(0,0,0,.18);
 }
 [data-theme="dark"]{
   --primary:#9A7AFB; --primary-active:#7C5FE8; --primary-focus:#AC91FF;
@@ -43,16 +46,19 @@
   --hairline:#2c2c2e; --hairline-strong:#3a3a3c;
   --canvas:#0e0e10; --canvas-parchment:#161618; --surface-soft:#1a1a1c; --surface-card:#1c1c1e; --surface-strong:#2c2c2e;
   --on-dark-soft:#ebebf5; --tint-1:#262240; --tint-2:#2e2750; --tint-3:#372f60;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.25);
+  --shadow-md:0 4px 16px rgba(0,0,0,.4);
+  --shadow-lg:0 12px 40px rgba(0,0,0,.55);
 }
-*{box-sizing:border-box;}
+*{box-sizing:border-box; margin:0; padding:0;}
 html,body{margin:0;padding:0;}
 body{
   font-family:Inter,system-ui,-apple-system,sans-serif; background:var(--canvas); color:var(--body);
   -webkit-font-smoothing:antialiased;
 }
-h1,h2,h3{color:var(--ink); font-weight:700; margin:0;}
+h1,h2,h3{color:var(--ink); font-weight:700;}
 a{color:var(--primary); text-decoration:none;}
-button{font-family:inherit; cursor:pointer;}
+button{font-family:inherit; cursor:pointer; touch-action:manipulation;}
 .visually-hidden{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0);}
 
 /* loading screen */
@@ -72,8 +78,8 @@ header.top-nav{
 .brand{display:flex; align-items:center; gap:10px; font-weight:700; color:var(--ink); font-size:17px;}
 .brand svg{width:26px; height:26px;}
 .nav-right{display:flex; align-items:center; gap:10px;}
-.icon-btn{width:40px; height:40px; border-radius:var(--radius-pill); border:1px solid var(--hairline-strong); background:var(--canvas); display:flex; align-items:center; justify-content:center;}
-.icon-btn:active{transform:scale(.95);}
+.icon-btn{width:40px; height:40px; border-radius:var(--radius-pill); border:1px solid var(--hairline-strong); background:var(--canvas); display:flex; align-items:center; justify-content:center; transition:transform .15s ease;}
+.icon-btn:active{transform:scale(.92);}
 .icon-btn svg{width:18px; height:18px; stroke:var(--ink);}
 .credit-pill{display:flex; align-items:center; gap:6px; border:1px solid var(--hairline-strong); border-radius:var(--radius-pill); padding:8px 14px; font-size:13px; font-weight:600; color:var(--ink); background:var(--canvas);}
 .credit-pill svg{width:14px; height:14px; stroke:var(--primary); fill:var(--primary);}
@@ -82,17 +88,25 @@ main{max-width:1080px; margin:0 auto; padding:20px 16px 60px;}
 
 /* tabs */
 .tab-bar{display:flex; gap:6px; border-bottom:1px solid var(--hairline); margin-bottom:24px; overflow-x:auto;}
-.tab-btn{background:none; border:none; padding:12px 4px; margin-right:22px; font-size:13px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:var(--muted); border-bottom:2px solid transparent; white-space:nowrap;}
+.tab-btn{background:none; border:none; padding:12px 4px; margin-right:22px; font-size:13px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:var(--muted); border-bottom:2px solid transparent; white-space:nowrap; transition:color .15s ease;}
 .tab-btn.active{color:var(--ink); border-bottom-color:var(--ink);}
 .tab-panel{display:none;}
 .tab-panel.active{display:block;}
 
 /* mode chips */
 .chip-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px;}
-.mode-chip{background:var(--canvas); border:1px solid var(--hairline-strong); color:var(--ink); font-size:13px; padding:10px 16px; border-radius:var(--radius-pill); display:flex; align-items:center; gap:6px;}
+.mode-chip{background:var(--canvas); border:1px solid var(--hairline-strong); color:var(--ink); font-size:13px; padding:10px 16px; border-radius:var(--radius-pill); display:flex; align-items:center; gap:6px; transition:border-color .15s, color .15s;}
 .mode-chip svg{width:15px; height:15px; stroke:var(--ink);}
 .mode-chip.active{border:2px solid var(--primary-focus); color:var(--primary);}
 .mode-chip.active svg{stroke:var(--primary);}
+
+/* depth chips */
+.depth-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:18px;}
+.depth-label{font-size:13px; font-weight:700; color:var(--muted); letter-spacing:.4px;}
+.depth-chip{background:var(--canvas); border:1px solid var(--hairline-strong); color:var(--ink); font-size:13px; padding:8px 16px; border-radius:var(--radius-pill); display:flex; align-items:center; gap:6px; transition:border-color .15s, color .15s;}
+.depth-chip svg{width:14px; height:14px; stroke:var(--muted);}
+.depth-chip.active{border:2px solid var(--primary-focus); color:var(--primary); font-weight:700;}
+.depth-chip.active svg{stroke:var(--primary);}
 
 .card{background:var(--surface-card); border:1px solid var(--hairline); border-radius:var(--radius-lg); padding:20px;}
 .field-label{font-size:13px; font-weight:700; letter-spacing:.4px; color:var(--muted); margin-bottom:8px; display:block;}
@@ -113,6 +127,17 @@ textarea.text-input{min-height:140px; resize:vertical;}
 .page-range .field{flex:1; margin-bottom:0;}
 .page-range input[type=number]{width:100%;}
 
+/* ocr image preview */
+#imagePreviewWrap{margin-top:12px; border-radius:var(--radius-md); overflow:hidden; border:1px solid var(--hairline);}
+#imagePreview{display:block; max-width:100%; max-height:220px; object-fit:contain; background:var(--surface-soft);}
+#ocrPreviewWrap{margin-top:10px;}
+
+/* youtube input */
+.yt-row{display:flex; gap:8px; align-items:stretch; margin-bottom:10px;}
+.yt-row input{flex:1;}
+#ytPreviewWrap{margin-top:10px;}
+#ytPreviewText{min-height:100px;}
+
 /* credits bars */
 .credit-box{display:flex; gap:18px; margin:18px 0; flex-wrap:wrap;}
 .credit-meter{flex:1; min-width:140px;}
@@ -120,13 +145,19 @@ textarea.text-input{min-height:140px; resize:vertical;}
 .bar-track{height:8px; background:var(--hairline); border-radius:var(--radius-pill); overflow:hidden;}
 .bar-fill{height:100%; background:var(--primary); border-radius:var(--radius-pill); transition:width .3s ease;}
 
-.btn{display:inline-flex; align-items:center; gap:8px; height:48px; padding:0 26px; border-radius:var(--radius-pill); font-size:15px; font-weight:600; border:none;}
+.btn{display:inline-flex; align-items:center; gap:8px; height:48px; padding:0 26px; border-radius:var(--radius-pill); font-size:15px; font-weight:600; border:none; transition:transform .15s ease, opacity .15s ease;}
 .btn:active{transform:scale(.95);}
 .btn-primary{background:var(--primary); color:var(--on-primary);}
-.btn-primary:disabled{background:var(--primary-disabled); color:#fff; cursor:not-allowed;}
+.btn-primary:disabled{background:var(--primary-disabled); color:#fff; cursor:not-allowed; transform:none;}
 .btn-secondary{background:var(--canvas); color:var(--ink); border:1px solid var(--hairline-strong);}
+.btn-danger{background:var(--canvas); color:var(--error); border:1px solid var(--error);}
 .btn-row{display:flex; gap:10px; flex-wrap:wrap; margin-top:18px;}
 .btn svg{width:16px; height:16px;}
+.btn-sm{height:38px; padding:0 16px; font-size:13px;}
+
+/* combine toggle */
+#combineToggle{background:var(--canvas); border:1px solid var(--hairline-strong); color:var(--muted); font-size:13px; padding:8px 14px; border-radius:var(--radius-pill); font-weight:600;}
+#combineToggle.active{border-color:var(--primary); color:var(--primary);}
 
 /* viewer */
 #viewer-wrap{margin-top:26px; display:none;}
@@ -140,6 +171,63 @@ textarea.text-input{min-height:140px; resize:vertical;}
 .node-text{font-family:Inter,sans-serif; font-weight:700; fill:var(--ink);}
 .node-text.root{fill:#fff;}
 .edge-path{fill:none; stroke-width:2px; opacity:.55;}
+
+/* viewer action toolbar */
+.viewer-actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; align-items:center;}
+.viewer-actions-divider{width:1px; height:32px; background:var(--hairline); margin:0 2px;}
+
+/* node detail panel */
+#nodePanel{
+  position:fixed; bottom:0; left:0; right:0; z-index:100;
+  background:var(--canvas); border-top:1px solid var(--hairline); border-radius:24px 24px 0 0;
+  padding:0 20px 32px; max-height:80vh; overflow-y:auto;
+  transform:translateY(100%); transition:transform .3s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow:var(--shadow-lg);
+}
+#nodePanel.active{transform:translateY(0);}
+.panel-handle{width:40px; height:4px; background:var(--hairline-strong); border-radius:4px; margin:14px auto 20px;}
+.panel-header{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; gap:12px;}
+#nodePanelTitle{font-size:18px; font-weight:700; color:var(--ink); flex:1;}
+.panel-close-btn{width:32px; height:32px; border-radius:50%; border:1px solid var(--hairline); background:var(--surface-soft); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+.panel-close-btn svg{width:16px; height:16px; stroke:var(--muted);}
+.panel-detail-text{font-size:14px; line-height:1.65; color:var(--body); background:var(--canvas-parchment); border:1px solid var(--hairline); border-radius:var(--radius-md); padding:14px 16px; margin-bottom:18px;}
+.panel-section-label{font-size:12px; font-weight:700; letter-spacing:.8px; text-transform:uppercase; color:var(--muted-soft); margin-bottom:8px; display:block;}
+.panel-edit-field{margin-bottom:14px;}
+.panel-edit-field textarea{min-height:90px;}
+.panel-actions{display:flex; gap:8px; flex-wrap:wrap; padding-top:4px;}
+.panel-action-btn{height:44px; padding:0 20px; border-radius:var(--radius-pill); font-size:14px; font-weight:600; border:1px solid var(--hairline-strong); background:var(--canvas); color:var(--ink); display:inline-flex; align-items:center; gap:7px; transition:transform .15s; touch-action:manipulation;}
+.panel-action-btn:active{transform:scale(.94);}
+.panel-action-btn svg{width:15px; height:15px; stroke:currentColor;}
+.panel-action-btn.danger{color:var(--error); border-color:var(--error);}
+.panel-action-btn.primary{background:var(--primary); color:#fff; border-color:transparent;}
+.panel-backdrop{position:fixed; inset:0; z-index:99; background:rgba(0,0,0,.4); display:none;}
+.panel-backdrop.active{display:block;}
+
+/* modal */
+.modal-overlay{position:fixed; inset:0; z-index:200; background:rgba(0,0,0,.5); display:none; align-items:center; justify-content:center; padding:20px;}
+.modal-overlay.active{display:flex;}
+.modal-box{background:var(--canvas); border-radius:var(--radius-lg); padding:28px 24px; width:100%; max-width:360px; box-shadow:var(--shadow-lg);}
+.modal-title{font-size:17px; font-weight:700; color:var(--ink); margin-bottom:14px;}
+.modal-actions{display:flex; gap:10px; margin-top:20px; flex-wrap:wrap;}
+.modal-actions .btn{flex:1;}
+
+/* pdf type modal — two big cards */
+.pdf-type-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:6px;}
+.pdf-type-card{border:1.5px solid var(--hairline-strong); border-radius:var(--radius-lg); padding:18px 14px; cursor:pointer; background:var(--surface-soft); display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center; transition:border-color .15s, background .15s; touch-action:manipulation;}
+.pdf-type-card:hover{border-color:var(--primary); background:var(--tint-1);}
+.pdf-type-card svg{width:32px; height:32px; stroke:var(--primary);}
+.pdf-type-card strong{font-size:14px; font-weight:700; color:var(--ink); display:block;}
+.pdf-type-card span{font-size:12px; color:var(--muted);}
+
+/* study mode indicator */
+.study-badge{display:none; align-items:center; gap:6px; background:var(--tint-1); border:1px solid var(--primary); border-radius:var(--radius-pill); padding:6px 14px; font-size:12px; font-weight:700; color:var(--primary);}
+.study-badge.active{display:inline-flex;}
+.study-badge svg{width:13px; height:13px; stroke:var(--primary);}
+
+/* tag chips */
+.tag-chip-row{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px;}
+.tag-chip{background:var(--canvas); border:1px solid var(--hairline-strong); color:var(--muted); font-size:12px; font-weight:600; padding:6px 12px; border-radius:var(--radius-pill); cursor:pointer; transition:border-color .15s, color .15s;}
+.tag-chip.active{border-color:var(--primary); color:var(--primary); background:var(--tint-1);}
 
 /* preset grid */
 .preset-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px;}
@@ -158,12 +246,12 @@ textarea.text-input{min-height:140px; resize:vertical;}
 .saved-row .meta strong{display:block; font-size:14px; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 .saved-row .meta span{font-size:12px; color:var(--muted-soft);}
 .saved-row .row-actions{display:flex; gap:6px;}
-.row-actions button{width:36px; height:36px; border-radius:var(--radius-pill); border:1px solid var(--hairline-strong); background:var(--canvas); display:flex; align-items:center; justify-content:center;}
+.row-actions button{width:40px; height:40px; border-radius:var(--radius-pill); border:1px solid var(--hairline-strong); background:var(--canvas); display:flex; align-items:center; justify-content:center;}
 .row-actions svg{width:15px; height:15px; stroke:var(--ink);}
 .empty-state{text-align:center; padding:50px 16px; color:var(--muted-soft);}
 .empty-state svg{width:46px; height:46px; stroke:var(--muted-soft); margin-bottom:12px;}
 
-.toast{position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; padding:12px 20px; border-radius:var(--radius-pill); font-size:13px; z-index:200; opacity:0; transition:opacity .25s ease;}
+.toast{position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; padding:12px 20px; border-radius:var(--radius-pill); font-size:13px; z-index:300; opacity:0; transition:opacity .25s ease; white-space:nowrap;}
 .toast.show{opacity:1;}
 
 /* footer */
@@ -176,6 +264,9 @@ footer{background:var(--canvas-parchment); padding:48px 16px 24px; margin-top:40
 @media (max-width:640px){
   #map-canvas-wrap{height:420px;}
   .brand span{display:none;}
+  .pdf-type-grid{grid-template-columns:1fr;}
+  .panel-actions{gap:6px;}
+  .panel-action-btn{font-size:13px; padding:0 14px;}
 }
 </style>
 </head>
@@ -208,21 +299,48 @@ footer{background:var(--canvas-parchment); padding:48px 16px 24px; margin-top:40
     <button class="tab-btn" data-tab="mymaps" role="tab">My Maps</button>
   </div>
 
-  <!-- CREATE TAB -->
+  <!-- ===== CREATE TAB ===== -->
   <section class="tab-panel active" id="panel-create">
-    <div class="chip-row" id="modeChips">
-      <button class="mode-chip active" data-mode="topic">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6m0 8v6M2 12h6m8 0h6"/></svg> Topic
+
+    <!-- INPUT MODE CHIPS -->
+    <div class="chip-row" id="modeChips" role="group" aria-label="Input mode">
+      <button class="mode-chip active" data-mode="topic" aria-pressed="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6m0 8v6M2 12h6m8 0h6"/></svg>
+        Topic
       </button>
-      <button class="mode-chip" data-mode="text">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg> Paste Text
+      <button class="mode-chip" data-mode="text" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+        Paste Text
       </button>
-      <button class="mode-chip" data-mode="pdf">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg> Upload PDF
+      <button class="mode-chip" data-mode="pdf" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+        Upload PDF
+      </button>
+      <button class="mode-chip" data-mode="image" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
+        Photo / OCR
+      </button>
+      <button class="mode-chip" data-mode="youtube" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22.54 6.42A2.78 2.78 0 0 0 20.6 4.5C18.88 4 12 4 12 4s-6.88 0-8.6.5A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.4 19.5C5.12 20 12 20 12 20s6.88 0 8.6-.5a2.78 2.78 0 0 0 1.94-1.92A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg>
+        YouTube
+      </button>
+    </div>
+
+    <!-- DEPTH SELECTOR -->
+    <div class="depth-row">
+      <span class="depth-label">Depth:</span>
+      <button class="depth-chip" data-depth="quick" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>
+        Quick
+      </button>
+      <button class="depth-chip active" data-depth="deep" aria-pressed="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>
+        Deep
       </button>
     </div>
 
     <div class="card">
+      <!-- TOPIC MODE -->
       <div id="mode-topic">
         <div class="field">
           <label class="field-label" for="topicInput">Topic or chapter name</label>
@@ -230,6 +348,7 @@ footer{background:var(--canvas-parchment); padding:48px 16px 24px; margin-top:40
         </div>
       </div>
 
+      <!-- TEXT MODE -->
       <div id="mode-text" style="display:none;">
         <div class="field">
           <label class="field-label" for="textInput">Paste your notes</label>
@@ -238,9 +357,10 @@ footer{background:var(--canvas-parchment); padding:48px 16px 24px; margin-top:40
         </div>
       </div>
 
+      <!-- PDF MODE -->
       <div id="mode-pdf" style="display:none;">
         <div class="field-label">Upload PDF (max <span id="maxPagesLabel">15</span> pages per generation)</div>
-        <div class="file-drop" id="pdfDrop">
+        <div class="file-drop" id="pdfDrop" role="button" tabindex="0" aria-label="Choose PDF file">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4m0 0L7 9m5-5 5 5"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
           <p>Tap to choose a PDF file</p>
           <input type="file" accept="application/pdf" id="pdfFile" class="visually-hidden">
@@ -259,6 +379,50 @@ footer{background:var(--canvas-parchment); padding:48px 16px 24px; margin-top:40
         <p class="hint" id="pdfCharHint"></p>
       </div>
 
+      <!-- IMAGE / OCR MODE -->
+      <div id="mode-image" style="display:none;">
+        <div class="file-drop" id="imageDrop" role="button" tabindex="0" aria-label="Choose image file">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
+          <p>Tap to choose a photo of your notes</p>
+          <input type="file" accept="image/*" id="imageFile" class="visually-hidden">
+        </div>
+        <div id="imagePreviewWrap" style="display:none;">
+          <img id="imagePreview" alt="Uploaded notes preview">
+        </div>
+        <p class="hint" id="ocrStatus" style="margin-top:8px;"></p>
+        <div style="margin-top:10px;">
+          <button class="btn btn-secondary btn-sm" id="ocrScanBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M8 12h8M12 8v8"/></svg>
+            Scan Text
+          </button>
+        </div>
+        <div id="ocrPreviewWrap" style="display:none; margin-top:12px;">
+          <label class="field-label" for="ocrPreviewText">Extracted text (editable)</label>
+          <textarea class="text-input" id="ocrPreviewText" style="min-height:100px;"></textarea>
+          <p class="hint" id="ocrCharHint"></p>
+        </div>
+      </div>
+
+      <!-- YOUTUBE MODE -->
+      <div id="mode-youtube" style="display:none;">
+        <div class="field">
+          <label class="field-label" for="ytUrlInput">YouTube video URL</label>
+          <div class="yt-row">
+            <input class="text-input" id="ytUrlInput" placeholder="https://youtube.com/watch?v=...">
+            <button class="btn btn-secondary btn-sm" id="ytFetchBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              Fetch
+            </button>
+          </div>
+          <p class="hint" id="ytStatus">Paste a YouTube URL and tap Fetch to grab the transcript.</p>
+        </div>
+        <div id="ytPreviewWrap" style="display:none;">
+          <label class="field-label" for="ytPreviewText">Transcript (editable)</label>
+          <textarea class="text-input" id="ytPreviewText"></textarea>
+        </div>
+      </div>
+
+      <!-- CREDITS -->
       <div class="credit-box">
         <div class="credit-meter">
           <div class="label-row"><span>Daily credits</span><span id="dailyLabel">3 / 3</span></div>
@@ -276,50 +440,95 @@ footer{background:var(--canvas-parchment); padding:48px 16px 24px; margin-top:40
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg>
           Generate Mind Map
         </button>
+        <button id="combineToggle" title="Merge new AI branches into the currently open map">Combine with current map</button>
       </div>
     </div>
 
+    <!-- ===== MAP VIEWER ===== -->
     <div id="viewer-wrap">
       <div class="viewer-toolbar">
-        <strong id="viewerTitle" style="font-size:16px;"></strong>
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+          <strong id="viewerTitle" style="font-size:16px;"></strong>
+          <span class="study-badge" id="studyBadge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            Study Mode
+          </span>
+        </div>
         <div class="zoom-controls">
           <button class="icon-btn" id="zoomOut" aria-label="Zoom out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg></button>
           <button class="icon-btn" id="zoomReset" aria-label="Reset zoom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></button>
           <button class="icon-btn" id="zoomIn" aria-label="Zoom in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
         </div>
       </div>
+
       <div id="map-canvas-wrap">
-        <svg id="map-svg"><g id="map-g"></g></svg>
+        <svg id="map-svg" role="img" aria-label="Mind map diagram"><g id="map-g"></g></svg>
       </div>
-      <div class="btn-row">
-        <button class="btn btn-secondary" id="saveMapBtn">
+
+      <!-- PRIMARY SAVE + EXPORT ACTIONS -->
+      <div class="viewer-actions">
+        <!-- Save -->
+        <button class="btn btn-primary btn-sm" id="saveMapBtn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
-          Save to My Maps
+          Save
         </button>
-        <button class="btn btn-secondary" id="downloadHtmlBtn">
+
+        <div class="viewer-actions-divider"></div>
+
+        <!-- Study mode -->
+        <button class="btn btn-secondary btn-sm" id="studyModeToggle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          Study Mode
+        </button>
+
+        <!-- Copy outline -->
+        <button class="btn btn-secondary btn-sm" id="copyOutlineBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy Outline
+        </button>
+
+        <div class="viewer-actions-divider"></div>
+
+        <!-- B&W toggle -->
+        <button class="btn btn-secondary btn-sm" id="bwToggle" title="Toggle black & white for printing">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20z" fill="currentColor" stroke="none"/></svg>
+          Print Mode
+        </button>
+
+        <!-- Export HTML -->
+        <button class="btn btn-secondary btn-sm" id="downloadHtmlBtn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
-          Download HTML
+          HTML
         </button>
-        <button class="btn btn-secondary" id="downloadImgBtn">
+
+        <!-- Export Image -->
+        <button class="btn btn-secondary btn-sm" id="downloadImgBtn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
-          Download Image
+          Image
+        </button>
+
+        <!-- Export PDF (with toggle dialog) -->
+        <button class="btn btn-secondary btn-sm" id="downloadPdfBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M10 13H8v4h2M10 13c1.1 0 2 .9 2 2s-.9 2-2 2M14 13h2v1.5h-2V15m0 0h2v1.5h-2V17m0-4v4"/></svg>
+          PDF
         </button>
       </div>
     </div>
   </section>
 
-  <!-- PRESETS TAB -->
+  <!-- ===== PRESETS TAB ===== -->
   <section class="tab-panel" id="panel-presets">
     <p style="color:var(--muted); margin-bottom:18px; font-size:14px;">Ready-made mind maps for popular exams — open instantly, no AI credits used.</p>
     <div class="preset-grid" id="presetGrid"></div>
   </section>
 
-  <!-- MY MAPS TAB -->
+  <!-- ===== MY MAPS TAB ===== -->
   <section class="tab-panel" id="panel-mymaps">
     <div class="mymaps-head">
-      <input class="text-input" id="mapSearch" placeholder="Search saved maps..." style="max-width:280px;">
+      <input class="text-input" id="mapSearch" placeholder="Search saved maps..." style="max-width:280px;" aria-label="Search saved maps">
       <span class="hint" id="savedCountHint">0 / 50 saved</span>
     </div>
+    <div class="tag-chip-row" id="tagFilterRow"></div>
     <div class="saved-list" id="savedList"></div>
   </section>
 </main>
@@ -349,9 +558,170 @@ footer{background:var(--canvas-parchment); padding:48px 16px 24px; margin-top:40
   <div class="footer-bottom">© 2026 Thunder · by wondermayank</div>
 </footer>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="alert" aria-live="polite"></div>
+
+<!-- ===== NODE DETAIL PANEL (bottom sheet) ===== -->
+<div class="panel-backdrop" id="panelBackdrop"></div>
+<aside id="nodePanel" aria-label="Node details" aria-hidden="true">
+  <div class="panel-handle"></div>
+  <div class="panel-header">
+    <div id="nodePanelTitle"></div>
+    <button class="panel-close-btn" id="nodePanelClose" aria-label="Close panel">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+
+  <!-- Detail text display -->
+  <div class="panel-detail-text" id="nodePanelDetail"></div>
+
+  <!-- Edit fields -->
+  <span class="panel-section-label">Edit</span>
+  <div class="panel-edit-field field">
+    <label class="field-label" for="nodeLabelInput">Label</label>
+    <input class="text-input" id="nodeLabelInput" placeholder="Node label">
+  </div>
+  <div class="panel-edit-field field">
+    <label class="field-label" for="nodeDetailInput">Detail / Notes</label>
+    <textarea class="text-input" id="nodeDetailInput" placeholder="Add notes or exam detail for this node..."></textarea>
+  </div>
+
+  <!-- Panel action buttons -->
+  <div class="panel-actions">
+    <button class="panel-action-btn primary" id="nodeSaveBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+      Save
+    </button>
+    <button class="panel-action-btn" id="nodeAddChildBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      Add Child
+    </button>
+    <button class="panel-action-btn" id="nodeRegenBranchBtn" style="display:none;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      Regenerate Branch
+    </button>
+    <button class="panel-action-btn danger" id="nodeDeleteBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>
+      Delete
+    </button>
+  </div>
+</aside>
+
+<!-- ===== SAVE TAG MODAL ===== -->
+<div class="modal-overlay" id="saveTagModal" role="dialog" aria-modal="true" aria-labelledby="saveTagModalTitle">
+  <div class="modal-box">
+    <div class="modal-title" id="saveTagModalTitle">Save to My Maps</div>
+    <label class="field-label" for="saveTagSelect">Exam tag (optional)</label>
+    <select class="text-input" id="saveTagSelect"></select>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="saveTagCancelBtn">Cancel</button>
+      <button class="btn btn-primary" id="saveTagConfirmBtn">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PDF TYPE MODAL ===== -->
+<div class="modal-overlay" id="pdfTypeModal" role="dialog" aria-modal="true" aria-labelledby="pdfTypeModalTitle">
+  <div class="modal-box">
+    <div class="modal-title" id="pdfTypeModalTitle">Choose PDF export type</div>
+    <div class="pdf-type-grid">
+      <button class="pdf-type-card" id="pdfDiagramBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
+        <strong>Diagram</strong>
+        <span>Mind map image on one page</span>
+      </button>
+      <button class="pdf-type-card" id="pdfBookletBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <strong>Study Booklet</strong>
+        <span>One topic per page with details</span>
+      </button>
+    </div>
+    <div class="modal-actions" style="margin-top:16px;">
+      <button class="btn btn-secondary" id="pdfTypeCancelBtn">Cancel</button>
+    </div>
+  </div>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="/app.js"></script>
+
+<!-- Study badge sync — show badge when study mode is active -->
+<script>
+(function(){
+  var orig = window.addEventListener;
+  // Observe studyModeToggle clicks to toggle the badge in the toolbar
+  document.addEventListener('DOMContentLoaded', function(){
+    var toggle = document.getElementById('studyModeToggle');
+    var badge = document.getElementById('studyBadge');
+    if(toggle && badge){
+      toggle.addEventListener('click', function(){
+        setTimeout(function(){
+          var isActive = toggle.classList.contains('active');
+          badge.classList.toggle('active', isActive);
+          toggle.innerHTML = isActive
+            ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg> Study Mode: ON'
+            : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg> Study Mode';
+        }, 10);
+      });
+    }
+    // Panel backdrop dismiss
+    var backdrop = document.getElementById('panelBackdrop');
+    var panel = document.getElementById('nodePanel');
+    if(backdrop && panel){
+      backdrop.addEventListener('click', function(){
+        panel.classList.remove('active');
+        backdrop.classList.remove('active');
+        panel.setAttribute('aria-hidden','true');
+      });
+    }
+  });
+})();
+</script>
+
+<!-- Patch: wire backdrop to nodePanel open/close from app.js -->
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  var panelClose = document.getElementById('nodePanelClose');
+  var backdrop = document.getElementById('panelBackdrop');
+  var panel = document.getElementById('nodePanel');
+
+  function openPanel(){
+    backdrop && backdrop.classList.add('active');
+    panel && panel.setAttribute('aria-hidden','false');
+  }
+  function closePanel(){
+    backdrop && backdrop.classList.remove('active');
+    panel && panel.setAttribute('aria-hidden','true');
+  }
+
+  // Observe panel class changes via MutationObserver
+  if(panel){
+    var obs = new MutationObserver(function(mutations){
+      mutations.forEach(function(m){
+        if(m.attributeName === 'class'){
+          if(panel.classList.contains('active')) openPanel();
+          else closePanel();
+        }
+      });
+    });
+    obs.observe(panel, { attributes: true });
+  }
+
+  // mode-chip aria-pressed sync
+  document.querySelectorAll('.mode-chip').forEach(function(chip){
+    chip.addEventListener('click', function(){
+      document.querySelectorAll('.mode-chip').forEach(function(c){ c.setAttribute('aria-pressed','false'); });
+      chip.setAttribute('aria-pressed','true');
+    });
+  });
+  // depth-chip aria-pressed sync
+  document.querySelectorAll('.depth-chip').forEach(function(chip){
+    chip.addEventListener('click', function(){
+      document.querySelectorAll('.depth-chip').forEach(function(c){ c.setAttribute('aria-pressed','false'); });
+      chip.setAttribute('aria-pressed','true');
+    });
+  });
+});
+</script>
 </body>
 </html>
