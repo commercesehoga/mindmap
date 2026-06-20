@@ -3,38 +3,97 @@
   "branches": [
     {
       "label": "Quantitative Aptitude",
+      "detail": "Tests numerical ability across arithmetic, algebra, geometry, trigonometry and data interpretation. Usually 25 questions in Tier 1, with deeper coverage in Tier 2. Speed and accuracy in calculation matter as much as concept clarity.",
       "children": [
-        { "label": "Arithmetic", "children": [{ "label": "Percentage" }, { "label": "Profit & Loss" }, { "label": "Time & Work" }, { "label": "SI & CI" }] },
-        { "label": "Algebra", "children": [{ "label": "Linear Equations" }, { "label": "Quadratic Equations" }] },
-        { "label": "Geometry", "children": [{ "label": "Triangles" }, { "label": "Circles" }, { "label": "Mensuration" }] },
-        { "label": "Trigonometry", "children": [{ "label": "Identities" }, { "label": "Heights & Distances" }] },
-        { "label": "Data Interpretation", "children": [{ "label": "Bar Graphs" }, { "label": "Pie Charts" }] }
+        { "label": "Arithmetic", "detail": "The highest-weightage Quant topic — covers percentages, profit/loss, time-work, and interest calculations that recur in almost every SSC paper.", "children": [
+          { "label": "Percentage", "detail": "Converting fractions and ratios to percentages and back; the base skill nearly every other Arithmetic question builds on." },
+          { "label": "Profit & Loss", "detail": "Calculating cost price, selling price, profit/loss percentage, and discount — frequently combined with percentage questions." },
+          { "label": "Time & Work", "detail": "Problems on individual/combined work rates, efficiency, and pipes-and-cisterns variants." },
+          { "label": "SI & CI", "detail": "Simple and Compound Interest formulas, including installment and difference-based questions." }
+        ] },
+        { "label": "Algebra", "detail": "Equation-solving and identity-based questions, generally easier marks if formulas are memorized well.", "children": [
+          { "label": "Linear Equations", "detail": "Solving for unknowns in one or two variables, including word problems converted into equations." },
+          { "label": "Quadratic Equations", "detail": "Finding roots via factorization or the quadratic formula, and forming equations from given roots." }
+        ] },
+        { "label": "Geometry", "detail": "Properties of shapes and figures — a visually intensive topic that rewards diagram practice over rote memorization.", "children": [
+          { "label": "Triangles", "detail": "Congruence, similarity, Pythagoras theorem, and centroid/incenter/circumcenter properties." },
+          { "label": "Circles", "detail": "Chord, tangent, and angle properties, including cyclic quadrilaterals." },
+          { "label": "Mensuration", "detail": "Area, perimeter, and volume formulas for 2D and 3D shapes — a guaranteed few marks if formulas are memorized." }
+        ] },
+        { "label": "Trigonometry", "detail": "Standard angle values and identities applied to height-and-distance word problems.", "children": [
+          { "label": "Identities", "detail": "Core trig identities (sin²+cos²=1 and variants) used to simplify expressions in MCQ format." },
+          { "label": "Heights & Distances", "detail": "Real-world angle-of-elevation/depression problems solved using trigonometric ratios." }
+        ] },
+        { "label": "Data Interpretation", "detail": "Reading and calculating from graphs and tables — tests speed more than concept difficulty.", "children": [
+          { "label": "Bar Graphs", "detail": "Comparing values across categories shown as bars, often requiring percentage or ratio calculations on the data." },
+          { "label": "Pie Charts", "detail": "Reading proportions from a circular chart, usually converting degree/percentage splits into actual values." }
+        ] }
       ]
     },
     {
       "label": "Reasoning",
+      "detail": "General Intelligence & Reasoning tests logical thinking through verbal, non-verbal, and analytical question types. Typically the most scoring section if practiced regularly since it relies on pattern recognition rather than memorized facts.",
       "children": [
-        { "label": "Verbal", "children": [{ "label": "Analogy" }, { "label": "Classification" }, { "label": "Series" }] },
-        { "label": "Non-Verbal", "children": [{ "label": "Mirror Images" }, { "label": "Paper Folding" }] },
-        { "label": "Logical", "children": [{ "label": "Syllogism" }, { "label": "Blood Relations" }, { "label": "Coding-Decoding" }] }
+        { "label": "Verbal", "detail": "Word- and number-based logical patterns.", "children": [
+          { "label": "Analogy", "detail": "Identifying the relationship between a given word/number pair and applying it to a new pair." },
+          { "label": "Classification", "detail": "Picking the odd one out from a group of words, numbers, or figures based on a shared rule." },
+          { "label": "Series", "detail": "Completing number or letter sequences by identifying the underlying pattern." }
+        ] },
+        { "label": "Non-Verbal", "detail": "Figure and image-based reasoning that tests spatial visualization.", "children": [
+          { "label": "Mirror Images", "detail": "Predicting how a figure appears when reflected, a common source of careless errors under time pressure." },
+          { "label": "Paper Folding", "detail": "Visualizing cuts/punches on a folded paper and how they appear when unfolded." }
+        ] },
+        { "label": "Logical", "detail": "Deductive reasoning questions based on statements and given conditions.", "children": [
+          { "label": "Syllogism", "detail": "Drawing valid conclusions from two or more given statements using set/Venn diagram logic." },
+          { "label": "Blood Relations", "detail": "Tracing family relationships from descriptive clues, often requiring a quick family-tree sketch." },
+          { "label": "Coding-Decoding", "detail": "Decrypting letter/number substitution patterns to decode or encode given words." }
+        ] }
       ]
     },
     {
       "label": "English",
+      "detail": "Tests grammar, vocabulary, and comprehension. Scoring well here depends on consistent reading habits and active vocabulary building rather than last-minute cramming.",
       "children": [
-        { "label": "Grammar", "children": [{ "label": "Tenses" }, { "label": "Articles" }, { "label": "Voice Change" }] },
-        { "label": "Vocabulary", "children": [{ "label": "Synonyms" }, { "label": "Antonyms" }, { "label": "Idioms" }] },
-        { "label": "Comprehension", "children": [{ "label": "Reading Passage" }, { "label": "Cloze Test" }] }
+        { "label": "Grammar", "detail": "Rule-based sentence correction and structure questions.", "children": [
+          { "label": "Tenses", "detail": "Correct usage of verb forms across past, present, and future, including common SSC trap sentences." },
+          { "label": "Articles", "detail": "Correct use of a/an/the, including cases where no article is needed." },
+          { "label": "Voice Change", "detail": "Converting sentences between active and passive voice while preserving meaning." }
+        ] },
+        { "label": "Vocabulary", "detail": "Word meaning and usage, best built through regular reading rather than isolated word lists.", "children": [
+          { "label": "Synonyms", "detail": "Choosing words with the closest meaning to a given word from the options." },
+          { "label": "Antonyms", "detail": "Choosing words with opposite meaning — frequently paired with synonym questions in the same set." },
+          { "label": "Idioms", "detail": "Recognizing the intended meaning of common English idiomatic phrases." }
+        ] },
+        { "label": "Comprehension", "detail": "Passage-based questions testing reading speed and inference ability.", "children": [
+          { "label": "Reading Passage", "detail": "Answering direct and inferential questions based on a given paragraph or article." },
+          { "label": "Cloze Test", "detail": "Filling blanks in a passage with the most contextually appropriate word." }
+        ] }
       ]
     },
     {
       "label": "General Awareness",
+      "detail": "Static GK and current affairs spanning history, polity, geography, and science. The hardest section to predict, so broad, consistent reading beats targeted last-minute revision.",
       "children": [
-        { "label": "History", "children": [{ "label": "Ancient India" }, { "label": "Freedom Struggle" }] },
-        { "label": "Polity", "children": [{ "label": "Constitution" }, { "label": "Fundamental Rights" }] },
-        { "label": "Geography", "children": [{ "label": "Physical Geography" }, { "label": "Indian Rivers" }] },
-        { "label": "Science", "children": [{ "label": "Physics Basics" }, { "label": "Biology Basics" }] },
-        { "label": "Current Affairs", "children": [{ "label": "Govt Schemes" }, { "label": "Awards" }] }
+        { "label": "History", "detail": "Indian history from ancient civilizations through the independence movement.", "children": [
+          { "label": "Ancient India", "detail": "Indus Valley Civilization, Vedic period, and major ancient dynasties." },
+          { "label": "Freedom Struggle", "detail": "Key events, movements, and leaders from the Indian independence struggle (1857–1947)." }
+        ] },
+        { "label": "Polity", "detail": "The structure and functioning of the Indian government as defined by the Constitution.", "children": [
+          { "label": "Constitution", "detail": "Structure, schedules, amendments, and the constituent assembly's drafting process." },
+          { "label": "Fundamental Rights", "detail": "The six fundamental rights guaranteed under Articles 12–35 and their exceptions." }
+        ] },
+        { "label": "Geography", "detail": "Physical and political geography of India and the world.", "children": [
+          { "label": "Physical Geography", "detail": "Landforms, climate, and natural resource distribution across India and globally." },
+          { "label": "Indian Rivers", "detail": "Major river systems, their origins, tributaries, and the states/cities they pass through." }
+        ] },
+        { "label": "Science", "detail": "NCERT-level general science across physics, chemistry, and biology.", "children": [
+          { "label": "Physics Basics", "detail": "Fundamental laws, units, and everyday-application physics questions at school level." },
+          { "label": "Biology Basics", "detail": "Human body systems, diseases, and basic plant/animal biology at school level." }
+        ] },
+        { "label": "Current Affairs", "detail": "Recent national and international developments, usually covering the last 6–12 months before the exam.", "children": [
+          { "label": "Govt Schemes", "detail": "Central government welfare and policy schemes, their objectives, and launch details." },
+          { "label": "Awards", "detail": "Major national and international awards, their categories, and recent recipients." }
+        ] }
       ]
     }
   ]
