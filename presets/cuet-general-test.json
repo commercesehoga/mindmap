@@ -3,31 +3,63 @@
   "branches": [
     {
       "label": "Quantitative Reasoning",
+      "detail": "Tests basic numerical ability — number systems, arithmetic, and data interpretation at a level accessible without a dedicated math background, since CUET draws candidates from all streams.",
       "children": [
-        { "label": "Number System", "children": [{ "label": "HCF & LCM" }, { "label": "Simplification" }] },
-        { "label": "Arithmetic", "children": [{ "label": "Ratio & Proportion" }, { "label": "Average" }] },
-        { "label": "Data Interpretation", "children": [{ "label": "Tables" }, { "label": "Graphs" }] }
+        { "label": "Number System", "detail": "Properties of integers, divisibility, and basic number operations.", "children": [
+          { "label": "HCF & LCM", "detail": "Finding highest common factor and lowest common multiple, including word problems on grouping and timing." },
+          { "label": "Simplification", "detail": "Applying BODMAS correctly to solve multi-step numerical expressions quickly." }
+        ] },
+        { "label": "Arithmetic", "detail": "Everyday calculation problems built on ratios and averages.", "children": [
+          { "label": "Ratio & Proportion", "detail": "Comparing quantities and solving proportion-based word problems." },
+          { "label": "Average", "detail": "Calculating mean values across data sets, including weighted averages." }
+        ] },
+        { "label": "Data Interpretation", "detail": "Reading and computing from tabulated or graphical data under time pressure.", "children": [
+          { "label": "Tables", "detail": "Extracting and comparing values from structured tabular data." },
+          { "label": "Graphs", "detail": "Reading trends and values from line, bar, or pie graphs." }
+        ] }
       ]
     },
     {
       "label": "Logical Reasoning",
+      "detail": "Tests analytical and visual-pattern thinking rather than subject knowledge, making it one of the more practice-friendly sections of CUET's General Test.",
       "children": [
-        { "label": "Analytical", "children": [{ "label": "Statement & Conclusion" }, { "label": "Assumptions" }] },
-        { "label": "Visual", "children": [{ "label": "Pattern Series" }, { "label": "Odd One Out" }] }
+        { "label": "Analytical", "detail": "Statement-based deductive reasoning.", "children": [
+          { "label": "Statement & Conclusion", "detail": "Judging whether a given conclusion logically follows from a stated premise." },
+          { "label": "Assumptions", "detail": "Identifying the implicit assumption underlying a given statement or argument." }
+        ] },
+        { "label": "Visual", "detail": "Figure and pattern-based reasoning.", "children": [
+          { "label": "Pattern Series", "detail": "Identifying the next figure or number in a visual or numeric sequence." },
+          { "label": "Odd One Out", "detail": "Spotting the figure or item that doesn't share the common pattern with the rest of the group." }
+        ] }
       ]
     },
     {
       "label": "General Knowledge",
+      "detail": "Covers static facts and current events. Breadth matters more than depth here, since questions are typically one-liners rather than analytical.",
       "children": [
-        { "label": "Static GK", "children": [{ "label": "Books & Authors" }, { "label": "Important Days" }] },
-        { "label": "Current Affairs", "children": [{ "label": "National" }, { "label": "International" }, { "label": "Sports" }] },
-        { "label": "Static India", "children": [{ "label": "States & Capitals" }, { "label": "National Parks" }] }
+        { "label": "Static GK", "detail": "Fixed factual knowledge that doesn't change year to year.", "children": [
+          { "label": "Books & Authors", "detail": "Notable books and their authors, frequently asked in a direct match format." },
+          { "label": "Important Days", "detail": "National and international observance days and their significance." }
+        ] },
+        { "label": "Current Affairs", "detail": "Recent events from roughly the past year, the most volatile and high-yield-if-prepared part of GK.", "children": [
+          { "label": "National", "detail": "Major domestic policy, political, and economic developments." },
+          { "label": "International", "detail": "Significant global events, summits, and agreements." },
+          { "label": "Sports", "detail": "Recent tournament results, award winners, and record-breaking performances." }
+        ] },
+        { "label": "Static India", "detail": "Fixed geographical and administrative facts about India.", "children": [
+          { "label": "States & Capitals", "detail": "Indian states/union territories with their capitals — a guaranteed easy mark if memorized." },
+          { "label": "National Parks", "detail": "Major national parks and wildlife sanctuaries and the species they're known for." }
+        ] }
       ]
     },
     {
       "label": "Reading Comprehension",
+      "detail": "Tests reading speed and inference from an unseen passage — a skill best built through regular reading practice rather than last-minute prep.",
       "children": [
-        { "label": "Passage Based", "children": [{ "label": "Inference" }, { "label": "Vocabulary in Context" }] }
+        { "label": "Passage Based", "detail": "Direct and indirect questions drawn from a given paragraph.", "children": [
+          { "label": "Inference", "detail": "Drawing conclusions that are implied but not directly stated in the passage." },
+          { "label": "Vocabulary in Context", "detail": "Determining a word's meaning based on how it's used within the passage." }
+        ] }
       ]
     }
   ]
