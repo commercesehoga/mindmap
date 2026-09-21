@@ -18,7 +18,17 @@
 import fs from 'fs';
 import path from 'path';
 
-const GROQ_MODEL = 'llama-3.3-70b-versatile';
+// Ordered fallback chain — tried top to bottom. If Groq closes/decommissions a model
+// (404 / "decommissioned"), rate-limits it (429) or it errors (5xx), the next one is used.
+// gpt-oss models are reasoning models: max_tokens also covers their thinking, so they get
+// a bigger budget and reasoning_effort 'low'. Llama models reject reasoning_effort, so it's per-model.
+const GROQ_MODELS = [
+  { id: 'openai/gpt-oss-120b',      maxTokens: 6000, extra: { reasoning_effort: 'low' } },
+  { id: 'openai/gpt-oss-20b',       maxTokens: 6000, extra: { reasoning_effort: 'low' } },
+  { id: 'llama-3.3-70b-versatile',  maxTokens: 1800, extra: {} }, // being closed by Groq — last-resort only
+  { id: 'llama-3.1-8b-instant',     maxTokens: 1800, extra: {} }
+];
+const deadModels = new Set(); // models Groq reported as gone; skipped for the life of this warm instance
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
 const MAX_INPUT_CHARS = 12000; // server-side safety net, independent of client limit
@@ -173,30 +183,52 @@ function checkAndBumpRateLimit(req) {
 
 /* ---------- Groq call helper (used by both full-map and single-branch modes) ---------- */
 async function callGroq(apiKey, systemPrompt, userPrompt) {
-  const groqRes = await fetch(GROQ_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
-    },
-    body: JSON.stringify({
-      model: GROQ_MODEL,
-      temperature: 0.4,
-      max_tokens: 1800,
-      response_format: { type: 'json_object' },
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
-      ]
-    })
-  });
-  if (!groqRes.ok) {
+  for (const model of GROQ_MODELS) {
+    if (deadModels.has(model.id)) continue;
+
+    let groqRes;
+    try {
+      groqRes = await fetch(GROQ_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: model.id,
+          temperature: 0.4,
+          max_tokens: model.maxTokens,
+          response_format: { type: 'json_object' },
+          ...model.extra,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt }
+          ]
+        })
+      });
+    } catch (netErr) {
+      console.warn(`Groq network error on ${model.id}, trying next model:`, netErr.message);
+      continue;
+    }
+
+    if (groqRes.ok) {
+      const completion = await groqRes.json();
+      return completion.choices?.[0]?.message?.content || '';
+    }
+
     const errText = await groqRes.text();
-    console.error('Groq error:', groqRes.status, errText);
-    throw new Error('AI provider error.');
+    console.error(`Groq error on ${model.id}:`, groqRes.status, errText);
+
+    // Bad/forbidden key fails on every model — no point falling through.
+    if (groqRes.status === 401 || groqRes.status === 403) break;
+
+    // Model closed / decommissioned → never try it again on this instance.
+    if (groqRes.status === 404 || /decommission|deprecat|does not exist|not found/i.test(errText)) {
+      deadModels.add(model.id);
+    }
+    // Any other failure (429, 5xx, json_validate_failed 400) → just move on to the next model.
   }
-  const completion = await groqRes.json();
-  return completion.choices?.[0]?.message?.content || '';
+  throw new Error('AI provider error.');
 }
 
 async function getJsonFromGroq(apiKey, systemPrompt, userPrompt) {
