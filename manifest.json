@@ -30,7 +30,7 @@
       "name": "Presets",
       "short_name": "Presets",
       "description": "Open the free exam presets",
-      "url": "/app?tab=presets",
+      "url": "/preset",
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
     },
     {

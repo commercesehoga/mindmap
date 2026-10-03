@@ -24,3 +24,12 @@
 
 /404.html
   X-Robots-Tag: noindex
+
+/save
+  X-Robots-Tag: noindex, nofollow
+
+/save.html
+  X-Robots-Tag: noindex, nofollow
+
+/assets/*
+  Cache-Control: public, max-age=604800

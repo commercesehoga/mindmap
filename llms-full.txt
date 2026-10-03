@@ -33,7 +33,7 @@ Presets are ready-made mind maps that open instantly and do not use up the daily
 - SSC CGL Full Syllabus: Quantitative Aptitude (Arithmetic, Algebra, Geometry, Trigonometry, Data Interpretation), Reasoning (Verbal, Non-Verbal, Logical), English (Grammar, Vocabulary, Comprehension), General Awareness (History, Polity, Geography, Science, Current Affairs).
 - CUET General Test: Quantitative Reasoning, Logical Reasoning, General Knowledge and Reading Comprehension.
 - Banking Awareness: RBI and Monetary Policy, Types of Banks, Government Schemes, Banking Terms and International Bodies.
-Open them at https://mindmap.thunderstudy.indevs.in/app?tab=presets
+Open them at https://mindmap.thunderstudy.indevs.in/preset
 
 ## My Maps (saving)
 

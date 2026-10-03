@@ -9,7 +9,9 @@ Built by **Wondermayank**. Hosted on **Cloudflare Pages**; the AI runs on **Groq
 index.html                 landing page (/)
 app.html                   the tool (/app): Create / Presets / My Maps, PDF reading, renderer, save and export
 about.html, faq.html, pricing.html, performance.html, new.html (changelog)
+preset.html (/preset), save.html (/save, noindex)
 offline.html, 404.html     both noindex
+assets/og-image.png        1200x630 default social share image
 presets/index.json         list shown in the Presets tab
 presets/*.json             the preset mind maps ({title, branches:[...]})
 
