@@ -1,0 +1,44 @@
+{
+  "id": "/app",
+  "name": "ThunderStudy AI Mind Map",
+  "short_name": "Thunder Mind Map",
+  "description": "Free AI mind map maker for students. Turn a topic, notes, a PDF chapter or a YouTube link into a mind map with a short explanation on every node.",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#573AFC",
+  "background_color": "#F4F1FC",
+  "lang": "en-IN",
+  "dir": "ltr",
+  "categories": ["education", "productivity"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "New mind map",
+      "short_name": "New map",
+      "description": "Start a new AI mind map",
+      "url": "/app",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Presets",
+      "short_name": "Presets",
+      "description": "Open the free exam presets",
+      "url": "/app?tab=presets",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "FAQ",
+      "short_name": "FAQ",
+      "description": "Answers about the mind map maker",
+      "url": "/faq",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+# ThunderStudy AI Mind Map
+
+> ThunderStudy AI Mind Map (short name: Thunder Mind Map) is a free AI mind map maker for students. Type a topic, paste notes, upload a PDF chapter (max 15 pages) or paste a YouTube link, choose Quick overview (2 levels) or Deep dive (3 levels), and the AI, called Thunder, builds a mind map where every node has a short explanation. No account is needed. Fair use is 3 maps a day and 12 a week. Maps can be saved on your own device and exported to PDF, a standalone HTML file and a one-topic-per-page study booklet. Built and owned by Wondermayank, a solo student developer making free educational tools since 2018.
+
+Site: https://mindmap.thunderstudy.indevs.in
+Contact: contact@wondermayank.indevs.in
+
+## Main pages
+
+- [Home](https://mindmap.thunderstudy.indevs.in/): Landing page explaining what the AI mind map maker does and how to start.
+- [Mind map maker (app)](https://mindmap.thunderstudy.indevs.in/app): The tool itself, with Create, Presets and My Maps tabs.
+- [About](https://mindmap.thunderstudy.indevs.in/about): The mission (free education), what the maker does, and who runs it (Wondermayank).
+- [FAQ](https://mindmap.thunderstudy.indevs.in/faq): Answers on cost, sources, Quick overview vs Deep dive, limits, saved maps, exports, PDF limits, accuracy, privacy and offline use.
+- [Pricing](https://mindmap.thunderstudy.indevs.in/pricing): One plan, Free Forever, with every feature included and fair use of 3 maps a day and 12 a week.
+- [Performance](https://mindmap.thunderstudy.indevs.in/performance): How generation stays quick and reliable, including automatic model fallback and on-device PDF reading.
+- [Changelog](https://mindmap.thunderstudy.indevs.in/new): Dated, newest-first log of what was added, fixed, improved and removed.
+
+## Free presets
+
+- [Presets tab](https://mindmap.thunderstudy.indevs.in/app?tab=presets): Ready-made mind maps that open instantly without using a daily or weekly map.
+- [SSC CGL Full Syllabus](https://mindmap.thunderstudy.indevs.in/presets/ssc-cgl-full-syllabus.json): Quantitative Aptitude, Reasoning, English and General Awareness at a glance.
+- [CUET General Test](https://mindmap.thunderstudy.indevs.in/presets/cuet-general-test.json): Quantitative Reasoning, Logical Reasoning, General Knowledge and Reading Comprehension.
+- [Banking Awareness](https://mindmap.thunderstudy.indevs.in/presets/banking-awareness.json): RBI and monetary policy, types of banks, government schemes, banking terms and international bodies.
+
+## Optional
+
+- [Full description for AI assistants](https://mindmap.thunderstudy.indevs.in/llms-full.txt): Every feature, the presets, limits, exports, who runs the site, and a short Q&A.
+- [Sitemap](https://mindmap.thunderstudy.indevs.in/sitemap.xml): All public pages.
+- [Contact Wondermayank](https://wondermayank.in/contact): Bug reports, feature requests and feedback.

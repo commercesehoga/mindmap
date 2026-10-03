@@ -1,35 +1,64 @@
-// api/youtube-transcript.js — Vercel serverless function
+// functions/api/youtube-transcript.js — Cloudflare Pages Function  (route: /api/youtube-transcript)
 // Fetches YouTube video transcripts via youtube-transcript.ai
-// (free, no API key, CORS-open from their end but we proxy server-side
-//  so we avoid any browser CORS quirks and keep the client clean)
+// (free, no API key). We proxy server-side so the browser never hits those services directly.
 //
 // Usage: GET /api/youtube-transcript?id=VIDEO_ID
 //
 // Returns: { transcript: "full plain text..." }
 // Errors:  { error: "reason" }  with appropriate HTTP status
+//
+// Only https://mindmap.thunderstudy.indevs.in may call this (see isAllowedRequest below).
+// Optional env: ALLOWED_ORIGINS_EXTRA (comma-separated extra origins for local dev).
 
-export default async function handler(req, res) {
-  // CORS headers — allow the mind map app to call this from any origin
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+const ALLOWED_ORIGIN = 'https://mindmap.thunderstudy.indevs.in';
 
-  if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+function allowedOrigins(env) {
+  const extra = String((env && env.ALLOWED_ORIGINS_EXTRA) || '').split(',').map((s) => s.trim()).filter(Boolean);
+  return [ALLOWED_ORIGIN, ...extra];
+}
+function isAllowedRequest(request, env) {
+  const allowed = allowedOrigins(env);
+  const origin = request.headers.get('Origin');
+  if (origin) return allowed.includes(origin);
+  // Same-origin GET requests usually omit Origin — fall back to Fetch-Metadata / Referer.
+  if (request.headers.get('Sec-Fetch-Site') === 'same-origin') return true;
+  const ref = request.headers.get('Referer') || '';
+  return allowed.some((o) => ref === o || ref.startsWith(o + '/'));
+}
+function corsHeaders(request, env) {
+  const origin = request.headers.get('Origin');
+  const h = {
+    'Vary': 'Origin',
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type'
+  };
+  if (origin && allowedOrigins(env).includes(origin)) h['Access-Control-Allow-Origin'] = origin;
+  return h;
+}
+function json(data, status, extraHeaders) {
+  return new Response(JSON.stringify(data), {
+    status: status || 200,
+    headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', ...(extraHeaders || {}) }
+  });
+}
+
+export async function onRequestOptions({ request, env }) {
+  if (!isAllowedRequest(request, env)) return new Response(null, { status: 403 });
+  return new Response(null, { status: 204, headers: { ...corsHeaders(request, env), 'Access-Control-Max-Age': '86400' } });
+}
+
+export async function onRequestGet({ request, env }) {
+  const cors = corsHeaders(request, env);
+
+  if (!isAllowedRequest(request, env)) {
+    return json({ error: 'Forbidden' }, 403, cors);
   }
 
-  if (req.method !== 'GET') {
-    res.status(405).json({ error: 'Method not allowed' });
-    return;
-  }
-
-  const videoId = (req.query.id || '').trim();
+  const videoId = (new URL(request.url).searchParams.get('id') || '').trim();
 
   // Validate: YouTube IDs are exactly 11 alphanumeric/dash/underscore chars
   if (!videoId || !/^[a-zA-Z0-9_-]{11}$/.test(videoId)) {
-    res.status(400).json({ error: 'Missing or invalid video ID.' });
-    return;
+    return json({ error: 'Missing or invalid video ID.' }, 400, cors);
   }
 
   // ── Primary: youtube-transcript.ai ───────────────────────────────────────
@@ -71,8 +100,7 @@ export default async function handler(req, res) {
       text = text.replace(/\n{3,}/g, '\n\n').trim();
 
       if (text.length > 50) {
-        res.status(200).json({ transcript: text });
-        return;
+        return json({ transcript: text }, 200, cors);
       }
     }
   } catch (e) {
@@ -93,8 +121,7 @@ export default async function handler(req, res) {
       const transcripts = Array.isArray(data.transcripts) ? data.transcripts : [];
       const text = (transcripts[0]?.text || '').trim();
       if (text.length > 50) {
-        res.status(200).json({ transcript: text });
-        return;
+        return json({ transcript: text }, 200, cors);
       }
     }
   } catch (e) {
@@ -116,8 +143,7 @@ export default async function handler(req, res) {
       const data = await jayRes.json();
       const text = (data.transcript || '').trim();
       if (text.length > 50) {
-        res.status(200).json({ transcript: text });
-        return;
+        return json({ transcript: text }, 200, cors);
       }
     }
   } catch (e) {
@@ -125,7 +151,7 @@ export default async function handler(req, res) {
   }
 
   // All sources exhausted
-  res.status(502).json({
+  return json({
     error: 'Could not fetch transcript. The video may not have captions, or may be private/restricted.'
-  });
+  }, 502, cors);
 }

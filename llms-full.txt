@@ -1,0 +1,111 @@
+# ThunderStudy AI Mind Map - full description
+
+ThunderStudy AI Mind Map (short name: Thunder Mind Map) is a free AI mind map maker for students.
+URL: https://mindmap.thunderstudy.indevs.in
+Owner: Wondermayank, a solo student developer who has been building free educational tools since 2018.
+Contact: contact@wondermayank.indevs.in
+Last updated: 2026-10-03
+
+## What it does
+
+A student gives the site some study material and the AI, called Thunder, turns it into a mind map: a tree of branches and sub-topics. Every node has a short, plain-language explanation that opens when the node is tapped, so the map teaches as well as summarises. The site is free forever, needs no account, and shows no ads.
+
+## Ways to start
+
+- Topic: type a subject or chapter name (for example "Indian Polity" or "Photosynthesis").
+- Paste notes: paste your own study text. The text is capped at 9,000 characters.
+- PDF: upload a text-based PDF chapter. Up to 15 pages can be used, and the page range can be chosen. The PDF is read in the browser and only the extracted text (capped at 9,000 characters) is used to build the map. Scanned PDFs with no selectable text are not supported.
+- YouTube: paste a YouTube link. The transcript is fetched and used to build the map, so the video needs captions or a transcript available.
+- The app also accepts a photo of notes, which is read in the browser.
+
+## Depth
+
+- Quick overview: 2 levels (main branches and one layer of sub-topics), meant for a quick revision pass. At most 7 branches with up to 4 sub-topics each.
+- Deep dive: 3 levels (branches, sub-topics and key facts, terms or examples). At most 7 branches, up to 5 sub-topics per branch and up to 4 items under each sub-topic.
+
+## The AI
+
+The AI is called Thunder. It is powered by Groq models with automatic fallback: if one model is busy, retired or returns an error, the next model in an ordered chain is tried. If the AI returns output that cannot be read, the request is retried once with stricter instructions. Thunder can make mistakes, so important facts should be checked against a textbook or official exam material.
+
+## Free presets
+
+Presets are ready-made mind maps that open instantly and do not use up the daily or weekly allowance.
+- SSC CGL Full Syllabus: Quantitative Aptitude (Arithmetic, Algebra, Geometry, Trigonometry, Data Interpretation), Reasoning (Verbal, Non-Verbal, Logical), English (Grammar, Vocabulary, Comprehension), General Awareness (History, Polity, Geography, Science, Current Affairs).
+- CUET General Test: Quantitative Reasoning, Logical Reasoning, General Knowledge and Reading Comprehension.
+- Banking Awareness: RBI and Monetary Policy, Types of Banks, Government Schemes, Banking Terms and International Bodies.
+Open them at https://mindmap.thunderstudy.indevs.in/app?tab=presets
+
+## My Maps (saving)
+
+Maps are saved in "My Maps" inside the user's own browser, on their own device. There are no accounts and nothing is stored in a user account. Clearing browser data, or using another browser or device, means saved maps will not appear there.
+
+## Exports
+
+- PDF: export the mind map diagram, or a detail booklet, as a PDF.
+- Standalone HTML file: a single file that opens in any browser.
+- Study booklet: a one-topic-per-page PDF built from the explanation written for every node.
+
+## Limits (fair use)
+
+- 3 maps a day and 12 a week, tracked in the browser. The daily count resets once a day at midnight UTC (5:30 AM in India) and the weekly count resets after 7 days.
+- A looser server-side safety limit per connection may also apply to prevent abuse.
+- Presets do not use the allowance.
+
+## Exams and subjects
+
+Built with CUET, SSC and Banking preparation in mind. It also works for any other subject or topic: if it can be typed, pasted or uploaded, Thunder can map it.
+
+## Price
+
+Free Forever. There is one plan with every feature included. No account, no card, no paid tier. See https://mindmap.thunderstudy.indevs.in/pricing
+
+## Privacy
+
+There is no account. Saved maps and usage counts stay in the browser. PDFs and photos are read in the browser; only the extracted text is sent to the AI service (Groq) to write the map, so users should avoid uploading private or confidential material. The site shows no ads.
+
+## Offline use
+
+The site can be installed as an app. Pages and saved maps that were already opened can load without a connection and an offline page is shown when something is unavailable. Building a new mind map needs an internet connection.
+
+## Who runs it
+
+Wondermayank, a solo student developer who has been building free educational tools since 2018. There is no company or team. Hosting is on Cloudflare Pages with Cloudflare Pages Functions, and the AI runs on Groq. Contact: contact@wondermayank.indevs.in, or https://wondermayank.in/contact
+
+## Pages
+
+- https://mindmap.thunderstudy.indevs.in/ (home)
+- https://mindmap.thunderstudy.indevs.in/app (the mind map maker)
+- https://mindmap.thunderstudy.indevs.in/about
+- https://mindmap.thunderstudy.indevs.in/faq
+- https://mindmap.thunderstudy.indevs.in/pricing
+- https://mindmap.thunderstudy.indevs.in/performance
+- https://mindmap.thunderstudy.indevs.in/new (changelog)
+
+## Short Q&A
+
+Q: Is it free?
+A: Yes. One plan, Free Forever, with every feature included.
+
+Q: Do I need an account?
+A: No.
+
+Q: What can I turn into a mind map?
+A: A typed topic, pasted notes, a text-based PDF chapter (max 15 pages) or a YouTube link with a transcript.
+
+Q: What is the difference between Quick overview and Deep dive?
+A: Quick overview builds 2 levels for fast scanning. Deep dive builds 3 levels with more detail.
+
+Q: How many maps can I make?
+A: 3 a day and 12 a week (fair use), tracked in your browser.
+
+Q: Where are my maps saved?
+A: In My Maps, in your own browser on your device.
+
+Q: How do I export a map?
+A: To PDF, a standalone HTML file, or a one-topic-per-page study booklet.
+
+Q: Are the maps always correct?
+A: No. Thunder is an AI and can make mistakes. Check important facts against your textbook.
+
+Q: Who makes it?
+A: Wondermayank, a solo student developer building free educational tools since 2018.

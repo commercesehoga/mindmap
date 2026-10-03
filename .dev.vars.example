@@ -1,0 +1,15 @@
+# Copy this file to .dev.vars for local testing with:  npx wrangler pages dev .
+# In production, set the same names in Cloudflare:
+#   Workers & Pages -> your project -> Settings -> Variables and Secrets
+
+# REQUIRED - your Groq API key (https://console.groq.com/keys)
+GROQ_API_KEY=
+
+# OPTIONAL - Upstash Redis REST credentials for the server-side rate-limit backstop
+# (8 maps per day and 30 per week per IP). Leave empty to skip server-side limiting.
+UPSTASH_REDIS_REST_URL=
+UPSTASH_REDIS_REST_TOKEN=
+
+# OPTIONAL - extra allowed origins for local testing (comma-separated). The API only
+# accepts https://mindmap.thunderstudy.indevs.in by default.
+# ALLOWED_ORIGINS_EXTRA=http://localhost:8788

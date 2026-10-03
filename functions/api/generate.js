@@ -1,22 +1,17 @@
-// /api/generate.js — Vercel serverless function
-// Hides the Groq API key server-side. Set GROQ_API_KEY in your Vercel
-// project's Environment Variables (Settings → Environment Variables).
+// functions/api/generate.js — Cloudflare Pages Function  (route: /api/generate)
+// Hides the Groq API key server-side.
 //
-// RATE LIMITING NOTE:
-// This uses a local JSON file (./api/_ratelimit-data.json) as the counter
-// store, per your request to avoid any Vercel-specific storage product.
-// Be aware: Vercel serverless functions run on ephemeral, sometimes
-// multi-instance containers — the filesystem is NOT guaranteed to persist
-// between invocations or be shared across instances. On Vercel this acts
-// as a soft speed bump (it mostly works against bursts hitting the same
-// warm instance) rather than a hard cross-device guarantee, and it costs
-// nothing extra to run. It works as a real, reliable limiter if you ever
-// deploy this on a traditional always-on Node server with persistent disk.
-// If you want a hard guarantee on Vercel specifically, that requires an
-// external HTTP-reachable store — say the word and I'll wire it in.
+// Environment variables (Cloudflare dashboard → Workers & Pages → your project →
+// Settings → Variables and Secrets; for local testing copy .dev.vars.example to .dev.vars):
+//   GROQ_API_KEY               required — your Groq API key
+//   UPSTASH_REDIS_REST_URL     optional — enables the server-side rate-limit backstop
+//   UPSTASH_REDIS_REST_TOKEN   optional — (both Upstash variables must be set)
+//   ALLOWED_ORIGINS_EXTRA      optional — comma-separated extra origins, e.g. http://localhost:8788 for local dev
+//
+// GET  /api/generate  → health check: { ok: true, configured: <GROQ_API_KEY is set> }
+// POST /api/generate  → generates a mind map (same request/response shape as before)
 
-import fs from 'fs';
-import path from 'path';
+const ALLOWED_ORIGIN = 'https://mindmap.thunderstudy.indevs.in';
 
 // Ordered fallback chain — tried top to bottom. If Groq closes/decommissions a model
 // (404 / "decommissioned"), rate-limits it (429) or it errors (5xx), the next one is used.
@@ -38,7 +33,6 @@ const MAX_GRANDCHILDREN = 4;
 
 const SERVER_DAILY_LIMIT = 8;   // looser than client's 3 — this is a backstop, not the primary gate
 const SERVER_WEEKLY_LIMIT = 30; // looser than client's 12, same reasoning
-const RATE_FILE = path.join(process.cwd(), 'api', '_ratelimit-data.json');
 
 /* ---------- depth presets ---------- */
 const DEPTH_RULES = {
@@ -131,7 +125,38 @@ function clampMindMap(data, depthKey) {
   return data;
 }
 
-/* ---------- local-file rate limiting (see note above re: Vercel ephemerality) ---------- */
+/* ---------- Origin check: only the Mind Map site may call the API ---------- */
+function allowedOrigins(env) {
+  const extra = String((env && env.ALLOWED_ORIGINS_EXTRA) || '').split(',').map((s) => s.trim()).filter(Boolean);
+  return [ALLOWED_ORIGIN, ...extra];
+}
+function isAllowedRequest(request, env) {
+  const allowed = allowedOrigins(env);
+  const origin = request.headers.get('Origin');
+  if (origin) return allowed.includes(origin);
+  // Same-origin GET requests may omit Origin — fall back to Fetch-Metadata / Referer.
+  if (request.headers.get('Sec-Fetch-Site') === 'same-origin') return true;
+  const ref = request.headers.get('Referer') || '';
+  return allowed.some((o) => ref === o || ref.startsWith(o + '/'));
+}
+function corsHeaders(request, env) {
+  const origin = request.headers.get('Origin');
+  const h = {
+    'Vary': 'Origin',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type'
+  };
+  if (origin && allowedOrigins(env).includes(origin)) h['Access-Control-Allow-Origin'] = origin;
+  return h;
+}
+function json(data, status, extraHeaders) {
+  return new Response(JSON.stringify(data), {
+    status: status || 200,
+    headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', ...(extraHeaders || {}) }
+  });
+}
+
+/* ---------- Upstash Redis REST rate limiting (server backstop: 8/day, 30/week per IP) ---------- */
 function todayStr() { return new Date().toISOString().slice(0, 10); }
 function weekKey() {
   const d = new Date();
@@ -139,46 +164,45 @@ function weekKey() {
   const week = Math.ceil((((d - onejan) / 86400000) + onejan.getDay() + 1) / 7);
   return `${d.getFullYear()}-W${week}`;
 }
-function readRateData() {
+function getClientKey(request) {
+  const cf = request.headers.get('CF-Connecting-IP');
+  if (cf) return cf.trim();
+  const fwd = request.headers.get('X-Forwarded-For');
+  return (fwd ? fwd.split(',')[0].trim() : '') || 'unknown';
+}
+async function upstash(env, commands) {
+  const res = await fetch(`${String(env.UPSTASH_REDIS_REST_URL).replace(/\/+$/, '')}/pipeline`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${env.UPSTASH_REDIS_REST_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(commands)
+  });
+  if (!res.ok) throw new Error('Upstash HTTP ' + res.status);
+  return res.json(); // [{ result: ... }, ...]
+}
+async function checkAndBumpRateLimit(request, env) {
+  // If Upstash is not configured, skip server limiting (the client-side limit still applies).
+  if (!env.UPSTASH_REDIS_REST_URL || !env.UPSTASH_REDIS_REST_TOKEN) return { allowed: true, skipped: true };
   try {
-    const raw = fs.readFileSync(RATE_FILE, 'utf8');
-    return JSON.parse(raw);
+    const ip = getClientKey(request);
+    const dayKey = `tmm:rl:d:${todayStr()}:${ip}`;
+    const weekK = `tmm:rl:w:${weekKey()}:${ip}`;
+    const out = await upstash(env, [
+      ['INCR', dayKey], ['EXPIRE', dayKey, 172800],
+      ['INCR', weekK], ['EXPIRE', weekK, 1209600]
+    ]);
+    const dayCount = Number(out?.[0]?.result);
+    const weekCount = Number(out?.[2]?.result);
+    if (dayCount > SERVER_DAILY_LIMIT || weekCount > SERVER_WEEKLY_LIMIT) {
+      // Rejected requests don't count against the visitor — undo the bump.
+      upstash(env, [['DECR', dayKey], ['DECR', weekK]]).catch(() => {});
+      return { allowed: false };
+    }
+    return { allowed: true };
   } catch (e) {
-    return {};
+    // Never block real users because the limiter store is unreachable.
+    console.warn('Rate limit store unavailable, skipping:', e.message);
+    return { allowed: true, skipped: true };
   }
-}
-function writeRateData(data) {
-  try {
-    fs.writeFileSync(RATE_FILE, JSON.stringify(data), 'utf8');
-  } catch (e) {
-    // Read-only filesystem (common on serverless) — fail open rather than 500ing real users.
-    console.warn('Rate limit file not writable, skipping persistence:', e.message);
-  }
-}
-function getClientKey(req) {
-  const fwd = req.headers['x-forwarded-for'];
-  const ip = (fwd ? fwd.split(',')[0].trim() : req.socket?.remoteAddress) || 'unknown';
-  return ip;
-}
-function checkAndBumpRateLimit(req) {
-  const key = getClientKey(req);
-  const data = readRateData();
-  const today = todayStr();
-  const wk = weekKey();
-
-  if (!data[key]) data[key] = { day: today, dayCount: 0, week: wk, weekCount: 0 };
-  const entry = data[key];
-  if (entry.day !== today) { entry.day = today; entry.dayCount = 0; }
-  if (entry.week !== wk) { entry.week = wk; entry.weekCount = 0; }
-
-  if (entry.dayCount >= SERVER_DAILY_LIMIT || entry.weekCount >= SERVER_WEEKLY_LIMIT) {
-    return { allowed: false };
-  }
-  entry.dayCount += 1;
-  entry.weekCount += 1;
-  data[key] = entry;
-  writeRateData(data);
-  return { allowed: true };
 }
 
 /* ---------- Groq call helper (used by both full-map and single-branch modes) ---------- */
@@ -244,30 +268,40 @@ async function getJsonFromGroq(apiKey, systemPrompt, userPrompt) {
   }
 }
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    res.status(405).json({ error: 'Method not allowed' });
-    return;
+/* ---------- Pages Function entry points ---------- */
+export async function onRequestOptions({ request, env }) {
+  if (!isAllowedRequest(request, env)) return new Response(null, { status: 403 });
+  return new Response(null, { status: 204, headers: { ...corsHeaders(request, env), 'Access-Control-Max-Age': '86400' } });
+}
+
+export async function onRequestGet({ env }) {
+  return json({ ok: true, configured: Boolean(env.GROQ_API_KEY) }, 200);
+}
+
+export async function onRequestPost({ request, env }) {
+  const cors = corsHeaders(request, env);
+
+  if (!isAllowedRequest(request, env)) {
+    return json({ error: 'Forbidden' }, 403, cors);
   }
 
-  const apiKey = process.env.GROQ_API_KEY;
+  const apiKey = env.GROQ_API_KEY;
   if (!apiKey) {
-    res.status(500).json({ error: 'Server is not configured with a Groq API key.' });
-    return;
+    return json({ error: 'Server is not configured with a Groq API key.' }, 500, cors);
   }
 
-  const rl = checkAndBumpRateLimit(req);
+  const rl = await checkAndBumpRateLimit(request, env);
   if (!rl.allowed) {
-    res.status(429).json({ error: 'Rate limit reached for this server. Please try again later.' });
-    return;
+    return json({ error: 'Rate limit reached for this server. Please try again later.' }, 429, cors);
   }
 
-  const { mode, input, depth, branchLabel, branchContext } = req.body || {};
+  let body = {};
+  try { body = await request.json(); } catch (e) { body = {}; }
+  const { mode, input, depth, branchLabel, branchContext } = body || {};
   const depthKey = depth === 'quick' ? 'quick' : 'deep';
 
   if (!input || typeof input !== 'string' || !input.trim()) {
-    res.status(400).json({ error: 'Missing input.' });
-    return;
+    return json({ error: 'Missing input.' }, 400, cors);
   }
   const safeInput = input.slice(0, MAX_INPUT_CHARS);
 
@@ -275,8 +309,7 @@ export default async function handler(req, res) {
     /* ---------- branch regeneration mode ---------- */
     if (mode === 'branch') {
       if (!branchLabel || typeof branchLabel !== 'string') {
-        res.status(400).json({ error: 'Missing branchLabel for branch regeneration.' });
-        return;
+        return json({ error: 'Missing branchLabel for branch regeneration.' }, 400, cors);
       }
       const depthRules = DEPTH_RULES[depthKey] || DEPTH_RULES.deep;
       const branchSystemPrompt = `You are a mind map generator for ThunderStudy, used by Indian competitive exam students.
@@ -301,17 +334,14 @@ Output strictly valid JSON only.`;
 
       const parsed = await getJsonFromGroq(apiKey, branchSystemPrompt, branchUserPrompt);
       if (!parsed || !parsed.label) {
-        res.status(502).json({ error: 'AI response did not match the expected branch shape.' });
-        return;
+        return json({ error: 'AI response did not match the expected branch shape.' }, 502, cors);
       }
       // Reuse clampMindMap's per-branch logic by wrapping
       const wrapped = clampMindMap({ title: 'x', branches: [parsed] }, depthKey);
       if (!wrapped) {
-        res.status(502).json({ error: 'AI branch response could not be normalized.' });
-        return;
+        return json({ error: 'AI branch response could not be normalized.' }, 502, cors);
       }
-      res.status(200).json(wrapped.branches[0]);
-      return;
+      return json(wrapped.branches[0], 200, cors);
     }
 
     /* ---------- full map generation (topic or content) ---------- */
@@ -323,16 +353,15 @@ Output strictly valid JSON only.`;
     const parsed = await getJsonFromGroq(apiKey, systemPrompt, userPrompt);
     const clamped = clampMindMap(parsed, depthKey);
     if (!clamped) {
-      res.status(502).json({ error: 'AI response did not match the expected shape.' });
-      return;
+      return json({ error: 'AI response did not match the expected shape.' }, 502, cors);
     }
-    res.status(200).json(clamped);
+    return json(clamped, 200, cors);
   } catch (err) {
     console.error('Generate handler error:', err);
     if (err.message === 'AI provider error.') {
-      res.status(502).json({ error: 'AI provider error.' });
+      return json({ error: 'AI provider error.' }, 502, cors);
     } else {
-      res.status(502).json({ error: 'AI returned malformed JSON even after retry.' });
+      return json({ error: 'AI returned malformed JSON even after retry.' }, 502, cors);
     }
   }
 }

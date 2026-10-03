@@ -1,0 +1,13 @@
+/* TEAM */
+Owner: Wondermayank
+Contact: contact@wondermayank.indevs.in
+Site: https://mindmap.thunderstudy.indevs.in
+
+/* THANKS */
+Students who send bug reports and feedback.
+
+/* SITE */
+Name: ThunderStudy AI Mind Map (Thunder Mind Map)
+Last update: 2026/10/03
+Language: English (India)
+Stack: Cloudflare Pages, Cloudflare Pages Functions, Groq, plain HTML/CSS/JavaScript

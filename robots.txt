@@ -1,0 +1,28 @@
+# ThunderStudy AI Mind Map - https://mindmap.thunderstudy.indevs.in
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /functions/
+
+# AI crawlers are welcome on all public pages
+User-agent: GPTBot
+Allow: /
+Disallow: /api/
+Disallow: /functions/
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /api/
+Disallow: /functions/
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /api/
+Disallow: /functions/
+
+User-agent: Google-Extended
+Allow: /
+Disallow: /api/
+Disallow: /functions/
+
+Sitemap: https://mindmap.thunderstudy.indevs.in/sitemap.xml
