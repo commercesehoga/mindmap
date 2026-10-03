@@ -1141,6 +1141,153 @@ footer{padding-bottom:calc(84px + env(safe-area-inset-bottom));}
 }
 .dock a.tab-btn.dock-btn,.dock a.tab-btn.dock-btn:hover{text-decoration:none}
 </style>
+<style id="tmm-ux-css">
+/* ===================================================================
+   TMM UX PASS — viewer tools, export menu, generation feedback, form
+   Uses the page's existing clay tokens. Light + dark both covered.
+   =================================================================== */
+
+/* ---- reduced motion (site-wide) ---- */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important;}
+}
+
+/* ---- focus rings for new controls ---- */
+.icon-btn:focus-visible,.menu-item:focus-visible,.credit-sum:focus-visible,.vt-search input:focus-visible,#combineToggle:focus-visible{outline:2px solid var(--primary); outline-offset:2px;}
+
+/* ---- viewer: taller canvas, anchored under sticky nav ---- */
+#viewer-wrap{scroll-margin-top:76px;}
+#viewer-wrap #map-canvas-wrap{height:clamp(420px,68vh,720px); height:clamp(420px,68svh,720px);}
+@media (max-width:640px){
+  #viewer-wrap #map-canvas-wrap{height:clamp(360px,62vh,560px); height:clamp(360px,62svh,560px);}
+}
+
+/* ---- viewer toolbar ---- */
+.viewer-toolbar{align-items:center; gap:10px 12px;}
+.viewer-toolbar .vt-title{display:flex; align-items:center; gap:10px; flex-wrap:wrap; min-width:0; flex:1 1 200px;}
+.viewer-toolbar .vt-title strong{font-size:16px; overflow-wrap:anywhere;}
+.vt-tools{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+.vt-group{display:flex; gap:6px;}
+.vt-sep{width:1px; height:24px; background:var(--hairline-strong);}
+.icon-btn:disabled{opacity:.38; cursor:not-allowed; transform:none; color:var(--muted);}
+.icon-btn:disabled:hover{transform:none; color:var(--muted);}
+.icon-btn[aria-pressed="true"],.icon-btn[aria-expanded="true"]{color:var(--primary); background:var(--primary-soft);}
+.vt-search{flex:1 1 100%; display:flex; align-items:center; gap:8px; padding:6px 8px 6px 14px; border-radius:var(--radius-pill); background:var(--surface); box-shadow:inset 2px 2px 6px var(--clay-dark),inset -2px -2px 6px var(--clay-light);}
+.vt-search[hidden]{display:none;}
+.vt-search svg{width:16px; height:16px; stroke:var(--muted); flex-shrink:0;}
+.vt-search input{flex:1; min-width:0; border:none; background:transparent; font:inherit; font-size:15px; color:var(--ink); height:34px;}
+.vt-search input:focus{outline:none;}
+.vt-count{font-size:12px; font-weight:700; color:var(--muted); white-space:nowrap; min-width:56px; text-align:right;}
+.vt-search .icon-btn{width:34px; height:34px; border-radius:12px; box-shadow:none; background:transparent;}
+@media (pointer:coarse){
+  .vt-tools .icon-btn,.map-ctrl .icon-btn{width:44px; height:44px;}
+  .vt-search .icon-btn{width:40px; height:40px;}
+}
+
+/* ---- floating map controls (zoom / fit / fullscreen) ---- */
+.map-ctrl{position:absolute; right:12px; bottom:12px; display:flex; flex-direction:column; gap:8px; z-index:3;}
+.map-ctrl .icon-btn{touch-action:manipulation;}
+.map-ctrl .icon-btn svg{width:18px; height:18px;}
+
+/* ---- minimap ---- */
+.minimap{position:absolute; left:12px; bottom:12px; width:150px; height:112px; border-radius:16px; background:color-mix(in srgb,var(--surface) 88%,transparent); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); border:1px solid var(--hairline-strong); box-shadow:4px 4px 10px var(--clay-dark),-4px -4px 10px var(--clay-light); overflow:hidden; z-index:3; touch-action:none; opacity:0; pointer-events:none; transform:translateY(6px); transition:opacity .2s ease,transform .2s ease;}
+.minimap.show{opacity:1; pointer-events:auto; transform:none;}
+.minimap svg{width:100%; height:100%; display:block; cursor:pointer;}
+#miniView{fill:var(--primary); fill-opacity:.12; stroke:var(--primary); stroke-width:2.5; vector-effect:non-scaling-stroke;}
+@media (max-width:640px){ .minimap{display:none;} }
+
+/* ---- node decorations: collapse badge, search, entrance ---- */
+.tmm-tog{cursor:pointer;}
+.tmm-tog .tmm-tog-hit{fill:transparent;}
+.tmm-tog .tmm-tog-bg{fill:var(--surface); stroke-width:1.6px;}
+.tmm-tog text{font-family:Inter,sans-serif; font-weight:700; font-size:10px; fill:var(--ink); pointer-events:none;}
+.tmm-tog:hover .tmm-tog-bg{fill:var(--primary-soft);}
+.map-node-group{transition:opacity .15s ease;}
+.map-node-group.tmm-dim{opacity:.2;}
+.map-node-group.tmm-hit .node-rect{stroke-width:3px;}
+.map-node-group.tmm-cur .node-rect{stroke-width:4px; stroke:var(--primary) !important; filter:drop-shadow(0 0 8px var(--primary));}
+.tmm-pop .map-node-group{animation:tmmPop .42s cubic-bezier(.34,1.56,.64,1) both; animation-delay:var(--d,0s); transform-box:fill-box; transform-origin:center;}
+.tmm-pop .edge-path{animation:tmmFade .5s ease both;}
+@keyframes tmmPop{from{opacity:0; transform:scale(.8);} to{opacity:1; transform:none;}}
+@keyframes tmmFade{from{opacity:0;} to{opacity:.55;}}
+
+/* ---- fullscreen / focus view ---- */
+body.tmm-lock{overflow:hidden;}
+#viewer-wrap.tmm-full{position:fixed; inset:0; z-index:90; margin:0; padding:calc(12px + env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom)); background:var(--canvas); display:flex; flex-direction:column; overflow:hidden;}
+#viewer-wrap.tmm-full #map-canvas-wrap{flex:1; height:auto; min-height:0;}
+#viewer-wrap.tmm-full .viewer-actions{margin-top:10px;}
+
+/* ---- action row + export menu ---- */
+.viewer-actions{gap:10px;}
+.menu-wrap{position:relative;}
+#exportMenuBtn svg.chev{width:12px; height:12px; margin-left:-2px; transition:transform .2s ease;}
+#exportMenuBtn[aria-expanded="true"] svg.chev{transform:rotate(180deg);}
+.menu{position:absolute; left:0; bottom:calc(100% + 8px); min-width:240px; padding:8px; border-radius:20px; background:var(--surface); border:1px solid var(--hairline-strong); box-shadow:10px 10px 24px var(--clay-dark),-6px -6px 18px var(--clay-light); z-index:150; display:flex; flex-direction:column; gap:2px; animation:menuIn .16s ease;}
+.menu[hidden]{display:none;}
+@keyframes menuIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;}}
+.menu-title{font-size:11px; font-weight:700; letter-spacing:.8px; text-transform:uppercase; color:var(--muted); padding:8px 12px 4px;}
+.menu-sep{height:1px; background:var(--hairline); margin:6px 4px;}
+.menu .menu-item{all:unset; box-sizing:border-box; display:flex; align-items:center; gap:12px; width:100%; min-height:44px; padding:0 12px; border-radius:14px; font:inherit; font-size:14px; font-weight:600; color:var(--ink); cursor:pointer;}
+.menu .menu-item:hover{background:var(--primary-soft); color:var(--primary);}
+.menu .menu-item.active{color:var(--primary);}
+.menu .menu-item svg{width:18px; height:18px; stroke:currentColor; flex-shrink:0;}
+.menu .menu-item:focus-visible{outline:2px solid var(--primary); outline-offset:-2px;}
+.menu-backdrop{position:fixed; inset:0; z-index:149; background:rgba(0,0,0,.4); display:none;}
+@media (max-width:640px){
+  .menu-backdrop.on{display:block;}
+  .menu{position:fixed; left:12px; right:12px; bottom:calc(12px + env(safe-area-inset-bottom)); min-width:0; border-radius:24px; padding:10px 10px 12px; animation:sheetIn .24s cubic-bezier(.2,.8,.2,1);}
+  .menu::before{content:""; display:block; width:40px; height:4px; border-radius:4px; background:var(--hairline-strong); margin:2px auto 8px;}
+  @keyframes sheetIn{from{transform:translateY(24px); opacity:0;} to{transform:none; opacity:1;}}
+}
+
+/* ---- generation overlay (skeleton + staged progress) ---- */
+.gen-overlay{position:absolute; inset:0; z-index:5; display:flex; align-items:center; justify-content:center; padding:16px; background:color-mix(in srgb,var(--canvas-deep) 86%,transparent); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);}
+.gen-overlay[hidden]{display:none;}
+.gen-skel{position:absolute; inset:0; width:100%; height:100%; opacity:.9;}
+.gen-skel .sk{fill:var(--primary-soft); stroke:var(--primary); stroke-opacity:.35; stroke-width:1.5; animation:skPulse 1.6s ease-in-out infinite;}
+.gen-skel .sk-e{stroke:var(--primary); stroke-opacity:.25; stroke-width:2; fill:none;}
+.gen-skel .sk:nth-child(3n){animation-delay:.25s;} .gen-skel .sk:nth-child(3n+1){animation-delay:.5s;}
+@keyframes skPulse{0%,100%{opacity:.45;} 50%{opacity:1;}}
+.gen-card{position:relative; width:min(360px,100%); padding:20px; border-radius:var(--radius-card); background:var(--surface); box-shadow:10px 10px 24px var(--clay-dark),-8px -8px 20px var(--clay-light); text-align:center;}
+.gen-stage{font-size:16px; font-weight:700; color:var(--ink); min-height:24px;}
+.gen-steps{list-style:none; display:flex; justify-content:center; gap:6px; margin:12px 0 14px; padding:0;}
+.gen-steps li{width:28px; height:6px; border-radius:6px; background:var(--hairline-strong); transition:background .3s ease,transform .3s ease;}
+.gen-steps li.done{background:var(--primary); opacity:.55;}
+.gen-steps li.on{background:var(--primary); transform:scaleY(1.4);}
+.gen-track{height:8px; border-radius:var(--radius-pill); background:var(--hairline); overflow:hidden;}
+#genFill{height:100%; width:0; background:var(--primary); border-radius:var(--radius-pill); transition:width .4s ease;}
+.gen-note{font-size:12px; color:var(--muted); margin:10px 0 14px;}
+#viewer-wrap.tmm-loading .viewer-actions,#viewer-wrap.tmm-loading .vt-tools{opacity:.4; pointer-events:none;}
+
+/* ---- form: depth note, credits, generate bar ---- */
+.depth-note{text-align:center; font-size:13px; color:var(--muted); margin:-12px auto 20px; max-width:34ch;}
+.credit-details{margin-top:14px;}
+.credit-sum{list-style:none; display:inline-flex; align-items:center; gap:8px; min-height:36px; padding:0 14px; border-radius:var(--radius-pill); background:var(--surface); color:var(--ink); font-size:13px; font-weight:700; cursor:pointer; box-shadow:3px 3px 8px var(--clay-dark),-3px -3px 8px var(--clay-light); user-select:none; -webkit-tap-highlight-color:transparent;}
+.credit-sum::-webkit-details-marker{display:none;}
+.credit-sum svg{width:14px; height:14px; stroke:var(--primary); fill:var(--primary); flex-shrink:0;}
+.credit-sum svg.chev{fill:none; stroke:var(--muted); width:12px; height:12px; transition:transform .2s ease;}
+.credit-details[open] .credit-sum svg.chev{transform:rotate(180deg);}
+.credit-details.low .credit-sum{color:var(--warning); box-shadow:inset 0 0 0 1.5px var(--warning),3px 3px 8px var(--clay-dark),-3px -3px 8px var(--clay-light);}
+.credit-details.low .credit-sum svg:not(.chev){stroke:var(--warning); fill:var(--warning);}
+.credit-details .credit-box{margin:14px 0 6px;}
+.btn-cost{order:2; font-size:12px; font-weight:700; padding:3px 9px; border-radius:var(--radius-pill); background:rgba(255,255,255,.2); color:inherit; margin-left:2px;}
+#generateBtn:disabled .btn-cost{display:none;}
+#generateBtn{flex:1 1 auto; justify-content:center;}
+#combineToggle[hidden]{display:none !important;}
+#combineToggle{height:48px; padding:0 20px;}
+/* Generate sits in normal flow under the form: never floats, never moves with scroll */
+.gen-bar{position:static; margin-top:18px;}
+.gen-bar .btn-row{margin-top:0;}
+@media (max-width:640px){
+  .gen-bar .btn-row{flex-wrap:wrap;}
+  #generateBtn{min-height:52px; width:100%;}
+}
+
+/* ---- Study Mode stays prominent next to the single primary Save ---- */
+#studyModeToggle{background:var(--primary-soft); color:var(--primary); border-color:transparent;}
+#studyModeToggle svg{stroke:currentColor;}
+#studyModeToggle.active{background:var(--primary); color:var(--on-primary);}
+</style>
 </head>
 <body>
 
@@ -1261,6 +1408,7 @@ footer{padding-bottom:calc(84px + env(safe-area-inset-bottom));}
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg><span>Deep</span>
       </button>
     </div>
+    <p class="depth-note" id="depthNote" aria-live="polite"></p>
 
     <div class="card">
       <!-- TOPIC MODE -->
@@ -1384,96 +1532,118 @@ footer{padding-bottom:calc(84px + env(safe-area-inset-bottom));}
         </div>
       </div>
 
-      <!-- CREDITS -->
-      <div class="credit-box">
-        <div class="credit-meter">
-          <div class="label-row"><span>Daily credits</span><span id="dailyLabel">3 / 3</span></div>
-          <div class="bar-track"><div class="bar-fill" id="dailyBar" style="width:100%"></div></div>
-        </div>
-        <div class="credit-meter">
-          <div class="label-row"><span>Weekly credits</span><span id="weeklyLabel">12 / 12</span></div>
-          <div class="bar-track"><div class="bar-fill" id="weeklyBar" style="width:100%"></div></div>
+      <!-- GENERATE (sticky on phones) -->
+      <div class="gen-bar">
+        <div class="btn-row">
+          <button class="btn btn-primary" id="generateBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg><span class="btn-cost">1 credit</span>
+            Generate Mind Map
+          </button>
+          <button class="btn btn-secondary" id="combineToggle" type="button" hidden title="Merge new AI branches into the currently open map">Combine with current map</button>
         </div>
       </div>
-      <p class="hint" id="creditResetHint"></p>
 
-      <div class="btn-row">
-        <button class="btn btn-primary" id="generateBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg>
-          Generate Mind Map
-        </button>
-        <button id="combineToggle" title="Merge new AI branches into the currently open map">Combine with current map</button>
-      </div>
+      <!-- CREDITS: one compact pill; details open by themselves when running low -->
+      <details class="credit-details" id="creditDetails">
+        <summary class="credit-sum"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg><span id="creditSumText">3 left today</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="chev"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <div class="credit-box">
+          <div class="credit-meter">
+            <div class="label-row"><span>Daily credits</span><span id="dailyLabel">3 / 3</span></div>
+            <div class="bar-track"><div class="bar-fill" id="dailyBar" style="width:100%"></div></div>
+          </div>
+          <div class="credit-meter">
+            <div class="label-row"><span>Weekly credits</span><span id="weeklyLabel">12 / 12</span></div>
+            <div class="bar-track"><div class="bar-fill" id="weeklyBar" style="width:100%"></div></div>
+          </div>
+        </div>
+        <p class="hint" id="creditResetHint"></p>
+      </details>
     </div>
 
     <!-- ===== MAP VIEWER ===== -->
     <div id="viewer-wrap">
       <div class="viewer-toolbar">
-        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-          <strong id="viewerTitle" style="font-size:16px;"></strong>
-          <span class="study-badge" id="studyBadge">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-            Study Mode
-          </span>
+        <div class="vt-title">
+          <strong id="viewerTitle"></strong>
+          <span class="study-badge" id="studyBadge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg> Study Mode</span>
         </div>
-        <div class="zoom-controls">
-          <button class="icon-btn" id="zoomOut" aria-label="Zoom out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg></button>
-          <button class="icon-btn" id="zoomReset" aria-label="Reset zoom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></button>
-          <button class="icon-btn" id="zoomIn" aria-label="Zoom in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
+        <div class="vt-tools">
+          <button class="icon-btn" type="button" id="searchToggle" aria-label="Search nodes (/)" title="Search nodes (/)" aria-expanded="false" aria-controls="searchRow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></button>
+          <span class="vt-sep" aria-hidden="true"></span>
+          <div class="vt-group" role="group" aria-label="History">
+            <button class="icon-btn" type="button" id="undoBtn" aria-label="Undo (Ctrl+Z)" title="Undo (Ctrl+Z)" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
+            <button class="icon-btn" type="button" id="redoBtn" aria-label="Redo (Ctrl+Shift+Z)" title="Redo (Ctrl+Shift+Z)" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
+          </div>
+          <span class="vt-sep" aria-hidden="true"></span>
+          <div class="vt-group" role="group" aria-label="Branches">
+            <button class="icon-btn" type="button" id="expandAllBtn" aria-label="Expand all branches" title="Expand all branches"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 15 5 5 5-5M7 9l5-5 5 5"/></svg></button>
+            <button class="icon-btn" type="button" id="collapseAllBtn" aria-label="Collapse to main branches" title="Collapse to main branches"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 20 5-5 5 5M7 4l5 5 5-5"/></svg></button>
+          </div>
+        </div>
+        <div class="vt-search" id="searchRow" role="search" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <input id="searchInput" type="search" placeholder="Search nodes and explanations" aria-label="Search nodes and explanations" autocomplete="off" enterkeyhint="search">
+          <span class="vt-count" id="searchCount" aria-live="polite"></span>
+          <button class="icon-btn" type="button" id="searchPrev" aria-label="Previous match" title="Previous match"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg></button>
+          <button class="icon-btn" type="button" id="searchNext" aria-label="Next match" title="Next match"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+          <button class="icon-btn" type="button" id="searchClose" aria-label="Close search" title="Close search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
         </div>
       </div>
 
       <div id="map-canvas-wrap">
         <svg id="map-svg" role="img" aria-label="Mind map diagram"><g id="map-g"></g></svg>
+
+        <div class="minimap" id="minimap" aria-hidden="true">
+          <svg id="minimapSvg" preserveAspectRatio="xMidYMid meet"><g id="miniNodes"></g><rect id="miniView" x="0" y="0" width="0" height="0"></rect></svg>
+        </div>
+
+        <div class="map-ctrl" role="group" aria-label="Map view">
+          <button class="icon-btn" type="button" id="fullscreenBtn" aria-label="Full screen" aria-pressed="false" title="Full screen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>
+          <button class="icon-btn" type="button" id="zoomIn" aria-label="Zoom in" title="Zoom in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+          <button class="icon-btn" type="button" id="zoomReset" aria-label="Fit map to screen" title="Fit to screen (F)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg></button>
+          <button class="icon-btn" type="button" id="zoomOut" aria-label="Zoom out" title="Zoom out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/></svg></button>
+        </div>
+
+        <div class="gen-overlay" id="genOverlay" hidden>
+          <svg class="gen-skel" viewBox="-320 -200 640 400" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path class="sk-e" d="M0 0L0 -110 M0 0L140 -55 M0 0L140 55 M0 0L0 110 M0 0L-140 55 M0 0L-140 -55"/><rect class="sk" x="-60" y="-22" width="120" height="44" rx="14"/><rect class="sk" x="-48" y="-125" width="96" height="30" rx="11"/><rect class="sk" x="92" y="-70" width="96" height="30" rx="11"/><rect class="sk" x="92" y="40" width="96" height="30" rx="11"/><rect class="sk" x="-48" y="95" width="96" height="30" rx="11"/><rect class="sk" x="-188" y="40" width="96" height="30" rx="11"/><rect class="sk" x="-188" y="-70" width="96" height="30" rx="11"/><rect class="sk" x="-290" y="-22" width="80" height="24" rx="9"/><rect class="sk" x="210" y="-22" width="80" height="24" rx="9"/><rect class="sk" x="-290" y="88" width="80" height="24" rx="9"/><rect class="sk" x="210" y="88" width="80" height="24" rx="9"/><rect class="sk" x="30" y="-182" width="80" height="24" rx="9"/><rect class="sk" x="-110" y="158" width="80" height="24" rx="9"/></svg>
+          <div class="gen-card" role="status" aria-live="polite">
+            <div class="gen-stage" id="genStage">Reading your input&hellip;</div>
+            <ol class="gen-steps" id="genSteps" aria-hidden="true"><li></li><li></li><li></li><li></li></ol>
+            <div class="gen-track" id="genTrack" role="progressbar" aria-label="Generating mind map" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="genFill"></div></div>
+            <p class="gen-note">You can cancel at any time.</p>
+            <button class="btn btn-secondary btn-sm" id="genCancel" type="button">Cancel</button>
+          </div>
+        </div>
       </div>
 
-      <!-- PRIMARY SAVE + EXPORT ACTIONS -->
+      <!-- ACTIONS: one primary (Save), Study Mode, everything else in Export -->
       <div class="viewer-actions">
-        <!-- Save -->
         <button class="btn btn-primary btn-sm" id="saveMapBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
           Save
         </button>
-
-        <div class="viewer-actions-divider"></div>
-
-        <!-- Study mode -->
         <button class="btn btn-secondary btn-sm" id="studyModeToggle">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
           Study Mode
         </button>
-
-        <!-- Copy outline -->
-        <button class="btn btn-secondary btn-sm" id="copyOutlineBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-          Copy Outline
-        </button>
-
-        <div class="viewer-actions-divider"></div>
-
-        <!-- B&W toggle -->
-        <button class="btn btn-secondary btn-sm" id="bwToggle" title="Toggle black & white for printing">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20z" fill="currentColor" stroke="none"/></svg>
-          Print Mode
-        </button>
-
-        <!-- Export HTML -->
-        <button class="btn btn-secondary btn-sm" id="downloadHtmlBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
-          HTML
-        </button>
-
-        <!-- Export Image -->
-        <button class="btn btn-secondary btn-sm" id="downloadImgBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>
-          Image
-        </button>
-
-        <!-- Export PDF (with toggle dialog) -->
-        <button class="btn btn-secondary btn-sm" id="downloadPdfBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M10 13H8v4h2M10 13c1.1 0 2 .9 2 2s-.9 2-2 2M14 13h2v1.5h-2V15m0 0h2v1.5h-2V17m0-4v4"/></svg>
-          PDF
-        </button>
+        <div class="menu-wrap" id="exportWrap">
+          <button class="btn btn-secondary btn-sm" id="exportMenuBtn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="exportMenu">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5M12 15V3"/></svg>
+            Export
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="chev"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="menu" id="exportMenu" role="menu" aria-label="Export and print options" hidden>
+            <div class="menu-title">Download</div>
+            <button class="menu-item" role="menuitem" type="button" id="downloadImgBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg>Image (PNG)</button>
+            <button class="menu-item" role="menuitem" type="button" id="downloadPdfBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>PDF</button>
+            <button class="menu-item" role="menuitem" type="button" id="downloadHtmlBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></svg>Web page (HTML)</button>
+            <div class="menu-sep" role="separator"></div>
+            <div class="menu-title">Other</div>
+            <button class="menu-item" role="menuitem" type="button" id="copyOutlineBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy outline text</button>
+            <button class="menu-item" role="menuitemcheckbox" aria-checked="false" type="button" id="bwToggle" title="Black and white, for printing"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20z" fill="currentColor" stroke="none"/></svg>Print Mode (B&amp;W)</button>
+          </div>
+        </div>
+        <div class="menu-backdrop" id="menuBackdrop"></div>
       </div>
     </div>
   </section>
@@ -1605,6 +1775,7 @@ footer{padding-bottom:calc(84px + env(safe-area-inset-bottom));}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
       Save
     </button>
+    <button class="panel-action-btn" id="nodeToggleBtn" type="button" style="display:none;"></button>
     <button class="panel-action-btn" id="nodeAddChildBtn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
       Add Child
@@ -2056,6 +2227,7 @@ function renderCredits() {
   $('#dailyBar').style.width = (dLeft / DAILY_LIMIT * 100) + '%';
   $('#weeklyBar').style.width = (wLeft / WEEKLY_LIMIT * 100) + '%';
   $('#creditPillText').textContent = `${dLeft} left today`;
+  if (window.TMM) TMM.credits(dLeft, wLeft);
   const hoursLeft = Math.ceil((new Date().setHours(24, 0, 0, 0) - Date.now()) / 3600000);
   const daysLeft = Math.ceil((c.weekStart + 7 * 24 * 60 * 60 * 1000 - Date.now()) / 86400000);
   $('#creditResetHint').textContent = `Daily credits reset in ~${hoursLeft}h. Weekly credits reset in ~${daysLeft}d.`;
@@ -2349,11 +2521,12 @@ let currentMapMeta = null;
 let studyModeActive = false;
 let studyModeBranchIndex = null;
 
-async function generateFromAPI(payload) {
+async function generateFromAPI(payload, signal) {
   const res = await fetch(API_ENDPOINT, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
+    body: JSON.stringify(payload),
+    signal: signal
   });
   if (res.status === 429) throw new Error('RATE_LIMIT');
   if (!res.ok) throw new Error('SERVER_ERROR');
@@ -2414,10 +2587,12 @@ $('#generateBtn').addEventListener('click', async () => {
   const originalLabel = btn.lastChild.textContent;
   btn.disabled = true;
   btn.lastChild.textContent = ' Generating...';
+  const gen = window.TMM ? TMM.genStart() : null;
 
   try {
-    const data = await generateFromAPI({ mode: payloadMode, input: input, depth: activeDepth });
+    const data = await generateFromAPI({ mode: payloadMode, input: input, depth: activeDepth }, gen && gen.signal);
     if (!data || !data.title || !Array.isArray(data.branches)) throw new Error('SHAPE_ERROR');
+    if (gen) gen.done();
 
     let finalData = data;
     if (combineMode && currentMapData) {
@@ -2433,13 +2608,17 @@ $('#generateBtn').addEventListener('click', async () => {
     studyModeActive = false; studyModeBranchIndex = null;
     showViewer(finalData, currentMapMeta.title);
     consumeCredit();
+    if (window.TMM) TMM.celebrate({ merged: finalData !== data });
   } catch (err) {
-    if (err.message === 'RATE_LIMIT') {
+    if (err && err.name === 'AbortError') {
+      toast('Generation cancelled.');
+    } else if (err.message === 'RATE_LIMIT') {
       toast('Server is busy right now — please try again in a bit.');
     } else {
       toast('Generation failed. Please try again in a moment.');
     }
   } finally {
+    if (gen) gen.end();
     btn.disabled = !canGenerate();
     btn.lastChild.textContent = originalLabel;
   }
@@ -2485,6 +2664,7 @@ function openNodePanel(path) {
   $('#nodeAddChildBtn').style.display = isLeafLevel ? 'none' : 'inline-flex';
   $('#nodeRegenBranchBtn').style.display = path.length === 1 ? 'inline-flex' : 'none';
   $('#nodePanel').classList.add('active');
+  if (window.TMM) TMM.panelSync(path);
 }
 function closeNodePanel() {
   $('#nodePanel').classList.remove('active');
@@ -2578,8 +2758,10 @@ $('#nodeRegenBranchBtn').addEventListener('click', async () => {
 function redrawCurrent() {
   const svg = $('#map-svg');
   const g = $('#map-g');
-  drawMindMap(svg, g, currentMapData, studyModeActive ? { studyBranch: studyModeBranchIndex } : {});
+  const pre = window.TMM ? TMM.beforeDraw() : null;
+  drawMindMap(svg, g, window.TMM ? TMM.viewData(currentMapData) : currentMapData, studyModeActive ? { studyBranch: studyModeBranchIndex } : {});
   attachNodeClickHandlers();
+  if (window.TMM) TMM.afterDraw(pre);
 }
 
 function attachNodeClickHandlers() {
@@ -2608,13 +2790,12 @@ function showViewer(data, title) {
   studyModeBranchIndex = null;
   $('#studyModeToggle').classList.remove('active');
   $('#studyModeToggle').textContent = 'Study Mode';
+  if (window.TMM) TMM.prepareShow();
   redrawCurrent();
   setupPanZoom($('#map-svg'));
   $('#viewer-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
-$('#zoomIn').addEventListener('click', () => zoomBy($('#map-svg'), 1.25));
-$('#zoomOut').addEventListener('click', () => zoomBy($('#map-svg'), 0.8));
-$('#zoomReset').addEventListener('click', () => zoomResetSvg($('#map-svg')));
+/* zoom / fit buttons are wired in the TMM UX block (cursor-aware zoom, real "fit to screen") */
 
 /* ---------- study mode ---------- */
 $('#studyModeToggle').addEventListener('click', () => {
@@ -2825,9 +3006,13 @@ $('#bwToggle').addEventListener('click', () => {
 });
 
 function renderSvgToCanvas(svg, scale, bw) {
-  const vb = svg.getAttribute('viewBox').split(' ').map(Number);
+  /* export the whole map (not whatever zoom the viewer is at) and drop on-screen-only decorations */
+  const fb = window.TMM ? TMM.exportBounds() : null;
+  const vb = fb ? [fb.x, fb.y, fb.w, fb.h] : svg.getAttribute('viewBox').split(' ').map(Number);
   const w = vb[2] * scale, h = vb[3] * scale;
   const clone = svg.cloneNode(true);
+  if (fb) clone.setAttribute('viewBox', vb.join(' '));
+  if (window.TMM) TMM.cleanClone(clone);
   clone.setAttribute('width', w);
   clone.setAttribute('height', h);
 
@@ -3365,6 +3550,459 @@ document.addEventListener('DOMContentLoaded', function(){
   if(mode) click('.mode-chip[data-mode="'+mode+'"]');
   if(depth) click('.depth-chip[data-depth="'+depth+'"]');
 });
+</script>
+
+<script id="tmm-ux-js">
+/* ===================================================================
+   TMM UX PASS — everything below is additive. app.js calls into window.TMM
+   at a few hooks (redrawCurrent, showViewer, generate, credits, export).
+   =================================================================== */
+(function () {
+  'use strict';
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var NS = 'http://www.w3.org/2000/svg';
+  function mk(tag, attrs) { var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); return e; }
+  var svg = $('#map-svg'), g = $('#map-g'), wrap = $('#map-canvas-wrap'), viewer = $('#viewer-wrap');
+  var reduce = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var forceFit = false, lastKey = null;
+
+  /* ---------------- view geometry ---------------- */
+  function getVB() {
+    var p = (svg.getAttribute('viewBox') || '').trim().split(/\s+/).map(Number);
+    return (p.length === 4 && p.every(isFinite)) ? { x: p[0], y: p[1], w: p[2], h: p[3] } : null;
+  }
+  function setVB(v) { svg.setAttribute('viewBox', v.x + ' ' + v.y + ' ' + v.w + ' ' + v.h); }
+  function box() { var r = wrap.getBoundingClientRect(); return { w: r.width, h: r.height }; }
+  /* keep the viewBox aspect equal to the canvas so pan/zoom maths stays linear */
+  function matchAspect() {
+    var vb = getVB(), b = box(); if (!vb || !b.w || !b.h) return;
+    var s = Math.min(b.w / vb.w, b.h / vb.h), w = b.w / s, h = b.h / s;
+    setVB({ x: vb.x + (vb.w - w) / 2, y: vb.y + (vb.h - h) / 2, w: w, h: h });
+  }
+  function contentBounds() {
+    var rs = $$('.node-rect', g); if (!rs.length) return null;
+    var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+    rs.forEach(function (r) {
+      var x = +r.getAttribute('x'), y = +r.getAttribute('y'), w = +r.getAttribute('width'), h = +r.getAttribute('height');
+      x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x + w); y1 = Math.max(y1, y + h);
+    });
+    return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
+  }
+  function fit() {
+    var bb = contentBounds(), b = box(); if (!bb || !b.w || !b.h) return;
+    var pad = 44, s = Math.min(b.w / (bb.w + pad * 2), b.h / (bb.h + pad * 2), 1.6);
+    var w = b.w / s, h = b.h / s;
+    setVB({ x: bb.x + bb.w / 2 - w / 2, y: bb.y + bb.h / 2 - h / 2, w: w, h: h });
+  }
+  function centerOn(x, y, minZoomW) {
+    var vb = getVB(); if (!vb) return;
+    var w = vb.w, h = vb.h;
+    if (minZoomW && w > minZoomW) { var f = w / minZoomW; w = minZoomW; h = h / f; }
+    setVB({ x: x - w / 2, y: y - h / 2, w: w, h: h });
+  }
+  function zoomAt(factor, px, py) { /* px,py in client px relative to canvas; factor>1 zooms in */
+    var vb = getVB(), b = box(); if (!vb || !b.w) return;
+    var w = Math.min(7000, Math.max(140, vb.w / factor)), h = vb.h * (w / vb.w);
+    var fx = px / b.w, fy = py / b.h, ax = vb.x + fx * vb.w, ay = vb.y + fy * vb.h;
+    setVB({ x: ax - fx * w, y: ay - fy * h, w: w, h: h });
+  }
+
+  /* ---------------- collapse support ---------------- */
+  function viewData(d) {
+    function cl(n) { var o = {}; for (var k in n) if (k !== 'children') o[k] = n[k]; if (n.children) o.children = n._c ? [] : n.children.map(cl); return o; }
+    return { title: d.title, detail: d.detail, branches: (d.branches || []).map(cl) };
+  }
+  function safeNode(path) { try { return getNodeByPath(currentMapData, path); } catch (e) { return null; } }
+  function countDesc(n) { var c = 0; (n.children || []).forEach(function (k) { c += 1 + countDesc(k); }); return c; }
+  function toggleNode(path) {
+    var info = safeNode(path); if (!info || !info.node) return;
+    if (info.node._c) delete info.node._c; else info.node._c = true;
+    redrawCurrent();
+  }
+  function setAll(collapse) {
+    if (!currentMapData) return;
+    (currentMapData.branches || []).forEach(function (b) {
+      (function clear(n) { delete n._c; (n.children || []).forEach(clear); })(b);
+      if (collapse && (b.children || []).length) b._c = true;
+    });
+    redrawCurrent(); fit(); updateMini();
+  }
+  function hasKids() { return !!(currentMapData && (currentMapData.branches || []).some(function (b) { return (b.children || []).length; })); }
+
+  /* ---------------- decorations (collapse badges) ---------------- */
+  function decorate() {
+    $$('.map-node-group', g).forEach(function (grp) {
+      var pa = grp.getAttribute('data-path'); if (pa === null) return;
+      var path; try { path = JSON.parse(pa); } catch (e) { return; }
+      if (path.length < 1 || path.length > 2) return;
+      var info = safeNode(path); if (!info || !info.node || !(info.node.children || []).length) return;
+      var rect = $('.node-rect', grp); if (!rect) return;
+      var x = +rect.getAttribute('x'), y = +rect.getAttribute('y'), w = +rect.getAttribute('width'), h = +rect.getAttribute('height');
+      var cx = (x + w / 2) >= 0 ? x + w : x, cy = y + h / 2, col = rect.getAttribute('stroke');
+      var collapsed = !!info.node._c, n = countDesc(info.node);
+      var tg = mk('g', { 'class': 'tmm-deco tmm-tog' });
+      tg.appendChild(mk('circle', { cx: cx, cy: cy, r: 17, 'class': 'tmm-tog-hit' }));
+      tg.appendChild(mk('circle', { cx: cx, cy: cy, r: collapsed ? 11.5 : 8.5, 'class': 'tmm-tog-bg', stroke: col }));
+      var t = mk('text', { x: cx, y: cy + 3.5, 'text-anchor': 'middle' });
+      t.textContent = collapsed ? (n > 99 ? '99+' : '+' + n) : '\u2212';
+      tg.appendChild(t);
+      var ti = mk('title', {}); ti.textContent = (collapsed ? 'Expand ' : 'Collapse ') + (info.label || 'node'); tg.appendChild(ti);
+      tg.addEventListener('click', function (e) { e.stopPropagation(); toggleNode(path); });
+      grp.appendChild(tg);
+    });
+  }
+
+  /* ---------------- search ---------------- */
+  var S = { q: '', matches: [], idx: -1, timer: 0 };
+  function allNodes() {
+    var d = currentMapData, out = [{ p: [], n: { label: d.title, detail: d.detail } }];
+    (d.branches || []).forEach(function (b, bi) {
+      out.push({ p: [bi], n: b });
+      (b.children || []).forEach(function (c, ci) {
+        out.push({ p: [bi, ci], n: c });
+        (c.children || []).forEach(function (l, li) { out.push({ p: [bi, ci, li], n: l }); });
+      });
+    });
+    return out;
+  }
+  function computeMatches() {
+    if (!S.q || !currentMapData) return [];
+    var q = S.q;
+    return allNodes().filter(function (o) {
+      if (studyModeActive && studyModeBranchIndex !== null && studyModeBranchIndex !== undefined && o.p.length && o.p[0] !== studyModeBranchIndex) return false;
+      return ((o.n.label || '').toLowerCase().indexOf(q) > -1) || ((o.n.detail || '').toLowerCase().indexOf(q) > -1);
+    }).map(function (o) { return o.p; });
+  }
+  function expandAncestors(paths) {
+    var changed = false;
+    paths.forEach(function (p) {
+      for (var k = 1; k < p.length; k++) {
+        var info = safeNode(p.slice(0, k));
+        if (info && info.node && info.node._c) { delete info.node._c; changed = true; }
+      }
+    });
+    return changed;
+  }
+  function paintSearch() {
+    var set = {}, cur = S.matches[S.idx] ? JSON.stringify(S.matches[S.idx]) : null;
+    S.matches.forEach(function (p) { set[JSON.stringify(p)] = 1; });
+    $$('.map-node-group', g).forEach(function (grp) {
+      var k = grp.getAttribute('data-path');
+      grp.classList.toggle('tmm-hit', !!(S.q && set[k]));
+      grp.classList.toggle('tmm-dim', !!(S.q && !set[k]));
+      grp.classList.toggle('tmm-cur', !!(S.q && cur && k === cur));
+    });
+    var c = $('#searchCount');
+    c.textContent = !S.q ? '' : (S.matches.length ? (S.idx + 1) + ' of ' + S.matches.length : 'No match');
+  }
+  function refreshSearch() {
+    if (S.q) { S.matches = computeMatches(); if (S.idx >= S.matches.length) S.idx = S.matches.length - 1; if (S.idx < 0 && S.matches.length) S.idx = 0; }
+    else { S.matches = []; S.idx = -1; }
+    paintSearch();
+  }
+  function goToMatch() {
+    var p = S.matches[S.idx]; if (!p) return;
+    var grp = $$('.map-node-group', g).filter(function (e) { return e.getAttribute('data-path') === JSON.stringify(p); })[0];
+    if (!grp) return;
+    var r = $('.node-rect', grp);
+    centerOn(+r.getAttribute('x') + +r.getAttribute('width') / 2, +r.getAttribute('y') + +r.getAttribute('height') / 2, 900);
+  }
+  function runSearch() {
+    S.q = $('#searchInput').value.trim().toLowerCase();
+    S.matches = computeMatches(); S.idx = S.matches.length ? 0 : -1;
+    if (S.q && expandAncestors(S.matches)) redrawCurrent(); else paintSearch();
+    goToMatch();
+  }
+  function stepMatch(d) {
+    if (!S.matches.length) return;
+    S.idx = (S.idx + d + S.matches.length) % S.matches.length;
+    paintSearch(); goToMatch();
+  }
+  function openSearch(open) {
+    var row = $('#searchRow'), btn = $('#searchToggle');
+    row.hidden = !open; btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open) { $('#searchInput').focus(); }
+    else { $('#searchInput').value = ''; S.q = ''; refreshSearch(); }
+  }
+
+  /* ---------------- undo / redo ---------------- */
+  var H = { undo: [], redo: [], last: null, lastKey: null, busy: false };
+  function strip(d) { return JSON.stringify(d, function (k, v) { return k === '_c' ? undefined : v; }); }
+  function histReset() { H.undo = []; H.redo = []; H.last = null; H.lastKey = null; }
+  function histNote() {
+    if (!currentMapData) return;
+    var key = strip(currentMapData);
+    if (H.lastKey !== null && key !== H.lastKey && !H.busy) {
+      H.undo.push(H.last); if (H.undo.length > 40) H.undo.shift(); H.redo = [];
+    }
+    H.last = JSON.stringify(currentMapData); H.lastKey = key;
+  }
+  function applySnap(s) {
+    H.busy = true;
+    try { currentMapData = JSON.parse(s); closeNodePanel(); redrawCurrent(); } finally { H.busy = false; }
+  }
+  function doUndo() {
+    if (!H.undo.length || !currentMapData) return;
+    H.redo.push(JSON.stringify(currentMapData)); applySnap(H.undo.pop()); toast('Undid last change.');
+  }
+  function doRedo() {
+    if (!H.redo.length || !currentMapData) return;
+    H.undo.push(JSON.stringify(currentMapData)); applySnap(H.redo.pop()); toast('Change restored.');
+  }
+
+  /* ---------------- toolbar state ---------------- */
+  function syncTools() {
+    var has = !!currentMapData;
+    $('#undoBtn').disabled = !H.undo.length;
+    $('#redoBtn').disabled = !H.redo.length;
+    var k = has && hasKids();
+    $('#expandAllBtn').disabled = !k; $('#collapseAllBtn').disabled = !k;
+    $('#searchToggle').disabled = !has;
+  }
+
+  /* ---------------- minimap ---------------- */
+  var mini = $('#minimap'), miniSvg = $('#minimapSvg'), miniNodes = $('#miniNodes'), miniView = $('#miniView'), miniB = null, miniRaf = 0;
+  function buildMini() {
+    var bb = contentBounds(); while (miniNodes.firstChild) miniNodes.removeChild(miniNodes.firstChild);
+    if (!bb) { miniB = null; return; }
+    var pad = 44; miniB = { x: bb.x - pad, y: bb.y - pad, w: bb.w + pad * 2, h: bb.h + pad * 2 };
+    miniSvg.setAttribute('viewBox', miniB.x + ' ' + miniB.y + ' ' + miniB.w + ' ' + miniB.h);
+    $$('.node-rect', g).forEach(function (r) {
+      miniNodes.appendChild(mk('rect', { x: r.getAttribute('x'), y: r.getAttribute('y'), width: r.getAttribute('width'), height: r.getAttribute('height'), rx: 10, fill: r.getAttribute('stroke') || '#573AFC', opacity: .85 }));
+    });
+  }
+  function updateMini() {
+    cancelAnimationFrame(miniRaf);
+    miniRaf = requestAnimationFrame(function () {
+      var vb = getVB(), b = box(); if (!vb || !b.w || !miniB) { mini.classList.remove('show'); return; }
+      var s = Math.min(b.w / vb.w, b.h / vb.h), vw = b.w / s, vh = b.h / s;
+      miniView.setAttribute('x', vb.x + (vb.w - vw) / 2); miniView.setAttribute('y', vb.y + (vb.h - vh) / 2);
+      miniView.setAttribute('width', vw); miniView.setAttribute('height', vh);
+      mini.classList.toggle('show', vw < miniB.w * 0.88 || vh < miniB.h * 0.88);
+    });
+  }
+  (function wireMini() {
+    var down = false;
+    function go(e) {
+      var ctm = miniSvg.getScreenCTM(); if (!ctm) return;
+      var pt = miniSvg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+      var p = pt.matrixTransform(ctm.inverse()); centerOn(p.x, p.y);
+    }
+    miniSvg.addEventListener('pointerdown', function (e) { down = true; try { miniSvg.setPointerCapture(e.pointerId); } catch (x) {} go(e); e.preventDefault(); });
+    miniSvg.addEventListener('pointermove', function (e) { if (down) go(e); });
+    miniSvg.addEventListener('pointerup', function () { down = false; });
+    miniSvg.addEventListener('pointercancel', function () { down = false; });
+    new MutationObserver(updateMini).observe(svg, { attributes: true, attributeFilter: ['viewBox'] });
+  })();
+
+  /* ---------------- gestures: pinch + cursor-anchored wheel ---------------- */
+  (function wireGestures() {
+    var pin = null;
+    function dist(t) { return Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY); }
+    wrap.addEventListener('touchstart', function (e) {
+      if (e.touches.length === 2) {
+        e.stopPropagation();
+        var r = wrap.getBoundingClientRect();
+        pin = { d: dist(e.touches), vb: getVB(), r: r,
+          cx: (e.touches[0].clientX + e.touches[1].clientX) / 2 - r.left,
+          cy: (e.touches[0].clientY + e.touches[1].clientY) / 2 - r.top };
+      }
+    }, { capture: true, passive: true });
+    wrap.addEventListener('touchmove', function (e) {
+      if (e.touches.length === 2 && pin && pin.vb) {
+        e.preventDefault(); e.stopPropagation();
+        var k = pin.d / dist(e.touches), vb = pin.vb;
+        var w = Math.min(7000, Math.max(140, vb.w * k)), h = vb.h * (w / vb.w);
+        var fx = pin.cx / pin.r.width, fy = pin.cy / pin.r.height;
+        setVB({ x: vb.x + fx * vb.w - fx * w, y: vb.y + fy * vb.h - fy * h, w: w, h: h });
+      }
+    }, { capture: true, passive: false });
+    wrap.addEventListener('touchend', function (e) { if (e.touches.length < 2) pin = null; }, { capture: true, passive: true });
+    wrap.addEventListener('wheel', function (e) {
+      if (e.target.closest && e.target.closest('.map-ctrl,.minimap,.gen-overlay')) return;
+      e.preventDefault(); e.stopPropagation();
+      var r = wrap.getBoundingClientRect();
+      zoomAt(Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0016)), e.clientX - r.left, e.clientY - r.top);
+    }, { capture: true, passive: false });
+  })();
+
+  /* ---------------- fullscreen / focus view ---------------- */
+  var full = false;
+  var ICON_EXPAND = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>';
+  var ICON_SHRINK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3v3a2 2 0 0 1-2 2H3M21 8h-3a2 2 0 0 1-2-2V3M3 16h3a2 2 0 0 1 2 2v3M16 21v-3a2 2 0 0 1 2-2h3"/></svg>';
+  function setFull(on) {
+    if (on === full) return; full = on;
+    viewer.classList.toggle('tmm-full', on); document.body.classList.toggle('tmm-lock', on);
+    var b = $('#fullscreenBtn'); b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    b.setAttribute('aria-label', on ? 'Exit full screen' : 'Full screen'); b.innerHTML = on ? ICON_SHRINK : ICON_EXPAND;
+    if (on) { try { history.pushState({ tmmFull: 1 }, ''); } catch (e) {} }
+    requestAnimationFrame(function () { matchAspect(); fit(); updateMini(); });
+  }
+  function exitFull() { if (history.state && history.state.tmmFull) history.back(); else setFull(false); }
+  window.addEventListener('popstate', function () { if (full) setFull(false); });
+  $('#fullscreenBtn').addEventListener('click', function () { if (full) exitFull(); else setFull(true); });
+  if (window.ResizeObserver) new ResizeObserver(function () { if (viewer.classList.contains('active')) { matchAspect(); updateMini(); } }).observe(wrap);
+
+  /* ---------------- export menu ---------------- */
+  var exBtn = $('#exportMenuBtn'), exMenu = $('#exportMenu'), exBack = $('#menuBackdrop'), exWrap = $('#exportWrap');
+  function menuItems() { return $$('.menu-item', exMenu); }
+  function openMenu(focus) { exMenu.hidden = false; exBtn.setAttribute('aria-expanded', 'true'); exBack.classList.add('on'); if (focus) menuItems()[0].focus(); }
+  function closeMenu(ret) { exMenu.hidden = true; exBtn.setAttribute('aria-expanded', 'false'); exBack.classList.remove('on'); if (ret) exBtn.focus(); }
+  exBtn.addEventListener('click', function () { if (exMenu.hidden) openMenu(false); else closeMenu(false); });
+  exBtn.addEventListener('keydown', function (e) { if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); openMenu(true); } });
+  exMenu.addEventListener('click', function (e) {
+    var it = e.target.closest('.menu-item'); if (!it) return;
+    if (it.id === 'bwToggle') { setTimeout(function () { it.setAttribute('aria-checked', it.classList.contains('active') ? 'true' : 'false'); }, 0); return; }
+    closeMenu(false);
+  });
+  exMenu.addEventListener('keydown', function (e) {
+    var items = menuItems(), i = items.indexOf(document.activeElement);
+    if (e.key === 'ArrowDown') { e.preventDefault(); items[(i + 1) % items.length].focus(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
+    else if (e.key === 'Home') { e.preventDefault(); items[0].focus(); }
+    else if (e.key === 'End') { e.preventDefault(); items[items.length - 1].focus(); }
+    else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); closeMenu(true); }
+    else if (e.key === 'Tab') closeMenu(false);
+  });
+  document.addEventListener('click', function (e) { if (!exMenu.hidden && !exWrap.contains(e.target)) closeMenu(false); });
+  exBack.addEventListener('click', function () { closeMenu(false); });
+
+  /* ---------------- toolbar wiring ---------------- */
+  $('#zoomIn').addEventListener('click', function () { var b = box(); zoomAt(1.25, b.w / 2, b.h / 2); });
+  $('#zoomOut').addEventListener('click', function () { var b = box(); zoomAt(0.8, b.w / 2, b.h / 2); });
+  $('#zoomReset').addEventListener('click', fit);
+  $('#undoBtn').addEventListener('click', doUndo);
+  $('#redoBtn').addEventListener('click', doRedo);
+  $('#expandAllBtn').addEventListener('click', function () { setAll(false); });
+  $('#collapseAllBtn').addEventListener('click', function () { setAll(true); });
+  $('#searchToggle').addEventListener('click', function () { openSearch($('#searchRow').hidden); });
+  $('#searchClose').addEventListener('click', function () { openSearch(false); $('#searchToggle').focus(); });
+  $('#searchNext').addEventListener('click', function () { stepMatch(1); });
+  $('#searchPrev').addEventListener('click', function () { stepMatch(-1); });
+  $('#searchInput').addEventListener('input', function () { clearTimeout(S.timer); S.timer = setTimeout(runSearch, 120); });
+  $('#searchInput').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); clearTimeout(S.timer); if ($('#searchInput').value.trim().toLowerCase() !== S.q) runSearch(); else stepMatch(e.shiftKey ? -1 : 1); }
+    else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); openSearch(false); $('#searchToggle').focus(); }
+  });
+  $('#nodeToggleBtn').addEventListener('click', function () {
+    if (!activeNodePath) return; var p = activeNodePath.slice(); closeNodePanel(); toggleNode(p);
+  });
+  document.addEventListener('keydown', function (e) {
+    var t = e.target, typing = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable);
+    if (e.key === 'Escape') {
+      if (!exMenu.hidden) { closeMenu(true); return; }
+      if (full && !$('#nodePanel').classList.contains('active') && !$('.modal-overlay.active')) { exitFull(); }
+      return;
+    }
+    if (typing || !viewer.classList.contains('active') || !currentMapData) return;
+    var mod = e.ctrlKey || e.metaKey;
+    if (mod && !e.altKey && (e.key === 'z' || e.key === 'Z')) { e.preventDefault(); if (e.shiftKey) doRedo(); else doUndo(); }
+    else if (mod && (e.key === 'y' || e.key === 'Y')) { e.preventDefault(); doRedo(); }
+    else if (!mod && e.key === '/') { e.preventDefault(); openSearch(true); }
+    else if (!mod && e.key.toLowerCase() === 'f') { fit(); }
+  });
+
+  /* ---------------- generation feedback ---------------- */
+  var STAGES = ['Reading your input\u2026', 'Finding the key ideas\u2026', 'Building branches\u2026', 'Adding explanations\u2026'];
+  var gen = null;
+  function genCleanup(st, keep) {
+    if (!st || st.ended) return; st.ended = true;
+    clearInterval(st.tick); $('#genOverlay').hidden = true; viewer.classList.remove('tmm-loading');
+    $('#genFill').style.width = '0%';
+    if (!currentMapData && !keep) viewer.classList.remove('active');
+    if (gen === st) gen = null;
+  }
+  function genStart() {
+    if (gen) genCleanup(gen);
+    var quick = (typeof activeDepth !== 'undefined') && activeDepth === 'quick';
+    var ctrl = window.AbortController ? new AbortController() : null;
+    var st = { ended: false, t0: Date.now(), signal: ctrl ? ctrl.signal : undefined, tick: 0 };
+    var cuts = quick ? [0, 2000, 5000, 8000] : [0, 4000, 10000, 20000], tau = quick ? 5000 : 12000;
+    var steps = $$('#genSteps li'), stage = $('#genStage'), fill = $('#genFill'), bar = $('#genTrack');
+    function paint() {
+      var t = Date.now() - st.t0, i = 0; cuts.forEach(function (c, k) { if (t >= c) i = k; });
+      stage.textContent = STAGES[i];
+      steps.forEach(function (li, k) { li.className = k < i ? 'done' : (k === i ? 'on' : ''); });
+      var p = Math.round(92 * (1 - Math.exp(-t / tau)));
+      fill.style.width = p + '%'; bar.setAttribute('aria-valuenow', p);
+    }
+    paint(); st.tick = setInterval(paint, 250);
+    $('#genOverlay').hidden = false;
+    var hadMap = !!currentMapData;
+    viewer.classList.add('active', 'tmm-loading');
+    if (!hadMap) $('#viewerTitle').textContent = 'Building your map\u2026';
+    $('#genCancel').onclick = function () { if (ctrl) ctrl.abort(); };
+    try { viewer.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }); } catch (e) {}
+    st.done = function () { fill.style.width = '100%'; genCleanup(st, true); };
+    st.end = function () { genCleanup(st); };
+    gen = st; return st;
+  }
+  function celebrate(o) {
+    var groups = $$('.map-node-group', g), n = groups.length;
+    if (!reduce) {
+      groups.forEach(function (grp, i) { grp.style.setProperty('--d', Math.min(i * 0.012, 0.6) + 's'); });
+      svg.classList.add('tmm-pop'); setTimeout(function () { svg.classList.remove('tmm-pop'); }, 1400);
+    }
+    toast((o && o.merged ? 'Merged into your map' : 'Mind map ready') + ' \u00B7 ' + n + ' node' + (n === 1 ? '' : 's'));
+  }
+
+  /* ---------------- form: credits, depth note, combine ---------------- */
+  var prevLow = false;
+  function credits(d, w) {
+    var det = $('#creditDetails'), txt = $('#creditSumText'); if (!det) return;
+    txt.textContent = d === 0 ? 'No credits left today' : d + ' left today';
+    var low = d <= 1 || w <= 2;
+    det.classList.toggle('low', low);
+    if (low && !prevLow) det.open = true;
+    prevLow = low;
+  }
+  var DEPTH_NOTE = { quick: 'A fast overview of the main ideas.', deep: 'More branches and sub-points for thorough study.' };
+  function depthNote() {
+    var a = $('.depth-chip.active'); $('#depthNote').textContent = DEPTH_NOTE[a ? a.dataset.depth : 'deep'] || '';
+  }
+  $$('.depth-chip').forEach(function (c) { c.addEventListener('click', function () { setTimeout(depthNote, 0); }); });
+  depthNote();
+  window.addEventListener('DOMContentLoaded', function () { setTimeout(depthNote, 0); });
+
+  /* ---------------- hooks called from app.js ---------------- */
+  var TMM = {
+    viewData: viewData,
+    beforeDraw: function () { return { vb: svg.getAttribute('viewBox') }; },
+    afterDraw: function (pre) {
+      var key = studyModeActive ? 'S' + studyModeBranchIndex : 'F';
+      var doFit = forceFit || lastKey !== key || !pre || !pre.vb || !viewer.classList.contains('active');
+      forceFit = false; lastKey = key;
+      if (doFit) fit(); else { svg.setAttribute('viewBox', pre.vb); matchAspect(); }
+      decorate(); refreshSearch(); buildMini(); updateMini(); histNote(); syncTools();
+    },
+    prepareShow: function () {
+      forceFit = true; histReset(); S.q = ''; $('#searchInput').value = ''; $('#searchRow').hidden = true; $('#searchToggle').setAttribute('aria-expanded', 'false');
+      $('#combineToggle').hidden = false;
+    },
+    panelSync: function (path) {
+      var b = $('#nodeToggleBtn'), info = safeNode(path);
+      var ok = info && info.node && path.length >= 1 && path.length <= 2 && (info.node.children || []).length;
+      b.style.display = ok ? 'inline-flex' : 'none';
+      if (ok) b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="' + (info.node._c ? 'M12 5v14M5 12h14' : 'M5 12h14') + '"/></svg> ' + (info.node._c ? 'Expand branch' : 'Collapse branch');
+    },
+    genStart: genStart, celebrate: celebrate, credits: credits,
+    exportBounds: function () { var b = contentBounds(); if (!b) return null; var p = 40; return { x: b.x - p, y: b.y - p, w: b.w + p * 2, h: b.h + p * 2 }; },
+    cleanClone: function (c) {
+      $$('.tmm-deco', c).forEach(function (n) { n.remove(); });
+      $$('.tmm-dim,.tmm-hit,.tmm-cur', c).forEach(function (n) { n.classList.remove('tmm-dim', 'tmm-hit', 'tmm-cur'); });
+      c.classList.remove('tmm-pop');
+    }
+  };
+  window.TMM = TMM;
+
+  /* a map handed over from /save or /preset was drawn before this script existed: redo it now */
+  renderCredits();
+  if (typeof currentMapData !== 'undefined' && currentMapData) {
+    TMM.prepareShow(); redrawCurrent();
+  }
+  syncTools();
+})();
 </script>
 
 <script>
