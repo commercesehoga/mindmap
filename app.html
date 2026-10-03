@@ -33,6 +33,10 @@
 <script>
 (function(){try{var t=localStorage.getItem('tmm_theme')||localStorage.getItem('theme')||localStorage.getItem('ts_theme')||'light';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
 </script>
+<script>
+/* old links: /preset -> /preset , /app?tab=mymaps -> /save */
+(function(){try{var t=new URLSearchParams(location.search).get('tab');if(t==='presets'){location.replace('/preset');}else if(t==='mymaps'){location.replace('/save');}}catch(e){}})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -978,6 +982,7 @@ footer{padding-bottom:calc(84px + env(safe-area-inset-bottom));}
   .topic-box .text-input{height:54px;font-size:16px;}
   .paste-area{min-height:170px;}
 }
+.dock a.tab-btn.dock-btn,.dock a.tab-btn.dock-btn:hover{text-decoration:none}
 </style>
 </head>
 <body>
@@ -1047,24 +1052,25 @@ footer{padding-bottom:calc(84px + env(safe-area-inset-bottom));}
 
 <main id="appSection">
   <nav class="dock" aria-label="Mind map sections">
-    <div class="dock-bar tab-bar" role="tablist">
+    <div class="dock-bar tab-bar">
       <span class="dock-indicator" aria-hidden="true"></span>
 
-      <button class="tab-btn dock-btn" data-tab="presets" role="tab" aria-selected="false" aria-label="Presets" data-label="Presets">
+      <a class="tab-btn dock-btn" href="/preset" data-page="presets" aria-label="Presets" data-label="Presets">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
-      </button>
+      </a>
 
-      <button class="tab-btn dock-btn active" data-tab="create" role="tab" aria-selected="true" aria-current="page" aria-label="Create a new mind map" data-label="Create">
+      <a class="tab-btn dock-btn active" href="/app" data-page="create" aria-label="Create a new mind map" data-label="Create" aria-current="page">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg>
-      </button>
+      </a>
 
-      <button class="tab-btn dock-btn" data-tab="mymaps" role="tab" aria-selected="false" aria-label="My Maps" data-label="My Maps">
+      <a class="tab-btn dock-btn" href="/save" data-page="mymaps" aria-label="My Maps" data-label="My Maps">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>
-      </button>
+      </a>
+
     </div>
   </nav>
 
-  <!-- ===== CREATE TAB ===== -->
+  <!-- ===== CREATE (make) — presets live on /preset, saved maps on /save ===== -->
   <section class="tab-panel active" id="panel-create">
 
     <!-- INPUT MODE DOCK -->
@@ -1314,21 +1320,6 @@ footer{padding-bottom:calc(84px + env(safe-area-inset-bottom));}
     </div>
   </section>
 
-  <!-- ===== PRESETS TAB ===== -->
-  <section class="tab-panel" id="panel-presets">
-    <p style="color:var(--muted); margin-bottom:18px; font-size:14px;">Ready-made mind maps for popular exams — open instantly, no AI credits used.</p>
-    <div class="preset-grid" id="presetGrid"></div>
-  </section>
-
-  <!-- ===== MY MAPS TAB ===== -->
-  <section class="tab-panel" id="panel-mymaps">
-    <div class="mymaps-head">
-      <input class="text-input" id="mapSearch" placeholder="Search saved maps..." style="max-width:280px;" aria-label="Search saved maps">
-      <span class="hint" id="savedCountHint">0 / 50 saved</span>
-    </div>
-    <div class="tag-chip-row" id="tagFilterRow"></div>
-    <div class="saved-list" id="savedList"></div>
-  </section>
 </main>
 
 <footer>
@@ -1392,7 +1383,7 @@ footer{padding-bottom:calc(84px + env(safe-area-inset-bottom));}
 <ul class="footer-links">
 <li><a href="/pricing">Pricing</a></li>
 <li><a href="/performance">Performance</a></li>
-<li><a href="/app?tab=presets">Presets</a></li>
+<li><a href="/preset">Presets</a></li>
 <li><a href="/faq">Mind Map FAQ</a></li>
 <li><a href="/new">Changelog</a></li>
 <li><a aria-label="Wondermayank FAQ" href="https://wondermayank.in/fqa">FAQ</a></li>
@@ -1506,8 +1497,6 @@ footer{padding-bottom:calc(84px + env(safe-area-inset-bottom));}
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 <!-- YouTube transcript client-side guard.
      The real work happens in /api/youtube-transcript.js (server-side).
@@ -1877,15 +1866,6 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 setTimeout(() => { const l = $('#loader'); if (l) l.classList.add('hide'); }, 1500);
 
-/* ---------- tabs ---------- */
-$$('.tab-btn').forEach(btn => btn.addEventListener('click', () => {
-  $$('.tab-btn').forEach(b => b.classList.remove('active'));
-  $$('.tab-panel').forEach(p => p.classList.remove('active'));
-  btn.classList.add('active');
-  $('#panel-' + btn.dataset.tab).classList.add('active');
-  if (btn.dataset.tab === 'mymaps') renderSavedList();
-}));
-
 /* ---------- credits (client-side primary gate; server has its own backstop) ---------- */
 function todayStr() { return new Date().toISOString().slice(0, 10); }
 
@@ -1971,18 +1951,73 @@ $('#combineToggle').addEventListener('click', () => {
 
 /* ---------- PDF handling ---------- */
 let pdfDoc = null;
-if (window.pdfjsLib) {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.js';
+
+/* Libraries are loaded on first use, from a list of CDNs, so one blocked CDN
+   (or a missing file) never silently kills PDF / photo input. */
+function loadScriptFrom(urls) {
+  return new Promise((resolve, reject) => {
+    let i = 0;
+    const next = () => {
+      if (i >= urls.length) { reject(new Error('LIB_LOAD_FAILED')); return; }
+      const s = document.createElement('script');
+      s.src = urls[i++];
+      s.async = true;
+      s.onload = () => resolve();
+      s.onerror = () => { s.remove(); next(); };
+      document.head.appendChild(s);
+    };
+    next();
+  });
 }
+const PDFJS_VER = '3.11.174'; // last pdf.js release that ships a classic (non-module) build
+let pdfjsReady = null;
+function ensurePdfJs() {
+  if (window.pdfjsLib && pdfjsLib.GlobalWorkerOptions.workerSrc) return Promise.resolve();
+  if (!pdfjsReady) {
+    pdfjsReady = (window.pdfjsLib ? Promise.resolve() : loadScriptFrom([
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/' + PDFJS_VER + '/pdf.min.js',
+      'https://cdn.jsdelivr.net/npm/pdfjs-dist@' + PDFJS_VER + '/build/pdf.min.js'
+    ])).then(() => {
+      // worker must come from the same version as the main script
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/' + PDFJS_VER + '/pdf.worker.min.js';
+    }).catch((e) => { pdfjsReady = null; throw e; });
+  }
+  return pdfjsReady;
+}
+let tesseractReady = null;
+function ensureTesseract() {
+  if (window.Tesseract) return Promise.resolve();
+  if (!tesseractReady) {
+    tesseractReady = loadScriptFrom([
+      'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js',
+      'https://unpkg.com/tesseract.js@5.1.1/dist/tesseract.min.js'
+    ]).catch((e) => { tesseractReady = null; throw e; });
+  }
+  return tesseractReady;
+}
+const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
+
 $('#pdfDrop').addEventListener('click', () => $('#pdfFile').click());
 $('#pdfFile').addEventListener('change', async (e) => {
   const file = e.target.files[0];
   if (!file) return;
+  pdfDoc = null;
+  $('#pdfPageRange').style.display = 'none';
+  $('#pdfCharHint').textContent = '';
+  if (file.type && file.type !== 'application/pdf' && !/\.pdf$/i.test(file.name)) {
+    $('#pdfStatus').textContent = 'That is not a PDF. Please choose a .pdf file.';
+    return;
+  }
+  if (file.size > MAX_UPLOAD_BYTES) {
+    $('#pdfStatus').textContent = 'This PDF is larger than 25 MB. Pick a smaller file or split it first.';
+    return;
+  }
   $('#pdfStatus').textContent = 'Reading PDF...';
   try {
+    await ensurePdfJs();
     const buf = await file.arrayBuffer();
     pdfDoc = await pdfjsLib.getDocument({ data: buf }).promise;
-    $('#pdfStatus').textContent = `${file.name} — ${pdfDoc.numPages} pages detected`;
+    $('#pdfStatus').textContent = `${file.name} \u2014 ${pdfDoc.numPages} pages detected`;
     $('#pdfPageRange').style.display = 'flex';
     $('#pdfFrom').value = 1;
     $('#pdfFrom').max = pdfDoc.numPages;
@@ -1990,7 +2025,15 @@ $('#pdfFile').addEventListener('change', async (e) => {
     $('#pdfTo').max = pdfDoc.numPages;
     updatePdfHint();
   } catch (err) {
-    $('#pdfStatus').textContent = 'Could not read this PDF. Try another file.';
+    pdfDoc = null;
+    if (err && err.message === 'LIB_LOAD_FAILED') {
+      $('#pdfStatus').textContent = 'The PDF reader could not be downloaded. Check your connection (or ad-blocker) and try again.';
+    } else if (err && err.name === 'PasswordException') {
+      $('#pdfStatus').textContent = 'This PDF is password-protected. Remove the password and upload it again.';
+    } else {
+      $('#pdfStatus').textContent = 'Could not read this PDF. Try another file.';
+    }
+    console.error('PDF read failed:', err);
   }
 });
 function updatePdfHint() {
@@ -2036,23 +2079,54 @@ $('#imageDrop').addEventListener('click', () => $('#imageFile').click());
 $('#imageFile').addEventListener('change', async (e) => {
   const file = e.target.files[0];
   if (!file) return;
-  ocrFile = file;
-  $('#imagePreviewWrap').style.display = 'block';
-  $('#imagePreview').src = URL.createObjectURL(file);
-  $('#ocrStatus').textContent = 'Tap "Scan Text" to read the photo.';
-  $('#ocrCharHint').textContent = '';
-  ocrExtractedText = '';
-});
-$('#ocrScanBtn').addEventListener('click', async () => {
-  if (!ocrFile) { toast('Choose a photo first.'); return; }
-  if (!window.Tesseract) {
-    toast('OCR library failed to load — check your connection and reload.');
+  if (file.type && file.type.indexOf('image/') !== 0) {
+    $('#ocrStatus').textContent = 'That is not an image. Choose a JPG, PNG or WebP photo.';
     return;
   }
-  $('#ocrStatus').textContent = 'Scanning text from image... this can take 10-30s.';
+  if (file.size > MAX_UPLOAD_BYTES) {
+    $('#ocrStatus').textContent = 'This image is larger than 25 MB. Choose a smaller photo.';
+    return;
+  }
+  ocrFile = file;
+  if ($('#imagePreview').dataset.url) { try { URL.revokeObjectURL($('#imagePreview').dataset.url); } catch (x) {} }
+  const url = URL.createObjectURL(file);
+  $('#imagePreview').dataset.url = url;
+  $('#imagePreview').src = url;
+  $('#imagePreviewWrap').style.display = 'block';
+  $('#ocrStatus').textContent = 'Tap "Scan Text" to read the photo.';
+  $('#ocrCharHint').textContent = '';
+  $('#ocrPreviewWrap').style.display = 'none';
+  ocrExtractedText = '';
+});
+
+/* Phone photos are often 4000px+; shrink them before OCR so it is fast and does not run out of memory. */
+async function prepareImageForOcr(file) {
+  const MAX_SIDE = 2000;
+  try {
+    const bmp = await (window.createImageBitmap ? createImageBitmap(file) : Promise.reject());
+    const scale = Math.min(1, MAX_SIDE / Math.max(bmp.width, bmp.height));
+    const w = Math.round(bmp.width * scale), h = Math.round(bmp.height * scale);
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h);
+    ctx.drawImage(bmp, 0, 0, w, h);
+    if (bmp.close) bmp.close();
+    const blob = await new Promise((res) => canvas.toBlob(res, 'image/jpeg', 0.92));
+    return blob || file;
+  } catch (e) {
+    return file;
+  }
+}
+$('#ocrScanBtn').addEventListener('click', async () => {
+  if (!ocrFile) { toast('Choose a photo first.'); return; }
+  $('#ocrStatus').textContent = 'Loading the text reader...';
   $('#ocrScanBtn').disabled = true;
   try {
-    const result = await Tesseract.recognize(ocrFile, 'eng', {
+    await ensureTesseract();
+    $('#ocrStatus').textContent = 'Scanning text from image... this can take 10-30s.';
+    const prepared = await prepareImageForOcr(ocrFile);
+    const result = await Tesseract.recognize(prepared, 'eng', {
       logger: (m) => {
         if (m.status === 'recognizing text') {
           $('#ocrStatus').textContent = `Scanning text... ${Math.round((m.progress || 0) * 100)}%`;
@@ -2069,7 +2143,12 @@ $('#ocrScanBtn').addEventListener('click', async () => {
       $('#ocrPreviewWrap').style.display = 'block';
     }
   } catch (err) {
-    $('#ocrStatus').textContent = 'OCR failed on this image. Try a clearer photo or better lighting.';
+    if (err && err.message === 'LIB_LOAD_FAILED') {
+      $('#ocrStatus').textContent = 'The text reader could not be downloaded. Check your connection (or ad-blocker) and try again.';
+    } else {
+      $('#ocrStatus').textContent = 'OCR failed on this image. Try a clearer photo or better lighting.';
+    }
+    console.error('OCR failed:', err);
   } finally {
     $('#ocrScanBtn').disabled = false;
   }
@@ -2422,108 +2501,24 @@ $('#saveTagConfirmBtn').addEventListener('click', () => {
   toast('Saved to My Maps.');
 });
 
-let activeTagFilter = null;
-function renderTagChips() {
-  const wrap = $('#tagFilterRow');
-  const counts = {};
-  loadSaved().forEach(m => { const t = m.tag || 'Untagged'; counts[t] = (counts[t] || 0) + 1; });
-  const tags = Object.keys(counts);
-  if (tags.length === 0) { wrap.innerHTML = ''; return; }
-  wrap.innerHTML = '<button class="tag-chip' + (activeTagFilter === null ? ' active' : '') + '" data-tag="">All (' + loadSaved().length + ')</button>' +
-    tags.map(t => `<button class="tag-chip${activeTagFilter === t ? ' active' : ''}" data-tag="${escapeHtml(t)}">${escapeHtml(t)} (${counts[t]})</button>`).join('');
-  $$('.tag-chip').forEach(chip => chip.addEventListener('click', () => {
-    activeTagFilter = chip.dataset.tag || null;
-    renderSavedList($('#mapSearch').value);
-  }));
-}
-
-function renderSavedList(filter = '') {
-  renderTagChips();
-  const list = loadSaved().slice().reverse();
-  const wrap = $('#savedList');
-  $('#savedCountHint').textContent = `${loadSaved().length} / ${MAX_SAVED} saved`;
-  wrap.innerHTML = '';
-  let filtered = list.filter(m => m.title.toLowerCase().includes(filter.toLowerCase()));
-  if (activeTagFilter) {
-    filtered = filtered.filter(m => (m.tag || 'Untagged') === activeTagFilter);
-  }
-  if (filtered.length === 0) {
-    wrap.innerHTML = `<div class="empty-state">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 9h.01M15 9h.01M8 14s1.5 2 4 2 4-2 4-2"/></svg>
-      <p>No saved mind maps yet. Generate or open a preset, then tap Save.</p></div>`;
-    return;
-  }
-  filtered.forEach(m => {
-    const row = document.createElement('div');
-    row.className = 'saved-row';
-    row.innerHTML = `
-      <span class="dot" style="background:${m.source === 'preset' ? '#2F9E6B' : '#573AFC'}"></span>
-      <div class="meta"><strong>${escapeHtml(m.title)}</strong><span>${m.source === 'preset' ? 'Preset' : 'AI generated'}${m.tag ? ' · ' + escapeHtml(m.tag) : ''} · ${new Date(m.createdAt).toLocaleDateString()}</span></div>
-      <div class="row-actions">
-        <button class="openBtn" aria-label="Open"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></button>
-        <button class="delBtn" aria-label="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg></button>
-      </div>`;
-    row.querySelector('.openBtn').addEventListener('click', () => {
-      currentMapData = m.data;
-      currentMapMeta = { id: m.id, title: m.title, source: m.source, tag: m.tag || null, createdAt: m.createdAt };
-      $$('.tab-btn').forEach(b => b.classList.remove('active'));
-      $$('.tab-panel').forEach(p => p.classList.remove('active'));
-      document.querySelector('[data-tab="create"]').classList.add('active');
-      $('#panel-create').classList.add('active');
-      showViewer(m.data, m.title);
-    });
-    row.querySelector('.delBtn').addEventListener('click', () => {
-      const all = loadSaved().filter(x => x.id !== m.id);
-      writeSaved(all);
-      renderSavedList($('#mapSearch').value);
-    });
-    wrap.appendChild(row);
-  });
-}
-$('#mapSearch').addEventListener('input', (e) => renderSavedList(e.target.value));
-
 function escapeHtml(s) {
   return (s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
-/* ---------- presets ---------- */
-const presetIconColors = ['#573AFC', '#2F9E6B', '#2F8FE0', '#E0922F', '#D6487B'];
-async function loadPresets() {
+/* ---------- open a map handed over from /save or /preset ---------- */
+(function openHandedOverMap() {
+  let raw = null;
+  try { raw = sessionStorage.getItem('tmm_open'); sessionStorage.removeItem('tmm_open'); } catch (e) {}
+  if (!raw) return;
   try {
-    const res = await fetch('/presets/index.json');
-    const list = await res.json();
-    const grid = $('#presetGrid');
-    grid.innerHTML = '';
-    list.forEach((p, i) => {
-      const color = presetIconColors[i % presetIconColors.length];
-      const card = document.createElement('div');
-      card.className = 'preset-card';
-      card.innerHTML = `
-        <div class="preset-icon" style="background:${color}22;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2"><path d="M12 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg>
-        </div>
-        <h3 style="font-size:16px;">${escapeHtml(p.title)}</h3>
-        <p>${escapeHtml(p.description)}</p>
-        <button class="text-link">Open Preset <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3"><path d="M9 18l6-6-6-6"/></svg></button>`;
-      card.querySelector('.text-link').addEventListener('click', async () => {
-        const r = await fetch('/presets/' + p.file);
-        const data = await r.json();
-        currentMapData = data;
-        currentMapMeta = { id: 'p_' + p.file, title: data.title, source: 'preset', tag: null, createdAt: Date.now() };
-        $$('.tab-btn').forEach(b => b.classList.remove('active'));
-        $$('.tab-panel').forEach(pn => pn.classList.remove('active'));
-        document.querySelector('[data-tab="create"]').classList.add('active');
-        $('#panel-create').classList.add('active');
-        showViewer(data, data.title);
-        toast('Preset loaded — no credits used.');
-      });
-      grid.appendChild(card);
-    });
-  } catch (e) {
-    $('#presetGrid').innerHTML = '<p class="hint">Presets could not be loaded.</p>';
-  }
-}
-loadPresets();
+    const h = JSON.parse(raw);
+    if (!h || !h.data || !Array.isArray(h.data.branches)) return;
+    currentMapData = h.data;
+    currentMapMeta = h.meta || { id: 'm_' + Date.now(), title: h.data.title, source: 'ai', tag: null, createdAt: Date.now() };
+    showViewer(h.data, currentMapMeta.title || h.data.title);
+    if (h.toast) toast(h.toast);
+  } catch (e) {}
+})();
 
 /* ---------- copy as outline text ---------- */
 function flattenToOutline(data) {
@@ -3059,7 +3054,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
   function pick(){
     return btns.filter(function(b){ return b.classList.contains('active'); })[0]
-        || btns.filter(function(b){ return b.getAttribute('data-tab') === 'create'; })[0]
+        || btns.filter(function(b){ return b.getAttribute('data-page') === 'create'; })[0]
         || btns[0];
   }
   function x(b){ return b.offsetLeft + (b.offsetWidth - ind.offsetWidth) / 2; }
@@ -3068,7 +3063,6 @@ document.addEventListener('DOMContentLoaded', function(){
     var a = pick();
     btns.forEach(function(b){
       var on = (b === a);
-      b.setAttribute('aria-selected', on ? 'true' : 'false');
       b.setAttribute('aria-pressed', on ? 'true' : 'false');
       if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
     });
@@ -3204,15 +3198,14 @@ document.addEventListener('DOMContentLoaded', function(){
   syncTopic(); syncPaste();
 });
 </script>
-<!-- Deep links from the home page: /app?tab=create|presets|mymaps&mode=topic|text|pdf|image|youtube&depth=quick|deep -->
+<!-- Deep links from the home page: /app?mode=topic|text|pdf|image|youtube&depth=quick|deep  (tab=presets|mymaps is redirected in <head>) -->
 <script>
 document.addEventListener('DOMContentLoaded', function(){
   var p=new URLSearchParams(location.search);
   function click(sel){ var el=document.querySelector(sel); if(el) el.click(); }
-  var tab=p.get('tab'), mode=p.get('mode'), depth=p.get('depth');
-  if(tab) click('.tab-btn[data-tab="'+tab+'"]');
-  if(mode){ click('.tab-btn[data-tab="create"]'); click('.mode-chip[data-mode="'+mode+'"]'); }
-  if(depth){ click('.tab-btn[data-tab="create"]'); click('.depth-chip[data-depth="'+depth+'"]'); }
+  var mode=p.get('mode'), depth=p.get('depth');
+  if(mode) click('.mode-chip[data-mode="'+mode+'"]');
+  if(depth) click('.depth-chip[data-depth="'+depth+'"]');
 });
 </script>
 
