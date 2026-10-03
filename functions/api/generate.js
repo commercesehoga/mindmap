@@ -126,12 +126,15 @@ function clampMindMap(data, depthKey) {
 }
 
 /* ---------- Origin check: only the Mind Map site may call the API ---------- */
-function allowedOrigins(env) {
+function allowedOrigins(env, request) {
   const extra = String((env && env.ALLOWED_ORIGINS_EXTRA) || '').split(',').map((s) => s.trim()).filter(Boolean);
-  return [ALLOWED_ORIGIN, ...extra];
+  // Also trust the host that is serving this very deployment (custom domain, *.pages.dev, preview URLs).
+  let self = '';
+  try { self = new URL(request.url).origin; } catch (e) {}
+  return [ALLOWED_ORIGIN, ...(self ? [self] : []), ...extra];
 }
 function isAllowedRequest(request, env) {
-  const allowed = allowedOrigins(env);
+  const allowed = allowedOrigins(env, request);
   const origin = request.headers.get('Origin');
   if (origin) return allowed.includes(origin);
   // Same-origin GET requests may omit Origin — fall back to Fetch-Metadata / Referer.
@@ -146,7 +149,7 @@ function corsHeaders(request, env) {
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type'
   };
-  if (origin && allowedOrigins(env).includes(origin)) h['Access-Control-Allow-Origin'] = origin;
+  if (origin && allowedOrigins(env, request).includes(origin)) h['Access-Control-Allow-Origin'] = origin;
   return h;
 }
 function json(data, status, extraHeaders) {
