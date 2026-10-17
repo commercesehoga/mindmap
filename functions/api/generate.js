@@ -161,8 +161,8 @@ function json(data, status, extraHeaders) {
 
 /* ---------- Upstash Redis REST rate limiting (server backstop: 8/day, 30/week per IP) ---------- */
 function todayStr() { return new Date().toISOString().slice(0, 10); }
-function weekKey() {
-  const d = new Date();
+function weekKey(date) {
+  const d = date ? new Date(date) : new Date();
   const onejan = new Date(d.getFullYear(), 0, 1);
   const week = Math.ceil((((d - onejan) / 86400000) + onejan.getDay() + 1) / 7);
   return `${d.getFullYear()}-W${week}`;
@@ -173,7 +173,18 @@ function getClientKey(request) {
   const fwd = request.headers.get('X-Forwarded-For');
   return (fwd ? fwd.split(',')[0].trim() : '') || 'unknown';
 }
+// Seconds until the server limiter frees up again (next UTC midnight, or next week key).
+function secondsUntilReset(weekly) {
+  const now = new Date();
+  const next = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
+  if (weekly) {
+    const startKey = weekKey();
+    for (let i = 0; i < 8 && weekKey(next) === startKey; i++) next.setUTCDate(next.getUTCDate() + 1);
+  }
+  return Math.max(60, Math.min(Math.ceil((next - now) / 1000), 8 * 86400));
+}
 async function upstash(env, commands) {
+
   const res = await fetch(`${String(env.UPSTASH_REDIS_REST_URL).replace(/\/+$/, '')}/pipeline`, {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${env.UPSTASH_REDIS_REST_TOKEN}`, 'Content-Type': 'application/json' },
@@ -198,7 +209,7 @@ async function checkAndBumpRateLimit(request, env) {
     if (dayCount > SERVER_DAILY_LIMIT || weekCount > SERVER_WEEKLY_LIMIT) {
       // Rejected requests don't count against the visitor — undo the bump.
       upstash(env, [['DECR', dayKey], ['DECR', weekK]]).catch(() => {});
-      return { allowed: false };
+      return { allowed: false, retryAfterSec: secondsUntilReset(weekCount > SERVER_WEEKLY_LIMIT) };
     }
     return { allowed: true };
   } catch (e) {
@@ -209,8 +220,22 @@ async function checkAndBumpRateLimit(request, env) {
 }
 
 /* ---------- Groq call helper (used by both full-map and single-branch modes) ---------- */
+// Groq says how long until the token budget frees up (Retry-After header, or "try again in 12m3.5s").
+function parseRetryAfterSec(res, errText) {
+  const h = Number(res.headers && res.headers.get && res.headers.get('retry-after'));
+  if (h > 0) return Math.ceil(h);
+  const m = /try again in\s+(?:(\d+)h)?\s*(?:(\d+)m)?\s*(?:(\d+(?:\.\d+)?)s)?/i.exec(errText || '');
+  if (m && (m[1] || m[2] || m[3])) return Math.ceil((+m[1] || 0) * 3600 + (+m[2] || 0) * 60 + (+m[3] || 0));
+  return 0;
+}
+function isTokenLimit(status, errText) {
+  return status === 429 || status === 413 || /rate_limit|tokens per|quota|exceeded your/i.test(errText || '');
+}
+
 async function callGroq(apiKey, systemPrompt, userPrompt) {
+  let limitHit = false, retryAfter = 0, otherFault = false;
   for (const model of GROQ_MODELS) {
+
     if (deadModels.has(model.id)) continue;
 
     let groqRes;
@@ -235,6 +260,7 @@ async function callGroq(apiKey, systemPrompt, userPrompt) {
       });
     } catch (netErr) {
       console.warn(`Groq network error on ${model.id}, trying next model:`, netErr.message);
+      otherFault = true;
       continue;
     }
 
@@ -247,7 +273,14 @@ async function callGroq(apiKey, systemPrompt, userPrompt) {
     console.error(`Groq error on ${model.id}:`, groqRes.status, errText);
 
     // Bad/forbidden key fails on every model — no point falling through.
-    if (groqRes.status === 401 || groqRes.status === 403) break;
+    if (groqRes.status === 401 || groqRes.status === 403) { otherFault = true; break; }
+
+    if (isTokenLimit(groqRes.status, errText)) {
+      limitHit = true;
+      retryAfter = Math.max(retryAfter, parseRetryAfterSec(groqRes, errText));
+    } else if (groqRes.status !== 404) {
+      otherFault = true;
+    }
 
     // Model closed / decommissioned → never try it again on this instance.
     if (groqRes.status === 404 || /decommission|deprecat|does not exist|not found/i.test(errText)) {
@@ -255,10 +288,17 @@ async function callGroq(apiKey, systemPrompt, userPrompt) {
     }
     // Any other failure (429, 5xx, json_validate_failed 400) → just move on to the next model.
   }
+  // Every model refused because the token budget is used up (and nothing actually broke) → Tiny must charge, not repair.
+  if (limitHit && !otherFault) {
+    const e = new Error('AI tokens exhausted.');
+    e.retryAfterSec = Math.min(Math.max(retryAfter || 900, 60), 86400);
+    throw e;
+  }
   throw new Error('AI provider error.');
 }
 
-async function getJsonFromGroq(apiKey, systemPrompt, userPrompt) {
+async function getJsonFromGroq
+(apiKey, systemPrompt, userPrompt) {
   // First attempt
   let raw = await callGroq(apiKey, systemPrompt, userPrompt);
   try {
@@ -290,12 +330,14 @@ export async function onRequestPost({ request, env }) {
 
   const apiKey = env.GROQ_API_KEY;
   if (!apiKey) {
-    return json({ error: 'Tiny is not configured on the server.' }, 500, cors);
+    return json({ error: 'Tiny is not configured on the server.', code: 'REPAIR' }, 500, cors);
   }
 
   const rl = await checkAndBumpRateLimit(request, env);
   if (!rl.allowed) {
-    return json({ error: 'Rate limit reached for this server. Please try again later.' }, 429, cors);
+    const wait = rl.retryAfterSec || 3600;
+    return json({ error: 'Rate limit reached for this server. Please try again later.', code: 'CHARGING', retryAfterSec: wait }, 429,
+      { ...cors, 'Retry-After': String(wait) });
   }
 
   let body = {};
@@ -337,12 +379,12 @@ Output strictly valid JSON only.`;
 
       const parsed = await getJsonFromGroq(apiKey, branchSystemPrompt, branchUserPrompt);
       if (!parsed || !parsed.label) {
-        return json({ error: 'AI response did not match the expected branch shape.' }, 502, cors);
+        return json({ error: 'AI response did not match the expected branch shape.', code: 'REPAIR' }, 502, cors);
       }
       // Reuse clampMindMap's per-branch logic by wrapping
       const wrapped = clampMindMap({ title: 'x', branches: [parsed] }, depthKey);
       if (!wrapped) {
-        return json({ error: 'AI branch response could not be normalized.' }, 502, cors);
+        return json({ error: 'AI branch response could not be normalized.', code: 'REPAIR' }, 502, cors);
       }
       return json(wrapped.branches[0], 200, cors);
     }
@@ -356,15 +398,19 @@ Output strictly valid JSON only.`;
     const parsed = await getJsonFromGroq(apiKey, systemPrompt, userPrompt);
     const clamped = clampMindMap(parsed, depthKey);
     if (!clamped) {
-      return json({ error: 'AI response did not match the expected shape.' }, 502, cors);
+      return json({ error: 'AI response did not match the expected shape.', code: 'REPAIR' }, 502, cors);
     }
     return json(clamped, 200, cors);
   } catch (err) {
     console.error('Generate handler error:', err);
-    if (err.message === 'AI provider error.') {
-      return json({ error: 'AI provider error.' }, 502, cors);
+    if (err.message === 'AI tokens exhausted.') {
+      const wait = err.retryAfterSec || 900;
+      return json({ error: 'Tiny used up its tokens for now.', code: 'CHARGING', retryAfterSec: wait }, 429,
+        { ...cors, 'Retry-After': String(wait) });
+    } else if (err.message === 'AI provider error.') {
+      return json({ error: 'AI provider error.', code: 'REPAIR' }, 502, cors);
     } else {
-      return json({ error: 'AI returned malformed JSON even after retry.' }, 502, cors);
+      return json({ error: 'AI returned malformed JSON even after retry.', code: 'REPAIR' }, 502, cors);
     }
   }
 }

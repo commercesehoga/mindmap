@@ -1605,6 +1605,10 @@ footer.wmf .wmf-legal{margin-right:0}
 .tn-img img{display:block;width:100%;height:auto}
 .tn-card.sleep .tn-img{background:none;overflow:visible}
 .tn-card.sleep .tn-img img{animation:tnBreath 3.6s ease-in-out infinite;transform-origin:50% 90%}
+.tn-card.repair .tn-img{background:none;overflow:visible;text-align:center}
+.tn-card.repair .tn-img img{width:auto;max-width:100%;max-height:230px;margin:0 auto;animation:tnTinker 2.8s ease-in-out infinite;transform-origin:50% 90%}
+@keyframes tnTinker{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-2px) rotate(-1.2deg)}75%{transform:translateY(0) rotate(1.2deg)}}
+.tn-pop.repair .tn-img img{max-height:170px}
 @keyframes tnBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}
 .tn-tag{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:var(--radius-pill);font-size:11.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--primary);background:var(--primary-soft)}
 .tn-tag i{width:7px;height:7px;border-radius:50%;background:var(--primary);animation:tnBlink 1.2s ease-in-out infinite}
@@ -1631,9 +1635,9 @@ footer.wmf .wmf-legal{margin-right:0}
 
 </style>
 <script id="tsai-tiny">
-/* TINY states: window.tinyUI.sleep(title, message, retryFn)  /  tinyUI.charge(hostEl, resetAtMs, reasonText)  /  tinyUI.clear(hostEl) */
+/* TINY states: window.tinyUI.sleep(title, message, retryFn)  /  tinyUI.repair(title, message, retryFn)  /  tinyUI.charge(hostEl, resetAtMs, reasonText)  /  tinyUI.clear(hostEl) */
 (function(){
-  var IMG = { sleep: '/assets/tiny-sleep.webp', charge: '/assets/tiny-charging.webp' };
+  var IMG = { sleep: '/assets/tiny-sleep.webp', charge: '/assets/tiny-charging.webp', repair: '/assets/tiny-repair.webp' };
   var BOLT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg>';
   var popTimer = null, clockTimer = null;
   function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
@@ -1666,6 +1670,24 @@ footer.wmf .wmf-legal{margin-right:0}
     if (r) r.addEventListener('click', function(){ closePop(); try{ retry(); }catch(e){} });
     clearTimeout(popTimer); popTimer = setTimeout(closePop, 12000);
   }
+  function repair(title, msg, retry){
+    var old = document.getElementById('tnPop'); if (old && old.parentNode) old.parentNode.removeChild(old);
+    var p = document.createElement('div');
+    p.id = 'tnPop'; p.className = 'tn-card tn-pop repair'; p.setAttribute('role', 'alert');
+    p.innerHTML =
+      '<button class="tn-x" type="button" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>' +
+      '<div class="tn-img"><img src="' + IMG.repair + '" alt="Tiny is repairing itself" width="386" height="512" decoding="async"></div>' +
+      '<div><span class="tn-tag"><i></i>Tiny is under repair</span>' +
+      '<h3 class="tn-title">' + esc(title || 'Tiny is fixing a glitch') + '</h3>' +
+      '<p class="tn-text">' + esc(msg || 'Something broke on our side. Tiny is tightening a few screws. Please retry.') + '</p>' +
+      (retry ? '<div class="tn-actions"><button class="btn btn-primary btn-sm" type="button" data-tn="retry">Retry</button></div>' : '') +
+      '</div>';
+    document.body.appendChild(p);
+    p.querySelector('.tn-x').addEventListener('click', closePop);
+    var r = p.querySelector('[data-tn="retry"]');
+    if (r) r.addEventListener('click', function(){ closePop(); try{ retry(); }catch(e){} });
+    clearTimeout(popTimer); popTimer = setTimeout(closePop, 20000);
+  }
   function charge(host, resetAt, reason){
     if (!host) return;
     host.hidden = false; host.className = 'tn-card charge'; host.setAttribute('role', 'status');
@@ -1681,7 +1703,7 @@ footer.wmf .wmf-legal{margin-right:0}
     tick(); clearInterval(clockTimer); clockTimer = setInterval(tick, 30000);
   }
   function clear(host){ if (!host) return; clearInterval(clockTimer); host.hidden = true; host.innerHTML = ''; }
-  window.tinyUI = { sleep: sleep, charge: charge, clear: clear, closePop: closePop };
+  window.tinyUI = { sleep: sleep, repair: repair, charge: charge, clear: clear, closePop: closePop };
 })();
 </script>
 </head>
