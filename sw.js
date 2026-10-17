@@ -6,7 +6,7 @@
  * - /api/* is NEVER cached and never touched by this worker
  * Bump CACHE_VERSION whenever the shell list changes.
  */
-const CACHE_VERSION = 'tmm-v1';
+const CACHE_VERSION = 'tmm-v2';
 const SHELL_CACHE = CACHE_VERSION + '-shell';
 const ASSET_CACHE = CACHE_VERSION + '-assets';
 const PRESET_CACHE = CACHE_VERSION + '-presets';
@@ -14,6 +14,7 @@ const KNOWN_CACHES = [SHELL_CACHE, ASSET_CACHE, PRESET_CACHE];
 
 const SHELL_URLS = [
   '/', '/app', '/about', '/faq', '/new', '/pricing', '/performance', '/offline',
+  '/assets/tiny-wave.webp', '/assets/tiny-sleep.webp', '/assets/tiny-charging.webp',
   '/manifest.json', '/favicon.svg', '/favicon.ico', '/apple-touch-icon.png',
   '/icons/icon-192.png', '/icons/icon-512.png',
   '/icons/icon-maskable-192.png', '/icons/icon-maskable-512.png'

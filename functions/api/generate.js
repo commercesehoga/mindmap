@@ -290,7 +290,7 @@ export async function onRequestPost({ request, env }) {
 
   const apiKey = env.GROQ_API_KEY;
   if (!apiKey) {
-    return json({ error: 'Server is not configured with a Groq API key.' }, 500, cors);
+    return json({ error: 'Tiny is not configured on the server.' }, 500, cors);
   }
 
   const rl = await checkAndBumpRateLimit(request, env);

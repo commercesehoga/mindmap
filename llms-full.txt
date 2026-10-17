@@ -25,7 +25,7 @@ A student gives the site some study material and the AI, called Thunder, turns i
 
 ## The AI
 
-The AI is called Thunder. It is powered by Groq models with automatic fallback: if one model is busy, retired or returns an error, the next model in an ordered chain is tried. If the AI returns output that cannot be read, the request is retried once with stricter instructions. Thunder can make mistakes, so important facts should be checked against a textbook or official exam material.
+The AI is called Thunder. It is powered by the Tiny model with automatic fallback: if Tiny is busy, retired or returns an error, a backup is tried. If the AI returns output that cannot be read, the request is retried once with stricter instructions. Thunder can make mistakes, so important facts should be checked against a textbook or official exam material.
 
 ## Free presets
 
@@ -61,7 +61,7 @@ Free Forever. There is one plan with every feature included. No account, no card
 
 ## Privacy
 
-There is no account. Saved maps and usage counts stay in the browser. PDFs and photos are read in the browser; only the extracted text is sent to the AI service (Groq) to write the map, so users should avoid uploading private or confidential material. The site shows no ads.
+There is no account. Saved maps and usage counts stay in the browser. PDFs and photos are read in the browser; only the extracted text is sent to the AI service (the Tiny model) to write the map, so users should avoid uploading private or confidential material. The site shows no ads.
 
 ## Offline use
 
@@ -69,7 +69,7 @@ The site can be installed as an app. Pages and saved maps that were already open
 
 ## Who runs it
 
-Wondermayank, a solo student developer who has been building free educational tools since 2018. There is no company or team. Hosting is on Cloudflare Pages with Cloudflare Pages Functions, and the AI runs on Groq. Contact: contact@wondermayank.indevs.in, or https://wondermayank.in/contact
+Wondermayank, a solo student developer who has been building free educational tools since 2018. There is no company or team. Hosting is on Cloudflare Pages with Cloudflare Pages Functions, and the AI is powered by the Tiny model (Tiny Create, https://tiny.wondermayank.in). Contact: contact@wondermayank.indevs.in, or https://wondermayank.in/contact
 
 ## Pages
 

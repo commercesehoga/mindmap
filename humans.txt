@@ -10,4 +10,4 @@ Students who send bug reports and feedback.
 Name: ThunderStudy AI Mind Map (Thunder Mind Map)
 Last update: 2026/10/03
 Language: English (India)
-Stack: Cloudflare Pages, Cloudflare Pages Functions, Groq, plain HTML/CSS/JavaScript
+Stack: Cloudflare Pages, Cloudflare Pages Functions, Tiny model, plain HTML/CSS/JavaScript
