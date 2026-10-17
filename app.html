@@ -347,6 +347,18 @@ textarea.text-input{min-height:140px; resize:vertical;}
 .node-text{font-family:Inter,sans-serif; font-weight:700; fill:var(--ink);}
 .node-text.root{fill:#ffffff !important;}
 .node-rect.root{fill:#573AFC !important;}
+.node-rect.ns{stroke-width:0;}
+.map-node-group.tmm-hit .node-rect.ns{stroke-width:3px;}
+.node-rect.bub{filter:drop-shadow(0 3px 4px rgba(0,0,0,.18));}
+#styleSelect{appearance:auto;-webkit-appearance:menulist;cursor:pointer;font-weight:700;padding-right:10px;max-width:100%;}
+.auto-deck{margin:0 auto 20px;max-width:760px;padding:14px 16px;border-radius:20px;background:var(--surface);box-shadow:6px 6px 16px var(--clay-dark),-6px -6px 16px var(--clay-light);}
+.auto-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:8px;font-size:14px;}
+.auto-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--hairline);}
+.auto-item:first-of-type{border-top:0;}
+.auto-item .ai-meta{flex:1;min-width:0;}
+.auto-item .ai-meta strong{display:block;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.auto-item .ai-meta span{font-size:12px;color:var(--muted);}
+.auto-item button{flex:0 0 auto;}
 .edge-path{fill:none; stroke-width:2px; opacity:.55;}
 
 /* viewer action toolbar */
@@ -1570,7 +1582,7 @@ footer.wmf .wmf-legal{margin-right:0}
 </div>
 </div>
 </header>
-<div class="mobile-menu" id="mobile-menu"><a href="/app" class="active" aria-current="page">Create a mind map</a><a href="/preset">Presets</a><a href="/save">My Maps</a><a href="/performance">Performance</a><a href="/pricing">Pricing</a><a href="/about">About</a><a href="https://thundertest.indevs.in">Mock Test</a></div>
+<div class="mobile-menu" id="mobile-menu"><a href="/app" class="active" aria-current="page">Create a mind map</a><a href="/preset">Presets</a><a href="/save">My Maps</a><a href="/performance">Performance</a><a href="/pricing">Pricing</a><a href="/status">Status</a><a href="/about">About</a><a href="https://thundertest.indevs.in">Mock Test</a></div>
 
 
 <main id="appSection">
@@ -1581,6 +1593,10 @@ footer.wmf .wmf-legal{margin-right:0}
   <section class="tab-panel active" id="panel-create">
 
     <!-- INPUT MODE DOCK -->
+    <div class="auto-deck" id="autoDeck" hidden>
+      <div class="auto-head"><strong>Recently autosaved</strong><span class="hint" style="margin:0">Last 5 &middot; tap Save to keep one permanently</span></div>
+      <div id="autoList"></div>
+    </div>
     <div class="mode-dock" id="modeChips" role="group" aria-label="Input mode">
       <button class="mode-chip active" data-mode="topic" aria-pressed="true" aria-label="Topic">
         <span class="mc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h6"/></svg></span><span class="mc-label">Topic</span>
@@ -1827,6 +1843,11 @@ footer.wmf .wmf-legal{margin-right:0}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
           Save
         </button>
+        <select class="btn btn-secondary btn-sm" id="styleSelect" aria-label="Map style" title="Map style">
+          <option value="clay">Style: Classic Clay</option>
+          <option value="bubbles">Style: Soft Bubbles</option>
+          <option value="tree">Style: Clean Tree</option>
+        </select>
         <button class="btn btn-secondary btn-sm" id="studyModeToggle">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
           Study Mode
@@ -1873,7 +1894,7 @@ footer.wmf .wmf-legal{margin-right:0}
 <a aria-label="Meet Tiny, the ThunderStudy AI model" class="wmf-mascot" href="https://tiny.wondermayank.in" rel="noopener" target="_blank"><img alt="Tiny waving hello" decoding="async" height="40" loading="lazy" src="/assets/tiny-wave.webp" width="35" style="width:35px;aspect-ratio:auto;object-fit:contain"><span><b>Powered by Tiny model</b><small>tiny.wondermayank.in</small></span></a>
 <div class="wmf-social"><div><div class="wmf-social-label">Wondermayank</div><div class="wmf-social-row"><a aria-label="Wondermayank on Instagram" class="wmf-social-btn" href="https://www.instagram.com/wondermayank" rel="noopener noreferrer" target="_blank" title="Instagram"><svg aria-hidden="true"><use href="#i-instagram"></use></svg></a><a aria-label="Wondermayank on YouTube" class="wmf-social-btn" href="https://www.youtube.com/@wondermayank" rel="noopener noreferrer" target="_blank" title="YouTube"><svg aria-hidden="true"><use href="#i-youtube"></use></svg></a><a aria-label="Wondermayank on X" class="wmf-social-btn" href="https://x.com/wondermayankx" rel="noopener noreferrer" target="_blank" title="X"><svg aria-hidden="true"><use href="#i-x"></use></svg></a><a aria-label="Wondermayank on Reddit" class="wmf-social-btn" href="https://www.reddit.com/user/wondermayankx" rel="noopener noreferrer" target="_blank" title="Reddit"><svg aria-hidden="true"><use href="#i-reddit"></use></svg></a><a aria-label="Wondermayank on Telegram" class="wmf-social-btn" href="https://t.me/wondermayank" rel="noopener noreferrer" target="_blank" title="Telegram"><svg aria-hidden="true"><use href="#i-telegram"></use></svg></a></div></div><div><div class="wmf-social-label">ThunderStudy</div><div class="wmf-social-row"><a aria-label="ThunderStudy on Instagram" class="wmf-social-btn" href="https://www.instagram.com/thunderstudyx" rel="noopener noreferrer" target="_blank" title="Instagram"><svg aria-hidden="true"><use href="#i-instagram"></use></svg></a><a aria-label="ThunderStudy on YouTube" class="wmf-social-btn" href="https://www.youtube.com/@thunderstudy_official" rel="noopener noreferrer" target="_blank" title="YouTube"><svg aria-hidden="true"><use href="#i-youtube"></use></svg></a><a aria-label="ThunderStudy on X" class="wmf-social-btn" href="https://x.com/thunderstudyx" rel="noopener noreferrer" target="_blank" title="X"><svg aria-hidden="true"><use href="#i-x"></use></svg></a><a aria-label="ThunderStudy on Reddit" class="wmf-social-btn" href="https://www.reddit.com/user/thunderstudyx" rel="noopener noreferrer" target="_blank" title="Reddit"><svg aria-hidden="true"><use href="#i-reddit"></use></svg></a><a aria-label="ThunderStudy on Telegram" class="wmf-social-btn" href="https://t.me/thunderstudy" rel="noopener noreferrer" target="_blank" title="Telegram"><svg aria-hidden="true"><use href="#i-telegram"></use></svg></a></div></div></div>
 </div>
-<nav aria-label="ThunderStudy"><h2 class="wmf-title">ThunderStudy</h2><ul class="wmf-links"><li><a href="https://thunderstudy.indevs.in">ThunderStudy</a></li><li><a href="https://thundertest.indevs.in">CBT Mock</a></li><li><a href="https://blog.thunderstudy.indevs.in">Blog</a></li><li><a href="https://ai.thunderstudy.indevs.in">AI</a></li><li><a href="/">Mind Map</a></li></ul></nav><nav aria-label="Support"><h2 class="wmf-title">Support</h2><ul class="wmf-links"><li><a href="/pricing">Pricing</a></li><li><a href="/performance">Performance</a></li><li><a href="/preset">Presets</a></li><li><a href="/faq">Mind Map FAQ</a></li><li><a href="/new">Changelog</a></li><li><a href="https://wondermayank.in/mail">Mail</a></li><li><a href="https://wondermayank.in/contact">Contact</a></li></ul></nav><nav aria-label="wondermayank"><h2 class="wmf-title">wondermayank</h2><ul class="wmf-links"><li><a href="https://make.wondermayank.in">Vibecoding</a></li><li><a href="https://project.wondermayank.in">Useful Projects</a></li><li><a href="https://wondermayank.in">Portfolio</a></li><li><a href="https://tiny.wondermayank.in">Tiny Create</a></li><li><a href="https://blog.wondermayank.indevs.in/">Blog</a></li></ul></nav>
+<nav aria-label="ThunderStudy"><h2 class="wmf-title">ThunderStudy</h2><ul class="wmf-links"><li><a href="https://thunderstudy.indevs.in">ThunderStudy</a></li><li><a href="https://thundertest.indevs.in">CBT Mock</a></li><li><a href="https://blog.thunderstudy.indevs.in">Blog</a></li><li><a href="https://ai.thunderstudy.indevs.in">AI</a></li><li><a href="/">Mind Map</a></li></ul></nav><nav aria-label="Support"><h2 class="wmf-title">Support</h2><ul class="wmf-links"><li><a href="/pricing">Pricing</a></li><li><a href="/performance">Performance</a></li><li><a href="/preset">Presets</a></li><li><a href="/faq">Mind Map FAQ</a></li><li><a href="/new">Changelog</a></li><li><a href="/status">Status</a></li><li><a href="https://wondermayank.in/mail">Mail</a></li><li><a href="https://wondermayank.in/contact">Contact</a></li></ul></nav><nav aria-label="wondermayank"><h2 class="wmf-title">wondermayank</h2><ul class="wmf-links"><li><a href="https://make.wondermayank.in">Vibecoding</a></li><li><a href="https://project.wondermayank.in">Useful Projects</a></li><li><a href="https://wondermayank.in">Portfolio</a></li><li><a href="https://tiny.wondermayank.in">Tiny Create</a></li><li><a href="https://blog.wondermayank.indevs.in/">Blog</a></li></ul></nav>
 </div>
 </div>
 <div class="wmf-bottom"><div class="wmf-wrap wmf-bottom-inner">
@@ -2069,7 +2090,8 @@ footer.wmf .wmf-legal{margin-right:0}
 <script>
 /* ===================== ThunderStudy AI — app.js ===================== */
 
-const MAX_SAVED = 50;
+const MAX_SAVED = 200;
+var mapStyle = (function(){ try { var v = localStorage.getItem('tmm_style'); return (v === 'bubbles' || v === 'tree') ? v : 'clay'; } catch (e) { return 'clay'; } })();
 const DAILY_LIMIT = 3;
 const WEEKLY_LIMIT = 12;
 const MAX_PDF_PAGES = 15;
@@ -2113,7 +2135,7 @@ function buildMindMapLayout(data) {
     var p1 = polarPoint(0, 0, R1, angle);
     var bW = Math.min(170, Math.max(90, (branch.label || '').length * 7 + 24));
     nodes.push({ x: p1.x, y: p1.y, w: bW, h: 40, label: truncateLabel(branch.label || '', 22), depth: 1, color: color, path: [bi] });
-    edges.push({ x1: 0, y1: 0, x2: p1.x, y2: p1.y, color: color });
+    edges.push({ x1: 0, y1: 0, x2: p1.x, y2: p1.y, color: color, depth: 1 });
 
     var children = branch.children || [];
     var cCount = children.length;
@@ -2124,7 +2146,7 @@ function buildMindMapLayout(data) {
         var p2 = polarPoint(0, 0, R2, cAngle);
         var cW = Math.min(160, Math.max(80, (child.label || '').length * 6.5 + 22));
         nodes.push({ x: p2.x, y: p2.y, w: cW, h: 36, label: truncateLabel(child.label || '', 20), depth: 2, color: color, path: [bi, ci] });
-        edges.push({ x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y, color: color });
+        edges.push({ x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y, color: color, depth: 2 });
         maxRUsed = Math.max(maxRUsed, R2);
 
         var grand = child.children || [];
@@ -2136,7 +2158,7 @@ function buildMindMapLayout(data) {
             var p3 = polarPoint(0, 0, R3, gAngle);
             var gW = Math.min(150, Math.max(70, (leaf.label || '').length * 6 + 20));
             nodes.push({ x: p3.x, y: p3.y, w: gW, h: 32, label: truncateLabel(leaf.label || '', 18), depth: 3, color: color, path: [bi, ci, gi] });
-            edges.push({ x1: p2.x, y1: p2.y, x2: p3.x, y2: p3.y, color: color });
+            edges.push({ x1: p2.x, y1: p2.y, x2: p3.x, y2: p3.y, color: color, depth: 3 });
             maxRUsed = Math.max(maxRUsed, R3);
           });
         }
@@ -2162,23 +2184,84 @@ function buildMindMapLayoutFiltered(data, visibleBranchIndex) {
   return layout;
 }
 
+function buildTreeLayout(data) {
+  var palette = ['#573AFC', '#2F9E6B', '#2F8FE0', '#E0922F', '#D6487B', '#4FB3B3', '#8B5CF6', '#EF6C53'];
+  var colX = [0, 275, 500, 715], hOf = [56, 40, 36, 32], lim = [26, 22, 20, 18], ROW = 40;
+  var nodes = [], edges = [], row = 0, maxD = 0;
+  function wOf(d, l) {
+    l = l || '';
+    if (d === 0) return Math.min(260, Math.max(120, (data.title || '').length * 9 + 40));
+    if (d === 1) return Math.min(170, Math.max(90, l.length * 7 + 24));
+    if (d === 2) return Math.min(160, Math.max(80, l.length * 6.5 + 22));
+    return Math.min(150, Math.max(70, l.length * 6 + 20));
+  }
+  function walk(item, d, path, color, parent) {
+    var kids = item.children || [];
+    var node = { x: colX[d], y: 0, w: wOf(d, item.label), h: hOf[d], label: truncateLabel(item.label || '', lim[d]), depth: d, color: color, path: path, parent: parent };
+    if (d === 0) node.isRoot = true;
+    var idx = nodes.length; nodes.push(node);
+    if (d > maxD) maxD = d;
+    if (kids.length && d < 3) {
+      var ys = kids.map(function (k, i) {
+        return walk(k, d + 1, path.concat(i), d === 0 ? palette[i % palette.length] : color, idx);
+      });
+      node.y = (ys[0] + ys[ys.length - 1]) / 2;
+    } else { node.y = row * ROW; row++; }
+    return node.y;
+  }
+  walk({ label: data.title || 'Mind Map', children: (data && data.branches) || [] }, 0, [], '#573AFC', null);
+  var mid = (Math.max(row, 1) - 1) * ROW / 2;
+  nodes.forEach(function (n) { n.y -= mid; });
+  nodes.forEach(function (n) {
+    if (n.parent === null) return;
+    var p = nodes[n.parent], x1 = p.x + p.w / 2, x2 = n.x - n.w / 2, m = (x1 + x2) / 2;
+    edges.push({ d: 'M' + x1 + ',' + p.y + ' H' + m + ' V' + n.y + ' H' + x2, color: n.color, depth: n.depth });
+  });
+  var minX = -nodes[0].w / 2 - 90, maxX = colX[maxD] + 100 + (maxD ? 80 : 0);
+  var w = Math.max(maxX - minX, 520), h = Math.max(Math.max(row, 1) * ROW + 180, 320);
+  return { nodes: nodes, edges: edges, vb: { x: minX, y: -h / 2, w: w, h: h } };
+}
+
 function drawMindMap(svg, g, data, opts) {
   opts = opts || {};
+  var st = (opts.style === 'tree' || opts.style === 'bubbles') ? opts.style : 'clay';
+  var tree = st === 'tree', bub = st === 'bubbles';
   while (g.firstChild) g.removeChild(g.firstChild);
-  var layout = opts.studyBranch !== undefined
-    ? buildMindMapLayoutFiltered(data, opts.studyBranch)
-    : buildMindMapLayout(data);
+  svg.setAttribute('data-style', st);
+  var useF = opts.studyBranch !== undefined && opts.studyBranch !== null;
+  var layout;
+  if (tree) {
+    var src = data;
+    if (useF) src = { title: data.title, branches: (data.branches || []).filter(function (b, i) { return i === opts.studyBranch; }) };
+    layout = buildTreeLayout(src);
+    if (useF) layout.nodes.forEach(function (n) { if (n.path && n.path.length > 0) n.path[0] = opts.studyBranch; });
+  } else {
+    layout = opts.studyBranch !== undefined
+      ? buildMindMapLayoutFiltered(data, opts.studyBranch)
+      : buildMindMapLayout(data);
+  }
 
   layout.edges.forEach(function (e) {
-    var mx = (e.x1 + e.x2) / 2, my = (e.y1 + e.y2) / 2;
-    var dx = e.y2 - e.y1, dy = -(e.x2 - e.x1);
-    var len = Math.sqrt(dx * dx + dy * dy) || 1;
-    var off = 18;
-    var cx = mx + (dx / len) * off, cy = my + (dy / len) * off;
     var path = svgEl('path');
-    path.setAttribute('d', 'M' + e.x1 + ',' + e.y1 + ' Q' + cx + ',' + cy + ' ' + e.x2 + ',' + e.y2);
+    if (e.d) {
+      path.setAttribute('d', e.d);
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke-linejoin', 'round');
+    } else {
+      var mx = (e.x1 + e.x2) / 2, my = (e.y1 + e.y2) / 2;
+      var dx = e.y2 - e.y1, dy = -(e.x2 - e.x1);
+      var len = Math.sqrt(dx * dx + dy * dy) || 1;
+      var off = 18;
+      var cx = mx + (dx / len) * off, cy = my + (dy / len) * off;
+      path.setAttribute('d', 'M' + e.x1 + ',' + e.y1 + ' Q' + cx + ',' + cy + ' ' + e.x2 + ',' + e.y2);
+    }
     path.setAttribute('class', 'edge-path');
     path.setAttribute('stroke', e.color);
+    if (bub) {
+      var sw = e.depth === 1 ? 6 : (e.depth === 2 ? 4 : 2.5);
+      path.setAttribute('stroke-width', sw); path.style.strokeWidth = sw + 'px';
+      path.setAttribute('stroke-linecap', 'round'); path.style.opacity = '0.4';
+    }
     g.appendChild(path);
   });
 
@@ -2186,24 +2269,51 @@ function drawMindMap(svg, g, data, opts) {
     var grp = svgEl('g');
     grp.setAttribute('class', 'map-node-group');
     if (n.path) grp.setAttribute('data-path', JSON.stringify(n.path));
+    var rx = n.isRoot ? 16 : 12, fill = n.isRoot ? n.color : '#ffffff', inlineF = false;
+    var tfill = n.isRoot ? '#ffffff' : (n.depth === 1 ? n.color : '#3c3c3c'), inlineT = false;
+    var anchor = 'middle', tx = n.x, cls = 'node-rect' + (n.isRoot ? ' root' : ''), bar = false;
+    if (bub) {
+      rx = n.isRoot ? 28 : (n.depth === 1 ? 18 : 14);
+      if (n.isRoot || n.depth === 1) cls += ' bub';
+      if (!n.isRoot) {
+        cls += ' ns'; inlineF = true;
+        if (n.depth === 1) { fill = n.color; tfill = '#ffffff'; inlineT = true; }
+        else { fill = n.color + '2E'; tfill = '#33333d'; }
+      }
+    } else if (tree && !n.isRoot) {
+      anchor = 'start';
+      if (n.depth === 1) { rx = 10; tx = n.x - n.w / 2 + 16; tfill = '#2a2a35'; bar = true; }
+      else { rx = n.h / 2; cls += ' ns'; fill = n.color + '22'; inlineF = true; tx = n.x - n.w / 2 + 12; tfill = '#2a2a35'; }
+    } else if (tree) { rx = 14; }
     var rect = svgEl('rect');
     rect.setAttribute('x', n.x - n.w / 2);
     rect.setAttribute('y', n.y - n.h / 2);
     rect.setAttribute('width', n.w);
     rect.setAttribute('height', n.h);
-    rect.setAttribute('rx', n.isRoot ? 16 : 12);
-    rect.setAttribute('class', 'node-rect' + (n.isRoot ? ' root' : ''));
+    rect.setAttribute('rx', rx);
+    rect.setAttribute('class', cls);
     rect.setAttribute('stroke', n.color);
-    rect.setAttribute('fill', n.isRoot ? n.color : '#ffffff');
+    if (cls.indexOf(' ns') > -1) rect.setAttribute('stroke-width', '0');
+    rect.setAttribute('fill', fill);
+    if (inlineF) rect.style.fill = fill;
     grp.appendChild(rect);
 
+    if (bar) {
+      var br = svgEl('rect');
+      br.setAttribute('x', n.x - n.w / 2); br.setAttribute('y', n.y - n.h / 2);
+      br.setAttribute('width', 6); br.setAttribute('height', n.h); br.setAttribute('rx', 3);
+      br.setAttribute('fill', n.color); br.setAttribute('class', 'node-bar');
+      grp.appendChild(br);
+    }
+
     var text = svgEl('text');
-    text.setAttribute('x', n.x);
+    text.setAttribute('x', tx);
     text.setAttribute('y', n.y + 5);
-    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('text-anchor', anchor);
     text.setAttribute('font-size', n.isRoot ? 15 : (n.depth === 1 ? 13 : 11.5));
     text.setAttribute('class', 'node-text' + (n.isRoot ? ' root' : ''));
-    text.setAttribute('fill', n.isRoot ? '#ffffff' : (n.depth === 1 ? n.color : '#3c3c3c'));
+    text.setAttribute('fill', tfill);
+    if (inlineT) text.style.fill = tfill;
     text.textContent = n.label;
     grp.appendChild(text);
 
@@ -2214,11 +2324,11 @@ function drawMindMap(svg, g, data, opts) {
     g.appendChild(grp);
   });
 
-  var half = layout.half;
-  var vb = (-half) + ' ' + (-half) + ' ' + (half * 2) + ' ' + (half * 2);
+  var vbo = layout.vb || { x: -layout.half, y: -layout.half, w: layout.half * 2, h: layout.half * 2 };
+  var vb = vbo.x + ' ' + vbo.y + ' ' + vbo.w + ' ' + vbo.h;
   svg.setAttribute('viewBox', vb);
   svg._initialVB = vb;
-  svg._vb = { x: -half, y: -half, w: half * 2, h: half * 2 };
+  svg._vb = { x: vbo.x, y: vbo.y, w: vbo.w, h: vbo.h };
 }
 
 function setupPanZoom(svg) {
@@ -2397,6 +2507,7 @@ function tinyCreditState(dLeft, wLeft, c) {
 }
 /* Tiny falls asleep when something goes wrong */
 function tinyErr(title, msg, retry) {
+  try { localStorage.setItem('tmm_tiny_err', JSON.stringify({ t: Date.now(), m: String(title || '').slice(0, 60) })); } catch (e) {}
   if (window.tinyUI) tinyUI.sleep(title, msg, retry); else toast(msg);
 }
 renderCredits();
@@ -2918,9 +3029,10 @@ function redrawCurrent() {
   const svg = $('#map-svg');
   const g = $('#map-g');
   const pre = window.TMM ? TMM.beforeDraw() : null;
-  drawMindMap(svg, g, window.TMM ? TMM.viewData(currentMapData) : currentMapData, studyModeActive ? { studyBranch: studyModeBranchIndex } : {});
+  drawMindMap(svg, g, window.TMM ? TMM.viewData(currentMapData) : currentMapData, Object.assign({ style: mapStyle }, studyModeActive ? { studyBranch: studyModeBranchIndex } : {}));
   attachNodeClickHandlers();
   if (window.TMM) TMM.afterDraw(pre);
+  if (typeof queueAuto === 'function') queueAuto();
 }
 
 function attachNodeClickHandlers() {
@@ -2985,19 +3097,73 @@ $('#saveMapBtn').addEventListener('click', () => {
   $('#saveTagModal').classList.add('active');
 });
 $('#saveTagCancelBtn').addEventListener('click', () => $('#saveTagModal').classList.remove('active'));
+/* permanent save: never removed automatically; same id updates in place */
+function savePermanent(rec) {
+  const list = loadSaved();
+  const i = list.findIndex(x => x.id === rec.id);
+  if (i >= 0) list[i] = Object.assign({}, list[i], rec);
+  else {
+    if (list.length >= MAX_SAVED) { toast('My Maps is full (' + MAX_SAVED + '). Delete one to save more.'); return false; }
+    list.push(rec);
+  }
+  try { writeSaved(list); } catch (e) { toast('Could not save - browser storage is full or blocked.'); return false; }
+  return true;
+}
 $('#saveTagConfirmBtn').addEventListener('click', () => {
   const tag = $('#saveTagSelect').value || null;
-  let list = loadSaved();
-  if (list.length >= MAX_SAVED) {
-    list.shift();
-    toast('Saved 50 reached — oldest map removed to make room.');
-  }
-  list.push({ id: currentMapMeta.id, title: currentMapMeta.title, data: currentMapData, source: currentMapMeta.source, tag: tag, createdAt: Date.now() });
-  writeSaved(list);
   if (currentMapMeta) currentMapMeta.tag = tag;
+  const ok = savePermanent({ id: currentMapMeta.id, title: currentMapMeta.title, data: currentMapData, source: currentMapMeta.source, tag: tag, style: mapStyle, createdAt: Date.now() });
   $('#saveTagModal').classList.remove('active');
-  toast('Saved to My Maps.');
+  if (ok) toast('Saved to My Maps. Saved maps stay until you delete them.');
 });
+
+/* style picker */
+function setStyle(v, silent) {
+  mapStyle = (v === 'bubbles' || v === 'tree') ? v : 'clay';
+  try { localStorage.setItem('tmm_style', mapStyle); } catch (e) {}
+  $('#styleSelect').value = mapStyle;
+  if (!silent && currentMapData) { if (window.TMM) TMM.prepareShow(); redrawCurrent(); }
+}
+$('#styleSelect').value = mapStyle;
+$('#styleSelect').addEventListener('change', e => setStyle(e.target.value));
+
+/* autosave: the last 5 maps you worked on, kept in this browser so a refresh never loses work */
+var MAX_AUTO = 5, autoTimer = null;
+function loadAuto() { try { return JSON.parse(localStorage.getItem('tmm_auto')) || []; } catch (e) { return []; } }
+function writeAuto(l) { try { localStorage.setItem('tmm_auto', JSON.stringify(l)); } catch (e) {} }
+function autoSaveNow() {
+  clearTimeout(autoTimer);
+  if (!currentMapData || !currentMapMeta) return;
+  const l = loadAuto().filter(x => x.id !== currentMapMeta.id);
+  l.unshift({ id: currentMapMeta.id, title: currentMapMeta.title || currentMapData.title, data: currentMapData, source: currentMapMeta.source || 'ai', tag: currentMapMeta.tag || null, style: mapStyle, createdAt: currentMapMeta.createdAt || Date.now(), savedAt: Date.now() });
+  writeAuto(l.slice(0, MAX_AUTO));
+  renderAutoDeck();
+}
+function queueAuto() { clearTimeout(autoTimer); autoTimer = setTimeout(autoSaveNow, 700); }
+window.addEventListener('pagehide', autoSaveNow);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') autoSaveNow(); });
+function renderAutoDeck() {
+  const l = loadAuto(), box = $('#autoDeck'), wrap = $('#autoList');
+  if (!box || !wrap) return;
+  box.hidden = !l.length; wrap.innerHTML = '';
+  l.forEach(a => {
+    const row = document.createElement('div'); row.className = 'auto-item';
+    row.innerHTML = '<div class="ai-meta"><strong>' + escapeHtml(a.title) + '</strong><span>' + new Date(a.savedAt || a.createdAt).toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + (a.tag ? ' \u00b7 ' + escapeHtml(a.tag) : '') + '</span></div>' +
+      '<button class="btn btn-secondary btn-sm" type="button" data-a="open">Open</button><button class="btn btn-primary btn-sm" type="button" data-a="save">Save</button>';
+    row.querySelector('[data-a="open"]').addEventListener('click', () => {
+      currentMapData = a.data;
+      currentMapMeta = { id: a.id, title: a.title, source: a.source || 'ai', tag: a.tag || null, createdAt: a.createdAt };
+      studyModeActive = false; studyModeBranchIndex = null;
+      if (a.style) setStyle(a.style, true);
+      showViewer(a.data, a.title);
+    });
+    row.querySelector('[data-a="save"]').addEventListener('click', () => {
+      if (savePermanent({ id: a.id, title: a.title, data: a.data, source: a.source || 'ai', tag: a.tag || null, style: a.style || 'clay', createdAt: a.createdAt || Date.now() })) toast('Saved to My Maps. Saved maps stay until you delete them.');
+    });
+    wrap.appendChild(row);
+  });
+}
+renderAutoDeck();
 
 function escapeHtml(s) {
   return (s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -3013,6 +3179,7 @@ function escapeHtml(s) {
     if (!h || !h.data || !Array.isArray(h.data.branches)) return;
     currentMapData = h.data;
     currentMapMeta = h.meta || { id: 'm_' + Date.now(), title: h.data.title, source: 'ai', tag: null, createdAt: Date.now() };
+    if (currentMapMeta.style) setStyle(currentMapMeta.style, true);
     showViewer(h.data, currentMapMeta.title || h.data.title);
     if (h.toast) toast(h.toast);
   } catch (e) {}
@@ -3055,7 +3222,7 @@ $('#copyOutlineBtn').addEventListener('click', async () => {
 /* ---------- download: HTML (with brand lock) ---------- */
 $('#downloadHtmlBtn').addEventListener('click', () => {
   if (!currentMapData) return;
-  const rendererSrc = [polarPoint, truncateLabel, svgEl, buildMindMapLayout, buildMindMapLayoutFiltered, drawMindMap, setupPanZoom, zoomBy, zoomResetSvg, verifyBrandLock]
+  const rendererSrc = [polarPoint, truncateLabel, svgEl, buildMindMapLayout, buildMindMapLayoutFiltered, buildTreeLayout, drawMindMap, setupPanZoom, zoomBy, zoomResetSvg, verifyBrandLock]
     .map(f => f.toString()).join('\n\n');
   const dataJson = JSON.stringify(currentMapData).replace(/</g, '\\u003c');
   const title = escapeHtml(currentMapData.title || 'Mind Map');
@@ -3101,6 +3268,7 @@ $('#downloadHtmlBtn').addEventListener('click', () => {
 </main>
 <script>
 var MAP_DATA = ${dataJson};
+var MAP_STYLE = ${JSON.stringify(mapStyle)};
 ${rendererSrc}
 function findNodeByPath(data, path){
   if(!path || path.length===0) return {label:data.title, detail:data.detail||''};
@@ -3122,7 +3290,7 @@ function boot(){
     document.getElementById('lock-fallback').style.display='block';
     return;
   }
-  drawMindMap(svg, g, MAP_DATA);
+  drawMindMap(svg, g, MAP_DATA, { style: MAP_STYLE });
   setupPanZoom(svg);
   document.getElementById('zoomIn').addEventListener('click', function(){ zoomBy(svg, 1.25); });
   document.getElementById('zoomOut').addEventListener('click', function(){ zoomBy(svg, 0.8); });

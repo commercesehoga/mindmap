@@ -13,7 +13,7 @@ const PRESET_CACHE = CACHE_VERSION + '-presets';
 const KNOWN_CACHES = [SHELL_CACHE, ASSET_CACHE, PRESET_CACHE];
 
 const SHELL_URLS = [
-  '/', '/app', '/about', '/faq', '/new', '/pricing', '/performance', '/offline',
+  '/', '/app', '/about', '/faq', '/new', '/status', '/pricing', '/performance', '/offline',
   '/assets/tiny-wave.webp', '/assets/tiny-sleep.webp', '/assets/tiny-charging.webp',
   '/manifest.json', '/favicon.svg', '/favicon.ico', '/apple-touch-icon.png',
   '/icons/icon-192.png', '/icons/icon-512.png',

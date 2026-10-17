@@ -1326,7 +1326,7 @@ footer.wmf .wmf-legal{margin-right:0}
 </div>
 </div>
 </header>
-<div class="mobile-menu" id="mobile-menu"><a href="/app">Create a mind map</a><a href="/preset">Presets</a><a href="/save" class="active" aria-current="page">My Maps</a><a href="/performance">Performance</a><a href="/pricing">Pricing</a><a href="/about">About</a><a href="https://thundertest.indevs.in">Mock Test</a></div>
+<div class="mobile-menu" id="mobile-menu"><a href="/app">Create a mind map</a><a href="/preset">Presets</a><a href="/save" class="active" aria-current="page">My Maps</a><a href="/performance">Performance</a><a href="/pricing">Pricing</a><a href="/status">Status</a><a href="/about">About</a><a href="https://thundertest.indevs.in">Mock Test</a></div>
 
 
 <main id="appSection">
@@ -1335,9 +1335,13 @@ footer.wmf .wmf-legal{margin-right:0}
 
   <!-- ===== MY MAPS ===== -->
   <section class="tab-panel active" id="panel-mymaps">
+    <div id="autoBox" hidden style="margin-bottom:22px;">
+      <p class="hint" style="margin:0 0 8px;">Autosaved &middot; last 5 (the oldest is replaced automatically). Tap the save icon to keep one permanently.</p>
+      <div class="saved-list" id="autoList"></div>
+    </div>
     <div class="mymaps-head">
       <input class="text-input" id="mapSearch" placeholder="Search saved maps..." style="max-width:280px;" aria-label="Search saved maps">
-      <span class="hint" id="savedCountHint">0 / 50 saved</span>
+      <span class="hint" id="savedCountHint">0 / 200 saved</span>
     </div>
     <div class="tag-chip-row" id="tagFilterRow"></div>
     <div class="saved-list" id="savedList"></div>
@@ -1362,7 +1366,7 @@ footer.wmf .wmf-legal{margin-right:0}
 <a aria-label="Meet Tiny, the ThunderStudy AI model" class="wmf-mascot" href="https://tiny.wondermayank.in" rel="noopener" target="_blank"><img alt="Tiny waving hello" decoding="async" height="40" loading="lazy" src="/assets/tiny-wave.webp" width="35" style="width:35px;aspect-ratio:auto;object-fit:contain"><span><b>Powered by Tiny model</b><small>tiny.wondermayank.in</small></span></a>
 <div class="wmf-social"><div><div class="wmf-social-label">Wondermayank</div><div class="wmf-social-row"><a aria-label="Wondermayank on Instagram" class="wmf-social-btn" href="https://www.instagram.com/wondermayank" rel="noopener noreferrer" target="_blank" title="Instagram"><svg aria-hidden="true"><use href="#i-instagram"></use></svg></a><a aria-label="Wondermayank on YouTube" class="wmf-social-btn" href="https://www.youtube.com/@wondermayank" rel="noopener noreferrer" target="_blank" title="YouTube"><svg aria-hidden="true"><use href="#i-youtube"></use></svg></a><a aria-label="Wondermayank on X" class="wmf-social-btn" href="https://x.com/wondermayankx" rel="noopener noreferrer" target="_blank" title="X"><svg aria-hidden="true"><use href="#i-x"></use></svg></a><a aria-label="Wondermayank on Reddit" class="wmf-social-btn" href="https://www.reddit.com/user/wondermayankx" rel="noopener noreferrer" target="_blank" title="Reddit"><svg aria-hidden="true"><use href="#i-reddit"></use></svg></a><a aria-label="Wondermayank on Telegram" class="wmf-social-btn" href="https://t.me/wondermayank" rel="noopener noreferrer" target="_blank" title="Telegram"><svg aria-hidden="true"><use href="#i-telegram"></use></svg></a></div></div><div><div class="wmf-social-label">ThunderStudy</div><div class="wmf-social-row"><a aria-label="ThunderStudy on Instagram" class="wmf-social-btn" href="https://www.instagram.com/thunderstudyx" rel="noopener noreferrer" target="_blank" title="Instagram"><svg aria-hidden="true"><use href="#i-instagram"></use></svg></a><a aria-label="ThunderStudy on YouTube" class="wmf-social-btn" href="https://www.youtube.com/@thunderstudy_official" rel="noopener noreferrer" target="_blank" title="YouTube"><svg aria-hidden="true"><use href="#i-youtube"></use></svg></a><a aria-label="ThunderStudy on X" class="wmf-social-btn" href="https://x.com/thunderstudyx" rel="noopener noreferrer" target="_blank" title="X"><svg aria-hidden="true"><use href="#i-x"></use></svg></a><a aria-label="ThunderStudy on Reddit" class="wmf-social-btn" href="https://www.reddit.com/user/thunderstudyx" rel="noopener noreferrer" target="_blank" title="Reddit"><svg aria-hidden="true"><use href="#i-reddit"></use></svg></a><a aria-label="ThunderStudy on Telegram" class="wmf-social-btn" href="https://t.me/thunderstudy" rel="noopener noreferrer" target="_blank" title="Telegram"><svg aria-hidden="true"><use href="#i-telegram"></use></svg></a></div></div></div>
 </div>
-<nav aria-label="ThunderStudy"><h2 class="wmf-title">ThunderStudy</h2><ul class="wmf-links"><li><a href="https://thunderstudy.indevs.in">ThunderStudy</a></li><li><a href="https://thundertest.indevs.in">CBT Mock</a></li><li><a href="https://blog.thunderstudy.indevs.in">Blog</a></li><li><a href="https://ai.thunderstudy.indevs.in">AI</a></li><li><a href="/">Mind Map</a></li></ul></nav><nav aria-label="Support"><h2 class="wmf-title">Support</h2><ul class="wmf-links"><li><a href="/pricing">Pricing</a></li><li><a href="/performance">Performance</a></li><li><a href="/preset">Presets</a></li><li><a href="/faq">Mind Map FAQ</a></li><li><a href="/new">Changelog</a></li><li><a href="https://wondermayank.in/mail">Mail</a></li><li><a href="https://wondermayank.in/contact">Contact</a></li></ul></nav><nav aria-label="wondermayank"><h2 class="wmf-title">wondermayank</h2><ul class="wmf-links"><li><a href="https://make.wondermayank.in">Vibecoding</a></li><li><a href="https://project.wondermayank.in">Useful Projects</a></li><li><a href="https://wondermayank.in">Portfolio</a></li><li><a href="https://tiny.wondermayank.in">Tiny Create</a></li><li><a href="https://blog.wondermayank.indevs.in/">Blog</a></li></ul></nav>
+<nav aria-label="ThunderStudy"><h2 class="wmf-title">ThunderStudy</h2><ul class="wmf-links"><li><a href="https://thunderstudy.indevs.in">ThunderStudy</a></li><li><a href="https://thundertest.indevs.in">CBT Mock</a></li><li><a href="https://blog.thunderstudy.indevs.in">Blog</a></li><li><a href="https://ai.thunderstudy.indevs.in">AI</a></li><li><a href="/">Mind Map</a></li></ul></nav><nav aria-label="Support"><h2 class="wmf-title">Support</h2><ul class="wmf-links"><li><a href="/pricing">Pricing</a></li><li><a href="/performance">Performance</a></li><li><a href="/preset">Presets</a></li><li><a href="/faq">Mind Map FAQ</a></li><li><a href="/new">Changelog</a></li><li><a href="/status">Status</a></li><li><a href="https://wondermayank.in/mail">Mail</a></li><li><a href="https://wondermayank.in/contact">Contact</a></li></ul></nav><nav aria-label="wondermayank"><h2 class="wmf-title">wondermayank</h2><ul class="wmf-links"><li><a href="https://make.wondermayank.in">Vibecoding</a></li><li><a href="https://project.wondermayank.in">Useful Projects</a></li><li><a href="https://wondermayank.in">Portfolio</a></li><li><a href="https://tiny.wondermayank.in">Tiny Create</a></li><li><a href="https://blog.wondermayank.indevs.in/">Blog</a></li></ul></nav>
 </div>
 </div>
 <div class="wmf-bottom"><div class="wmf-wrap wmf-bottom-inner">
@@ -1501,7 +1505,7 @@ footer.wmf .wmf-legal{margin-right:0}
   });
   setTimeout(function(){ var l=$('#loader'); if(l) l.classList.add('hide'); }, 350);
 
-  var MAX_SAVED = 50;
+  var MAX_SAVED = 200;
   var activeTagFilter = null;
   function loadSaved(){ try{ return JSON.parse(localStorage.getItem('tmm_saved')) || []; }catch(e){ return []; } }
   function writeSaved(list){ localStorage.setItem('tmm_saved', JSON.stringify(list)); }
@@ -1537,17 +1541,46 @@ footer.wmf .wmf-legal{margin-right:0}
         '<button class="openBtn" aria-label="Open"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></button>'+
         '<button class="delBtn" aria-label="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg></button></div>';
       row.querySelector('.openBtn').addEventListener('click', function(){
-        try{ if(!m.data) throw new Error('empty'); openInApp({ data:m.data, meta:{ id:m.id, title:m.title, source:m.source, tag:m.tag||null, createdAt:m.createdAt } }); }
+        try{ if(!m.data) throw new Error('empty'); openInApp({ data:m.data, meta:{ id:m.id, title:m.title, source:m.source, tag:m.tag||null, style:m.style||null, createdAt:m.createdAt } }); }
         catch(e){ sleepMap(); }
       });
       row.querySelector('.delBtn').addEventListener('click', function(){
+        if(!window.confirm('Delete "'+(m.title||'this map')+'" permanently?')) return;
         try{ writeSaved(loadSaved().filter(function(x){ return x.id!==m.id; })); renderSavedList($('#mapSearch').value); }
         catch(e){ sleepMap(); }
       });
       wrap.appendChild(row);
     });
   }
+  function loadAuto(){ try{ return JSON.parse(localStorage.getItem('tmm_auto')) || []; }catch(e){ return []; } }
+  function renderAuto(){
+    var a=loadAuto(), box=$('#autoBox'), wrap=$('#autoList');
+    box.hidden=!a.length; wrap.innerHTML='';
+    a.forEach(function(m){
+      var row=document.createElement('div'); row.className='saved-row';
+      row.innerHTML='<span class="dot" style="background:#E0922F"></span>'+
+        '<div class="meta"><strong>'+escapeHtml(m.title)+'</strong><span>Autosaved \u00b7 '+new Date(m.savedAt||m.createdAt).toLocaleString()+(m.tag?' \u00b7 '+escapeHtml(m.tag):'')+'</span></div>'+
+        '<div class="row-actions">'+
+        '<button class="openBtn" aria-label="Open"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></button>'+
+        '<button class="keepBtn" aria-label="Save permanently" title="Save permanently"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg></button></div>';
+      row.querySelector('.openBtn').addEventListener('click', function(){
+        try{ if(!m.data) throw new Error('empty'); openInApp({ data:m.data, meta:{ id:m.id, title:m.title, source:m.source, tag:m.tag||null, style:m.style||null, createdAt:m.createdAt } }); }
+        catch(e){ sleepMap(); }
+      });
+      row.querySelector('.keepBtn').addEventListener('click', function(){
+        try{
+          var list=loadSaved(), i=list.findIndex(function(x){ return x.id===m.id; });
+          if(i<0 && list.length>=MAX_SAVED){ toast('My Maps is full ('+MAX_SAVED+'). Delete one to save more.'); return; }
+          var rec={ id:m.id, title:m.title, data:m.data, source:m.source||'ai', tag:m.tag||null, style:m.style||'clay', createdAt:m.createdAt||Date.now() };
+          if(i>=0) list[i]=rec; else list.push(rec);
+          writeSaved(list); renderSavedList($('#mapSearch').value); toast('Saved permanently.');
+        }catch(e){ toast('Could not save - browser storage is full or blocked.'); }
+      });
+      wrap.appendChild(row);
+    });
+  }
   $('#mapSearch').addEventListener('input', function(e){ renderSavedList(e.target.value); });
+  renderAuto();
   renderSavedList();
 })();
 </script>
