@@ -1481,10 +1481,6 @@ footer.wmf .wmf-legal{margin-right:0}
 .tn-img img{display:block;width:100%;height:auto}
 .tn-card.sleep .tn-img{background:none;overflow:visible}
 .tn-card.sleep .tn-img img{animation:tnBreath 3.6s ease-in-out infinite;transform-origin:50% 90%}
-.tn-card.repair .tn-img{background:none;overflow:visible;text-align:center}
-.tn-card.repair .tn-img img{width:auto;max-width:100%;max-height:230px;margin:0 auto;animation:tnTinker 2.8s ease-in-out infinite;transform-origin:50% 90%}
-@keyframes tnTinker{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-2px) rotate(-1.2deg)}75%{transform:translateY(0) rotate(1.2deg)}}
-.tn-pop.repair .tn-img img{max-height:170px}
 @keyframes tnBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}
 .tn-tag{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:var(--radius-pill);font-size:11.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--primary);background:var(--primary-soft)}
 .tn-tag i{width:7px;height:7px;border-radius:50%;background:var(--primary);animation:tnBlink 1.2s ease-in-out infinite}
@@ -1511,9 +1507,9 @@ footer.wmf .wmf-legal{margin-right:0}
 
 </style>
 <script id="tsai-tiny">
-/* TINY states: window.tinyUI.sleep(title, message, retryFn)  /  tinyUI.repair(title, message, retryFn)  /  tinyUI.charge(hostEl, resetAtMs, reasonText)  /  tinyUI.clear(hostEl) */
+/* TINY states: window.tinyUI.sleep(title, message, retryFn)  /  tinyUI.charge(hostEl, resetAtMs, reasonText)  /  tinyUI.clear(hostEl) */
 (function(){
-  var IMG = { sleep: '/assets/tiny-sleep.webp', charge: '/assets/tiny-charging.webp', repair: '/assets/tiny-repair.webp' };
+  var IMG = { sleep: '/assets/tiny-sleep.webp', charge: '/assets/tiny-charging.webp' };
   var BOLT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg>';
   var popTimer = null, clockTimer = null;
   function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
@@ -1546,24 +1542,6 @@ footer.wmf .wmf-legal{margin-right:0}
     if (r) r.addEventListener('click', function(){ closePop(); try{ retry(); }catch(e){} });
     clearTimeout(popTimer); popTimer = setTimeout(closePop, 12000);
   }
-  function repair(title, msg, retry){
-    var old = document.getElementById('tnPop'); if (old && old.parentNode) old.parentNode.removeChild(old);
-    var p = document.createElement('div');
-    p.id = 'tnPop'; p.className = 'tn-card tn-pop repair'; p.setAttribute('role', 'alert');
-    p.innerHTML =
-      '<button class="tn-x" type="button" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>' +
-      '<div class="tn-img"><img src="' + IMG.repair + '" alt="Tiny is repairing itself" width="386" height="512" decoding="async"></div>' +
-      '<div><span class="tn-tag"><i></i>Tiny is under repair</span>' +
-      '<h3 class="tn-title">' + esc(title || 'Tiny is fixing a glitch') + '</h3>' +
-      '<p class="tn-text">' + esc(msg || 'Something broke on our side. Tiny is tightening a few screws. Please retry.') + '</p>' +
-      (retry ? '<div class="tn-actions"><button class="btn btn-primary btn-sm" type="button" data-tn="retry">Retry</button></div>' : '') +
-      '</div>';
-    document.body.appendChild(p);
-    p.querySelector('.tn-x').addEventListener('click', closePop);
-    var r = p.querySelector('[data-tn="retry"]');
-    if (r) r.addEventListener('click', function(){ closePop(); try{ retry(); }catch(e){} });
-    clearTimeout(popTimer); popTimer = setTimeout(closePop, 20000);
-  }
   function charge(host, resetAt, reason){
     if (!host) return;
     host.hidden = false; host.className = 'tn-card charge'; host.setAttribute('role', 'status');
@@ -1579,7 +1557,7 @@ footer.wmf .wmf-legal{margin-right:0}
     tick(); clearInterval(clockTimer); clockTimer = setInterval(tick, 30000);
   }
   function clear(host){ if (!host) return; clearInterval(clockTimer); host.hidden = true; host.innerHTML = ''; }
-  window.tinyUI = { sleep: sleep, repair: repair, charge: charge, clear: clear, closePop: closePop };
+  window.tinyUI = { sleep: sleep, charge: charge, clear: clear, closePop: closePop };
 })();
 </script>
 </head>
@@ -2486,28 +2464,9 @@ function consumeCredit() {
   localStorage.setItem('tmm_credits', JSON.stringify(c));
   renderCredits();
 }
-/* Server says the token budget / server limit is used up → Tiny charges until this time (survives reloads) */
-function chargeUntil() {
-  let t = 0; try { t = Number(localStorage.getItem('tmm_charge_until')) || 0; } catch (e) {}
-  if (t && t <= Date.now()) { try { localStorage.removeItem('tmm_charge_until'); } catch (e) {} return 0; }
-  return t;
-}
-let chargeTimer = null;
-function startServerCharge(waitSec, reason) {
-  const ms = Math.min(Math.max(Number(waitSec) || 900, 30), 8 * 86400) * 1000;
-  try { localStorage.setItem('tmm_charge_until', String(Date.now() + ms)); localStorage.setItem('tmm_charge_reason', reason || ''); } catch (e) {}
-  scheduleChargeWake();
-  renderCredits();
-  const th = document.getElementById('tinyState'); if (th && !th.hidden) th.scrollIntoView({ behavior: 'smooth', block: 'center' });
-}
-function scheduleChargeWake() {
-  clearTimeout(chargeTimer);
-  const t = chargeUntil();
-  if (t) chargeTimer = setTimeout(() => { renderCredits(); scheduleChargeWake(); }, Math.min(t - Date.now() + 500, 2147000000));
-}
 function canGenerate() {
   const c = loadCredits();
-  return c.dailyUsed < DAILY_LIMIT && c.weeklyUsed < WEEKLY_LIMIT && !chargeUntil();
+  return c.dailyUsed < DAILY_LIMIT && c.weeklyUsed < WEEKLY_LIMIT;
 }
 function renderCredits() {
   const c = loadCredits();
@@ -2523,7 +2482,7 @@ function renderCredits() {
   const daysLeft = Math.ceil((c.weekStart + 7 * 24 * 60 * 60 * 1000 - Date.now()) / 86400000);
   $('#creditResetHint').textContent = `Daily credits reset in ~${hoursLeft}h. Weekly credits reset in ~${daysLeft}d.`;
   const genBtn = $('#generateBtn');
-  if (dLeft === 0 || wLeft === 0 || chargeUntil()) {
+  if (dLeft === 0 || wLeft === 0) {
     genBtn.disabled = true;
     genBtn.lastChild.textContent = ' Tiny is charging…';
   } else {
@@ -2536,12 +2495,6 @@ function renderCredits() {
 function tinyCreditState(dLeft, wLeft, c) {
   const host = document.getElementById('tinyState');
   if (!host || !window.tinyUI) return;
-  const srv = chargeUntil();
-  if (srv && dLeft > 0 && wLeft > 0) {
-    let why = ''; try { why = localStorage.getItem('tmm_charge_reason') || ''; } catch (e) {}
-    tinyUI.charge(host, srv, why || 'Tiny used up its tokens for now. It is plugged in and will be ready again soon.');
-    return;
-  }
   if (dLeft === 0 || wLeft === 0) {
     const weekReset = c.weekStart + 7 * 24 * 60 * 60 * 1000;
     const midnight = new Date().setHours(24, 0, 0, 0);
@@ -2553,29 +2506,11 @@ function tinyCreditState(dLeft, wLeft, c) {
   }
 }
 /* Tiny falls asleep when something goes wrong */
-/* Tiny under repair: a real fault on our side (server error, bad AI reply). Always offers Retry. */
-function tinyRepair(title, msg, retry) {
-  try { localStorage.setItem('tmm_tiny_err', JSON.stringify({ t: Date.now(), m: String(title || '').slice(0, 60) })); } catch (e) {}
-  if (window.tinyUI && tinyUI.repair) tinyUI.repair(title, msg, retry); else tinyErr(title, msg, retry);
-}
-/* One place that decides which Tiny to show for a failed request */
-function tinyFail(err, retry, what) {
-  const m = err && err.message;
-  if (m === 'CHARGING' || m === 'RATE_LIMIT') {
-    startServerCharge(err.retryAfterSec, 'Tiny used up its tokens for now. It is plugged in and will be ready again when the timer ends.');
-  } else if (!navigator.onLine || (err && err.name === 'TypeError' && /fetch|network|load failed/i.test(err.message || ''))) {
-    tinyErr('No connection', 'Tiny cannot reach the internet right now. Check your connection, then wake Tiny up.', retry);
-  } else {
-    tinyRepair('Tiny is under repair', (what || 'The map could not be made') + ' because of a glitch on our side. Tiny is fixing it. Tap Retry.', retry);
-  }
-}
 function tinyErr(title, msg, retry) {
-
   try { localStorage.setItem('tmm_tiny_err', JSON.stringify({ t: Date.now(), m: String(title || '').slice(0, 60) })); } catch (e) {}
   if (window.tinyUI) tinyUI.sleep(title, msg, retry); else toast(msg);
 }
 renderCredits();
-scheduleChargeWake();
 
 /* ---------- mode chips ---------- */
 let activeMode = 'topic';
@@ -2856,15 +2791,6 @@ let currentMapMeta = null;
 let studyModeActive = false;
 let studyModeBranchIndex = null;
 
-/* Turn a failed /api/generate response into a typed error: CHARGING (tokens/limit used up) or SERVER_ERROR (repair) */
-async function apiError(res) {
-  let body = null; try { body = await res.json(); } catch (e) {}
-  const e = new Error(res.status === 429 || (body && body.code === 'CHARGING') ? 'CHARGING' : 'SERVER_ERROR');
-  e.status = res.status;
-  e.retryAfterSec = Number(body && body.retryAfterSec) || Number(res.headers.get('Retry-After')) || 0;
-  return e;
-}
-
 async function generateFromAPI(payload, signal) {
   const res = await fetch(API_ENDPOINT, {
     method: 'POST',
@@ -2872,7 +2798,8 @@ async function generateFromAPI(payload, signal) {
     body: JSON.stringify(payload),
     signal: signal
   });
-  if (!res.ok) throw await apiError(res);
+  if (res.status === 429) throw new Error('RATE_LIMIT');
+  if (!res.ok) throw new Error('SERVER_ERROR');
   return res.json();
 }
 
@@ -2955,13 +2882,15 @@ $('#generateBtn').addEventListener('click', async () => {
   } catch (err) {
     if (err && err.name === 'AbortError') {
       toast('Generation cancelled.');
+    } else if (err.message === 'RATE_LIMIT') {
+      tinyErr('Tiny needs a nap', 'Tiny is busy right now. Give it a moment, then try again.', () => $('#generateBtn').click());
     } else {
-      tinyFail(err, () => $('#generateBtn').click(), 'The map could not be made');
+      tinyErr('Tiny fell asleep', 'The map could not be made this time. Wake Tiny up and try again.', () => $('#generateBtn').click());
     }
   } finally {
     if (gen) gen.end();
+    btn.disabled = !canGenerate();
     btn.lastChild.textContent = originalLabel;
-    renderCredits(); // sets the button + shows the charging Tiny if the server said so
   }
 });
 
@@ -3079,7 +3008,8 @@ $('#nodeRegenBranchBtn').addEventListener('click', async () => {
         branchContext: `Other branches already in this map: ${otherLabels}`
       })
     });
-    if (!res.ok) throw await apiError(res);
+    if (res.status === 429) throw new Error('RATE_LIMIT');
+    if (!res.ok) throw new Error('SERVER_ERROR');
     const newBranch = await res.json();
     if (!newBranch || !newBranch.label) throw new Error('SHAPE_ERROR');
     currentMapData.branches[branchIdx] = newBranch;
@@ -3088,7 +3018,7 @@ $('#nodeRegenBranchBtn').addEventListener('click', async () => {
     toast('Branch regenerated.');
     closeNodePanel();
   } catch (err) {
-    tinyFail(err, () => $('#nodeRegenBranchBtn').click(), 'That branch could not be regenerated');
+    tinyErr('Tiny fell asleep', err.message === 'RATE_LIMIT' ? 'Tiny is busy right now. Try again shortly.' : 'That branch could not be regenerated. Try again.');
   } finally {
     btn.disabled = false;
     btn.textContent = original;
