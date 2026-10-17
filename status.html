@@ -1500,6 +1500,11 @@ footer.wmf .wmf-legal{margin-right:0}
 .st-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-top:22px;color:var(--muted);font-size:13.5px}
 .st-btn{border:0;border-radius:99px;padding:10px 20px;font:700 14px inherit;font-family:inherit;cursor:pointer;background:var(--primary);color:var(--on-primary,#fff)}
 .st-btn:disabled{opacity:.6;cursor:default}
+.st-btn[hidden]{display:none}
+.st-btn:focus-visible{outline:2px solid var(--primary);outline-offset:3px}
+.st-chip.on[data-k="repair"]{background:#3E6FE0}
+.st-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.st-actions .st-btn{box-shadow:var(--e-sm)}
 </style>
 </head>
 <body>
@@ -1575,8 +1580,10 @@ footer.wmf .wmf-legal{margin-right:0}
           <span class="st-chip" data-k="awake">Awake</span>
           <span class="st-chip" data-k="sleeping">Sleeping</span>
           <span class="st-chip" data-k="charging">Charging</span>
+          <span class="st-chip" data-k="repair">Repair</span>
           <span class="st-chip" data-k="error">Error</span>
         </div>
+        <div class="st-actions"><button class="st-btn" id="tinyRetry" type="button" hidden>Retry check</button></div>
       </div>
     </article>
     </div>
@@ -1584,7 +1591,7 @@ footer.wmf .wmf-legal{margin-right:0}
       <span id="stChecked">Not checked yet.</span>
       <button class="st-btn" id="stRefresh" type="button">Check again</button>
     </div>
-    <p class="st-detail" style="margin-top:18px">Tiny is <strong>awake</strong> when everything works, <strong>sleeping</strong> when the model is not connected or a map just failed, <strong>charging</strong> when your free limit is used up on this device, and in <strong>error</strong> when the server cannot be reached. See <a href="/pricing">Pricing</a> for the limits, or the <a href="/new">changelog</a> for recent updates.</p>
+    <p class="st-detail" style="margin-top:18px">Tiny is <strong>awake</strong> when everything works, <strong>sleeping</strong> when a map just failed on this device, <strong>charging</strong> when your free limit is used up on this device, in <strong>repair</strong> when the Tiny model is not connected, and in <strong>error</strong> when the server cannot be reached. If Tiny is not awake, press <strong>Retry check</strong> to run every check again. See <a href="/pricing">Pricing</a> for the limits, or the <a href="/new">changelog</a> for recent updates.</p>
   </section>
 </div>
 </main>
@@ -1704,7 +1711,9 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
 </script>
 <script id="status-js">
 (function(){
-  var DAILY=3, WEEKLY=12, busy=false;
+  var DAILY=3, WEEKLY=12, ERR_TTL=36e5, RETRY_MS=[5000,10000,20000];
+  var IMG={wave:'/assets/tiny-wave.webp',sleep:'/assets/tiny-sleep.webp',charge:'/assets/tiny-charging.webp',repair:'/assets/tiny-repair.webp'};
+  var busy=false, autoTimer=null, autoN=0;
   function $(i){return document.getElementById(i)}
   function setCard(id,s,state,detail){var c=$(id);if(!c)return;c.setAttribute('data-s',s);c.querySelector('.st-state').textContent=state;c.querySelector('.st-detail').textContent=detail||''}
   function credits(){
@@ -1715,58 +1724,89 @@ if('serviceWorker' in navigator){window.addEventListener('load',function(){navig
     if(now-c.weekStart>7*864e5)w=0;
     return{d:d,w:w,wr:(c.weekStart||now)+7*864e5};
   }
+  /* the app counts a "day" in UTC, so the daily credits come back at the next UTC midnight */
+  function nextDay(){var n=new Date();return Date.UTC(n.getUTCFullYear(),n.getUTCMonth(),n.getUTCDate()+1)}
+  /* a failed map is remembered for 1 hour, then forgotten */
+  function lastErr(){var e=null;try{e=JSON.parse(localStorage.getItem('tmm_tiny_err'))}catch(x){}return e&&e.t&&Date.now()-e.t<ERR_TTL?e:null}
+  function clearErr(){try{localStorage.removeItem('tmm_tiny_err')}catch(x){}}
   function ago(t){var m=Math.round((Date.now()-t)/6e4);return m<1?'just now':m<60?m+' min ago':Math.round(m/60)+' h ago'}
   function tm(t){return new Date(t).toLocaleString([], {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}
-  async function getJson(url){
+  function wait(ms){return new Promise(function(r){setTimeout(r,ms)})}
+  async function once(url){
     var ctl=new AbortController(),to=setTimeout(function(){ctl.abort()},8000),t0=performance.now();
     try{var r=await fetch(url,{cache:'no-store',signal:ctl.signal});clearTimeout(to);var ms=Math.round(performance.now()-t0);
       var j=null;if(r.ok){try{j=await r.json()}catch(e){}}
       return{ok:r.ok,status:r.status,ms:ms,json:j}}
     catch(e){clearTimeout(to);return{ok:false,status:0,ms:0,err:navigator.onLine?'No response':'You are offline'}}
   }
-  async function run(){
-    if(busy)return;busy=true;$('stRefresh').disabled=true;
-    ['cWeb','cServer','cApi','cPre','cTiny'].forEach(function(i){$(i).setAttribute('data-s','load')});
-    var api=await getJson('/api/generate'), pre=await getJson('/presets/index.json');
-    var bad=0,warn=0;
-    /* 1 website */
-    var nav=performance.getEntriesByType&&performance.getEntriesByType('navigation')[0];
-    var load=nav&&nav.duration?Math.round(nav.duration)+' ms':'';
-    if(navigator.onLine){setCard('cWeb','ok','Website is live','This page loaded'+(load?' in '+load:'')+(navigator.serviceWorker&&navigator.serviceWorker.controller?' and the offline app is active.':'.'))}
-    else{warn++;setCard('cWeb','warn','You are offline','Showing the saved copy of the site. Reconnect to check live status.')}
-    /* 2 server */
-    if(api.ok){setCard('cServer','ok','Server is live','Answered in '+api.ms+' ms (HTTP '+api.status+').')}
-    else{bad++;setCard('cServer','bad','Server is not responding',api.err?api.err+'.':'The server returned HTTP '+api.status+'.')}
-    /* 3 api */
-    var conn=!!(api.ok&&api.json&&api.json.configured);
-    if(conn){setCard('cApi','ok','Tiny is connected','The mind map API answers and the Tiny model key is set.')}
-    else if(api.ok){warn++;setCard('cApi','warn','API is up, Tiny is not connected','The server runs, but the Tiny model key is missing, so new maps cannot be made.')}
-    else{bad++;setCard('cApi','bad','API is not reachable','Maps cannot be generated until the connection comes back.')}
-    /* 4 presets */
-    var n=Array.isArray(pre.json)?pre.json.length:0;
-    if(pre.ok&&n){setCard('cPre','ok',n+' presets ready','Ready-made maps open without using any credits.')}
-    else{bad++;setCard('cPre','bad','Presets could not load',pre.err?pre.err+'.':'The preset list returned HTTP '+pre.status+'.')}
-    /* 5 tiny */
-    var cr=credits(),lastErr=null;try{lastErr=JSON.parse(localStorage.getItem('tmm_tiny_err'))}catch(e){}
-    var k,state,detail,img='/assets/tiny-wave.webp',sev='ok';
-    if(!api.ok){k='error';sev='bad';state='Tiny is in error';detail='The server cannot be reached, so Tiny cannot work right now.';img='/assets/tiny-sleep.webp'}
-    else if(!conn){k='sleeping';sev='warn';state='Tiny is sleeping';detail='The Tiny model is not connected. It wakes up as soon as the key is set.';img='/assets/tiny-sleep.webp'}
-    else if(lastErr&&Date.now()-lastErr.t<36e5){k='sleeping';sev='warn';state='Tiny fell asleep';detail='A map failed '+ago(lastErr.t)+' on this device'+(lastErr.m?' ('+lastErr.m+')':'')+'. Try again, Tiny should wake up.';img='/assets/tiny-sleep.webp'}
-    else if(cr.d>=DAILY||cr.w>=WEEKLY){var weekly=cr.w>=WEEKLY;k='charging';sev='warn';state='Tiny is charging';detail='Your free limit is used up on this device. Tiny is back '+(weekly?'on '+tm(cr.wr):'tomorrow at midnight')+'.';img='/assets/tiny-charging.webp'}
-    else{k='awake';state='Tiny is awake';detail='Ready to make mind maps. You have '+Math.max(DAILY-cr.d,0)+' of '+DAILY+' free maps left today and '+Math.max(WEEKLY-cr.w,0)+' of '+WEEKLY+' this week.'}
-    setCard('cTiny',sev,state,detail);$('tinyImg').src=img;$('tinyImg').alt='Tiny, '+k;
-    [].forEach.call(document.querySelectorAll('.st-chip'),function(c){c.classList.toggle('on',c.getAttribute('data-k')===k)});
-    /* banner */
-    var b=$('stBanner');
-    if(bad){b.setAttribute('data-s','bad');$('stBannerTitle').textContent='Some systems have a problem';$('stBannerSub').textContent=bad+' of 5 checks failed. Try again in a minute.'}
-    else if(warn){b.setAttribute('data-s','warn');$('stBannerTitle').textContent='Mostly working';$('stBannerSub').textContent='Everything is reachable, but one part needs attention.'}
-    else{b.setAttribute('data-s','ok');$('stBannerTitle').textContent='All systems live';$('stBannerSub').textContent='Website, server, API, presets and Tiny are all working.'}
-    $('stChecked').textContent='Last checked '+new Date().toLocaleTimeString();
-    $('stRefresh').disabled=false;busy=false;
+  /* one quick retry when the request got no answer at all, so a single network blip is not shown as an outage */
+  async function getJson(url){
+    var r=await once(url);
+    if(!r.ok&&r.status===0&&navigator.onLine){await wait(1200);r=await once(url)}
+    return r;
   }
-  $('stRefresh').addEventListener('click',run);
+  async function run(){
+    if(busy)return;busy=true;clearTimeout(autoTimer);
+    var rb=$('tinyRetry');$('stRefresh').disabled=true;rb.disabled=true;
+    $('stChecked').textContent='Checking now\u2026';
+    ['cWeb','cServer','cApi','cPre','cTiny'].forEach(function(i){var c=$(i);c.setAttribute('data-s','load');c.querySelector('.st-state').textContent='Checking\u2026'});
+    var again=null;
+    try{
+      var res=await Promise.all([getJson('/api/generate'),getJson('/presets/index.json')]);
+      var api=res[0],pre=res[1],bad=0,warn=0;
+      /* 1 website */
+      var nav=performance.getEntriesByType&&performance.getEntriesByType('navigation')[0];
+      var load=nav&&nav.duration?Math.round(nav.duration)+' ms':'';
+      if(navigator.onLine){setCard('cWeb','ok','Website is live','This page loaded'+(load?' in '+load:'')+(navigator.serviceWorker&&navigator.serviceWorker.controller?' and the offline app is active.':'.'))}
+      else{warn++;setCard('cWeb','warn','You are offline','Showing the saved copy of the site. Reconnect to check live status.')}
+      /* 2 server */
+      if(api.ok){setCard('cServer','ok','Server is live','Answered in '+api.ms+' ms (HTTP '+api.status+').')}
+      else{bad++;setCard('cServer','bad','Server is not responding',api.err?api.err+'.':'The server returned HTTP '+api.status+'.')}
+      /* 3 api */
+      var conn=!!(api.ok&&api.json&&api.json.configured);
+      if(conn){setCard('cApi','ok','Tiny is connected','The mind map API answers and the Tiny model key is set.')}
+      else if(api.ok){warn++;setCard('cApi','warn','API is up, Tiny is not connected','The server runs, but the Tiny model key is missing, so new maps cannot be made.')}
+      else{bad++;setCard('cApi','bad','API is not reachable','Maps cannot be generated until the connection comes back.')}
+      /* 4 presets */
+      var n=Array.isArray(pre.json)?pre.json.length:0;
+      if(pre.ok&&n){setCard('cPre','ok',n+' presets ready','Ready-made maps open without using any credits.')}
+      else{bad++;setCard('cPre','bad','Presets could not load',pre.err?pre.err+'.':'The preset list returned HTTP '+pre.status+'.')}
+      /* 5 tiny. Order matters: a used-up free limit must win over an old failed-map flag, otherwise Tiny shows "sleeping" instead of "charging" */
+      var cr=credits(),le=lastErr(),limited=cr.d>=DAILY||cr.w>=WEEKLY;
+      var k,state,detail,img=IMG.wave,sev='ok',canRetry=false;
+      if(!api.ok){k='error';sev='bad';state='Tiny is in error';detail='The server cannot be reached, so Tiny cannot work right now. Tiny is waiting for repair, and this page keeps checking.';img=IMG.repair;canRetry=true}
+      else if(!conn){k='repair';sev='warn';state='Tiny is in repair';detail='The server runs, but the Tiny model is not connected yet. Tiny is back as soon as the model key is set.';img=IMG.repair;canRetry=true}
+      else if(limited){
+        var weekly=cr.w>=WEEKLY;
+        k='charging';sev='warn';state='Tiny is charging';
+        detail='Your free limit is used up on this device. Tiny is back '+(weekly?'on '+tm(cr.wr):'on '+tm(nextDay()))+'.';
+        img=IMG.charge;
+        if(le)clearErr(); /* the limit explains the failed map, so it must not turn into "sleeping" once credits return */
+      }
+      else if(le){k='sleeping';sev='warn';warn++;state='Tiny fell asleep';detail='A map failed '+ago(le.t)+' on this device'+(le.m?' ('+le.m+')':'')+'. Press Retry check to wake Tiny and check again.';img=IMG.sleep;canRetry=true}
+      else{k='awake';state='Tiny is awake';detail='Ready to make mind maps. You have '+Math.max(DAILY-cr.d,0)+' of '+DAILY+' free maps left today and '+Math.max(WEEKLY-cr.w,0)+' of '+WEEKLY+' this week.'}
+      setCard('cTiny',sev,state,detail);$('tinyImg').src=img;$('tinyImg').alt='Tiny, '+k;
+      [].forEach.call(document.querySelectorAll('.st-chip'),function(c){c.classList.toggle('on',c.getAttribute('data-k')===k)});
+      rb.hidden=!canRetry;
+      /* banner */
+      var b=$('stBanner');
+      if(bad){b.setAttribute('data-s','bad');$('stBannerTitle').textContent='Some systems have a problem';$('stBannerSub').textContent=bad+' of 5 checks failed. Checking again automatically.'}
+      else if(warn){b.setAttribute('data-s','warn');$('stBannerTitle').textContent='Mostly working';$('stBannerSub').textContent='Everything is reachable, but one part needs attention.'}
+      else{b.setAttribute('data-s','ok');$('stBannerTitle').textContent='All systems live';$('stBannerSub').textContent=k==='charging'?'Everything works. Tiny is only charging because your free maps are used up on this device.':'Website, server, API, presets and Tiny are all working.'}
+      /* automatic retries (5s, 10s, 20s) while the server or the model is down */
+      if(k==='error'||k==='repair'){if(autoN<RETRY_MS.length){again=RETRY_MS[autoN++]}}else{autoN=0}
+      $('stChecked').textContent='Last checked '+new Date().toLocaleTimeString()+(again?' \u00b7 checking again in '+Math.round(again/1000)+'s':'');
+    }catch(e){
+      $('stChecked').textContent='Could not finish the check. Press Check again.';
+    }finally{
+      $('stRefresh').disabled=false;rb.disabled=false;busy=false;
+      if(again)autoTimer=setTimeout(run,again);
+    }
+  }
+  $('stRefresh').addEventListener('click',function(){run()});
+  $('tinyRetry').addEventListener('click',function(){clearErr();autoN=0;run()});
   document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')run()});
-  window.addEventListener('online',run);window.addEventListener('offline',run);
+  window.addEventListener('online',function(){run()});window.addEventListener('offline',function(){run()});
   setInterval(function(){if(document.visibilityState==='visible')run()},30000);
   run();
 })();
